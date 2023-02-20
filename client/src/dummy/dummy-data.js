@@ -9,7 +9,7 @@ const DUMMY_DATA = [
       date_posted: '2020-02-08 09:30:26',
       date_expiring: '2020-03-08 09:30:26',
       days_left: '6 days',
-      views: '12',
+      views: '12 views',
       price: '$710',
       description:
         'This is the most goated apartment pls book. This is the most goated apartment pls book. This is the most goated apartment pls book.',
@@ -24,7 +24,7 @@ const DUMMY_DATA = [
         date_posted: '2020-02-08 09:30:26',
         date_expiring: '2020-03-08 09:30:26',
         days_left: '6 days',
-        views: '12',
+        views: '12 views',
         price: '$710',
         description:
           'This is the most goated apartment pls book. This is the most goated apartment pls book. This is the most goated apartment pls book.',
@@ -39,7 +39,7 @@ const DUMMY_DATA = [
         date_posted: '2020-02-08 09:30:26',
         date_expiring: '2020-03-08 09:30:26',
         days_left: '6 days',
-        views: '12',
+        views: '12 views',
         price: '$710',
         description:
           'This is the most goated apartment pls book. This is the most goated apartment pls book. This is the most goated apartment pls book.',
@@ -54,7 +54,7 @@ const DUMMY_DATA = [
         date_posted: '2020-02-08 09:30:26',
         date_expiring: '2020-03-08 09:30:26',
         days_left: '6 days',
-        views: '12',
+        views: '12 views',
         price: '$710',
         description:
           'This is the most goated apartment pls book. This is the most goated apartment pls book. This is the most goated apartment pls book.',
@@ -69,7 +69,7 @@ const DUMMY_DATA = [
         date_posted: '2020-02-08 09:30:26',
         date_expiring: '2020-03-08 09:30:26',
         days_left: '6 days',
-        views: '12',
+        views: '12 views',
         price: '$710',
         description:
           'This is the most goated apartment pls book. This is the most goated apartment pls book. This is the most goated apartment pls book.',
@@ -84,7 +84,7 @@ const DUMMY_DATA = [
         date_posted: '2020-02-08 09:30:26',
         date_expiring: '2020-03-08 09:30:26',
         days_left: '6 days',
-        views: '12',
+        views: '12 views',
         price: '$710',
         description:
           'This is the most goated apartment pls book. This is the most goated apartment pls book. This is the most goated apartment pls book.',
