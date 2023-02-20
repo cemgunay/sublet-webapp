@@ -8,7 +8,7 @@ function BottomNav() {
     <div className={classes.wrapper}>
       <footer className={classes.container}>
       <nav>
-        <Link to='/'>Explore</Link>
+        <Link to='/'>Explo</Link>
       </nav>
       <nav>
         <Link to='/signup'>Profile</Link>
