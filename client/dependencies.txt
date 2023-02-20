@@ -1,0 +1,5 @@
+npm install
+npm install react-router-dom
+npm install react-select
+npm install react-select-country-list
+npm install react-social-icons

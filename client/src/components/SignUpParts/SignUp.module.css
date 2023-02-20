@@ -1,0 +1,54 @@
+.container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1rem;
+    text-align: center;
+}
+
+.country{
+    width: 100%;
+    border-radius: 0.5rem 0.5rem 0 0; 
+    border-width: 1px;
+    box-sizing: border-box;
+    padding: 10px;
+}
+
+.phonenumber{
+    width: 100%;
+    border-radius: 0 0 0.5rem 0.5rem; 
+    border-width: 1px;
+    box-sizing: border-box;
+    padding: 10px;
+}
+
+.email{
+    width: 100%;
+    border-radius: 00.5rem; 
+    border-width: 1px;
+    box-sizing: border-box;
+    padding: 10px;
+}
+
+.text{
+    color: lightgray;
+    font-weight: 300;
+    font-size: x-small;
+    text-align: start;
+}
+
+.conditions{
+    color: black;
+    font-weight: 400;
+    font-size: medium;
+    text-align: start;
+}
+
+.button{
+    background-color: #61C0BF;
+    padding: 0.5rem; 
+    color: #ffffff; 
+    width: 100%; 
+    border-radius: 0.5rem;
+    border-width: 0;
+}
