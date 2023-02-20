@@ -1,22 +1,26 @@
 import React from 'react'
-import Card from '../UI/Card'
 
 import classes from './ListingItem.module.css'
 
 function ListingItem(props) {
   return (
-    <li className={classes.item}>
-        <Card>
-            <div className={classes.image}>
-                <img src={props.image} alt={props.title}/>
-            </div>
-            <div className={classes.content}>
-                <h3>{props.title}</h3>
-                <address>{props.address}</address>
-                <p>{props.description}</p>
-            </div>
-        </Card>
-    </li>
+    <div className={classes.container}>
+        <div className={classes.image}>
+            <img src={props.image} alt={props.title}/>
+        </div>
+        <div className={classes.content}>
+          <div className={classes.first}>
+            <h3>{props.title}</h3>
+            <p>{props.days_left}</p>
+          </div>
+          <address>{props.address}</address>
+          <p>{props.dates}</p>
+          <div className={classes.second}>
+            <h3 className={classes.price}>{props.price}</h3>
+            <p>{props.views}</p>
+          </div>
+        </div>
+    </div>
   )
 }
 
