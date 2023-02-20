@@ -1,6 +1,6 @@
 import React, {useState} from 'react'
-import First from '../../components/SignUpParts/First'
-import Second from '../../components/SignUpParts/Second'
+import First from './First'
+import Second from './Second'
 
 import classes from '../../pages/signup/SignUp.module.css'
 

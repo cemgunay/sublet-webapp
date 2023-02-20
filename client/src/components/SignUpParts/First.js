@@ -1,21 +1,15 @@
-import React, { useState, useMemo } from 'react'
+import React from 'react'
+//import {useState, useMemo} from 'react'
 
 //npm install react-select
 //npm install react-select-country-list
-import Select from 'react-select'
-import countryList from 'react-select-country-list'
+//import Select from 'react-select'
+//import countryList from 'react-select-country-list'
 import Country from './Country'
 
 import classes from './SignUp.module.css'
 
 function First() {
-
-  const [value, setValue] = useState('')
-  const options = useMemo(() => countryList().getData(), [])
-
-  const changeHandler = value => {
-    setValue(value)
-  }
 
   return (
     <div className={classes.container}>
@@ -34,4 +28,17 @@ function First() {
 
 export default First
 
+//Test Code For Country Select (DONT DELETE)
+
 //<Select options={options} value={value} onChange={changeHandler} />
+
+/*
+
+const [value, setValue] = useState('')
+  const options = useMemo(() => countryList().getData(), [])
+
+  const changeHandler = value => {
+    setValue(value)
+  }
+
+*/
