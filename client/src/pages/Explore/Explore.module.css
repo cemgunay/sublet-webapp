@@ -1,5 +1,11 @@
+/*
 .container {
     display: grid;
     grid-template-columns: repeat(1, minmax(0, 1fr));
     row-gap: 2rem;
+}
+*/
+
+.container{
+    bottom: 5rem;
 }
