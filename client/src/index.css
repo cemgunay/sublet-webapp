@@ -4,3 +4,11 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+:root{
+  --color-white: white;
+  --color-black: black;
+  --color-primary: #61C0BF;
+  --color-secondary-light: #9C9C9C;
+  --color-secondary-dark: #848484;
+}
