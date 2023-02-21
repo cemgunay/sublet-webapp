@@ -5,7 +5,7 @@ import classes from './ListingList.module.css'
 
 function ListingList(props) {
   return (
-    <ul className={classes.list}>
+    <div className={classes.container}>
       {props.listing.map(listing => (
         <ListingItem 
             key={listing.id} 
@@ -14,9 +14,13 @@ function ListingList(props) {
             title={listing.title}
             address={listing.address}
             description={listing.description} 
+            days_left={listing.days_left}
+            dates={listing.dates}
+            price={listing.price}
+            views={listing.views}
             />
         ))}  
-    </ul>
+    </div>
   )
 }
 
