@@ -6,7 +6,8 @@ import classes from './ListingList.module.css'
 function ListingList(props) {
   return (
     <div className={classes.container}>
-      {props.listing.map(listing => (
+      {props.listings
+      .map(listing => (
         <ListingItem 
             key={listing.id} 
             id={listing.id} 
@@ -25,3 +26,5 @@ function ListingList(props) {
 }
 
 export default ListingList
+
+//.sort( (a,b) => a.price > b.price ? 1 : -1)

@@ -1,3 +1,5 @@
+@import '../../index.css';
+
 .container{
     display: flex;
     flex-direction: column;
@@ -31,23 +33,22 @@
 }
 
 .text{
-    color: lightgray;
+    color: var(--color-secondary-light);
     font-weight: 300;
     font-size: x-small;
     text-align: start;
 }
 
 .conditions{
-    color: black;
     font-weight: 400;
     font-size: medium;
     text-align: start;
 }
 
 .button{
-    background-color: #61C0BF;
+    background-color: var(--color-primary);
     padding: 0.5rem; 
-    color: #ffffff; 
+    color: var(--color-white); 
     width: 100%; 
     border-radius: 0.5rem;
     border-width: 0;

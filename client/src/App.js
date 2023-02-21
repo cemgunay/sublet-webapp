@@ -8,15 +8,15 @@ import classes from './App.module.css'
 function App() {
   return (
   <>
-    <div className={classes.container}>
+    <main className={classes.container}>
       <Routes>
         <Route path="/" element={<Explore/>}/>
         <Route path="/signup" element={<SignUp/>}/>
       </Routes>
-    </div>
-    <div>
+    </main>
+    <footer>
       <BottomNav />
-    </div>
+    </footer>
   </>
   );
 }
