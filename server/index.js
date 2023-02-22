@@ -7,8 +7,11 @@ const helmet = require("helmet");
 require("dotenv").config();
 
 const authRoute = require('./routes/auth');
+const listingRoute = require('./routes/listings');
 
 // db
+mongoose.set('strictQuery', false);
+
 mongoose.connect(process.env.MONGO_URI, { 
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -22,6 +25,7 @@ app.use(morgan("common"));
 
 // routes
 app.use("/server/auth" , authRoute);
+app.use("/server/listings" , listingRoute);
 
 // port
 const port = process.env.PORT || 8080;
