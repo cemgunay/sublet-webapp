@@ -1,4 +1,5 @@
 import React, {useState} from 'react'
+import BottomNav from '../../components/BottomNav/BottomNav';
 import Form from '../../components/SignUpParts/Form'
 import Third from '../../components/SignUpParts/Third'
 
@@ -17,13 +18,18 @@ function SignUp() {
   }
 
   return (
-    <div>
+    <>
+    <section className={classes.wrapper}>
       <div className={classes.title}>Login or sign up</div>
       <div className={classes.container}>
         <div className={classes.welcome}>Welcome to subLet</div>
         {signUpForm()}
       </div>
-    </div>
+    </section>
+    <footer>
+      <BottomNav />
+    </footer>
+    </>
   )
 }
 

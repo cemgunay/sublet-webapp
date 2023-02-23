@@ -1,22 +1,35 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
+import BottomNav from '../../components/BottomNav/BottomNav';
 import ListingList from '../../components/Listings/ListingList';
-import dummydata from '../../dummy/dummy-data.json'
+import axios from 'axios';
 
 import classes from './Explore.module.css'
 
 function Explore() {
 
-  const [listings, setListings] = useState(dummydata)
+  const [listings, setListings] = useState([])
   //const [sort, setSort] = useState("ASC")
 
+  useEffect(() => {
+    axios.get("/dummy/dummy-data.json").then(response => {
+        console.log(response.data)
+        setListings(response.data)
+    }).catch(error => console.log(error));
+  }, []);
+
   return (
-    <section>
+    <>
+    <section className={classes.container}>
       <h1> All listings</h1>
       <p>{listings.length} listings</p>
-      <div className={classes.container}>
+      <div>
         <ListingList listings={listings}/>
       </div>
     </section>
+    <footer className={classes.footer}>
+      <BottomNav />
+    </footer>
+    </>
   )
 }
 

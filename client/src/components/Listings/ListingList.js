@@ -6,11 +6,12 @@ import classes from './ListingList.module.css'
 function ListingList(props) {
   return (
     <div className={classes.container}>
-      {props.listings
+      {props.listings.length && props.listings
       .map(listing => (
         <ListingItem 
-            key={listing.id} 
+            key={listing.id}
             id={listing.id} 
+            userid={listing.userid}
             image={listing.image}
             title={listing.title}
             address={listing.address}
@@ -19,8 +20,12 @@ function ListingList(props) {
             dates={listing.dates}
             price={listing.price}
             views={listing.views}
+            bedrooms={listing.bedrooms}
+            beds={listing.beds}
+            bathrooms={listing.bathrooms}
+            availabletoview={listing.availabletoview}
             />
-        ))}  
+        ))}
     </div>
   )
 }
