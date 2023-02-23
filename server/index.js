@@ -8,6 +8,7 @@ require("dotenv").config();
 
 const authRoute = require('./routes/auth');
 const listingRoute = require('./routes/listings');
+const userRoute = require('./routes/users');
 
 // db
 mongoose.set('strictQuery', false);
@@ -26,6 +27,7 @@ app.use(morgan("common"));
 // routes
 app.use("/server/auth" , authRoute);
 app.use("/server/listings" , listingRoute);
+app.use("/server/users" , userRoute);
 
 // port
 const port = process.env.PORT || 8080;

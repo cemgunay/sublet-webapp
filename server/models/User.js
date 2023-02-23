@@ -44,6 +44,10 @@ const UserSchema = new Schema({
     idVerified: {
         type: Boolean,
     },
+    favourites: {
+        type: Array,
+        default: [],
+    },
     occupation: {
         type: String,
     },
