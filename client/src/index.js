@@ -2,6 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { AuthContextProvider} from "./context/AuthContext";
 
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+
 //npm install react-router-dom
 import { BrowserRouter } from 'react-router-dom';
 

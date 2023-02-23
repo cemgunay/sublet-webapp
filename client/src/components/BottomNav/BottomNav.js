@@ -1,6 +1,9 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faMagnifyingGlass, faUser } from '@fortawesome/free-solid-svg-icons'
+
 import classes from './BottomNav.module.css'
 
 function BottomNav() {
@@ -10,13 +13,13 @@ function BottomNav() {
         <NavLink to='/' className={({ isActive }) =>
               isActive ? classes.active : undefined
             }>
-          <i class="fa-solid fa-magnifying-glass"></i>
+          <FontAwesomeIcon icon={faMagnifyingGlass} />
           Explore
         </NavLink>
         <NavLink to='/signup' className={({ isActive }) =>
               isActive ? classes.active : undefined
             }>
-          <i class="fa-solid fa-user"></i>
+          <FontAwesomeIcon icon={faUser} />
           Profile
         </NavLink>
       </nav>

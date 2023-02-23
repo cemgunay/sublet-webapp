@@ -1,12 +1,14 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 
 import classes from './ListingItem.module.css'
 
 function ListingItem(props) {
+
   return (
-    <div className={classes.container}>
+    <Link to={'/listing/'+props.id} state={{listing:props}} className={classes.container}>
         <div className={classes.image}>
-            <img src={props.image} alt={props.title}/>
+            <img src={props.image[0]} alt={props.title}/>
         </div>
         <div className={classes.content}>
           <div className={classes.first}>
@@ -20,7 +22,7 @@ function ListingItem(props) {
             <p>{props.views}</p>
           </div>
         </div>
-    </div>
+    </Link>
   )
 }
 

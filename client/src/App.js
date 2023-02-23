@@ -1,23 +1,18 @@
 import { Route, Routes } from "react-router-dom";
 import Explore from "./pages/Explore/Explore";
 import SignUp from "./pages/signup/SignUp";
-import BottomNav from "./components/BottomNav/BottomNav";
 
-import classes from './App.module.css'
+import Listing from "./pages/Listing/Listing";
 
 function App() {
   return (
-  <>
-    <main className={classes.container}>
-      <Routes>
-        <Route path="/" element={<Explore/>}/>
-        <Route path="/signup" element={<SignUp/>}/>
-      </Routes>
-    </main>
-    <footer>
-      <BottomNav />
-    </footer>
-  </>
+  <main>
+    <Routes>
+      <Route path="/" element={<Explore/>}/>
+      <Route path="/signup" element={<SignUp/>}/>
+      <Route path="/listing/:id" element={<Listing/>}/>
+    </Routes>
+  </main>
   );
 }
 

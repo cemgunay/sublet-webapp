@@ -1,3 +1,7 @@
+.wrapper{
+    margin: 2rem;
+}
+
 .container{
     height: 500px;
     width: 100%;

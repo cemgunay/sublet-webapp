@@ -11,7 +11,7 @@ function Third() {
       <form>
         <div className={classes.container}>
           <input className={classes.email} type='text' placeholder='First Name'></input>
-          <input className={classes.email} type='text' placeholder='Email'></input>
+          <input className={classes.email} type='text' placeholder='Last Name'></input>
           <div className={classes.text}>Make sure it matches the name of your Government ID</div>
           <input className={classes.email} type='text' placeholder='Birthday' onFocus={() => (ref.current.type = "date")} onBlur={() => (ref.current.type = "date")}></input>
           <div className={classes.text}>To sign up you must be atleast 18 years of age</div>
