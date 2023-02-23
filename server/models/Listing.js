@@ -10,9 +10,9 @@ const ListingSchema = new Schema({
         type: String,
         require: true,
     },
-    image:{
-        type: String,
-        require: true,
+    images:{
+        type: Array,
+        default: [],
     },
     address:{
         type: String,
@@ -33,6 +33,26 @@ const ListingSchema = new Schema({
     price:{
         type: Number,
         require: true,
+    },
+    propertyType:{
+        type: String,
+        require: true,
+    },
+    bedrooms:{
+        type: Number,
+        require: true,
+    },
+    bathrooms:{
+        type: Number,
+        require: true,
+    },
+    utilitiesIncludedInPrice:{
+        type: Array,
+        default: [],
+    },
+    utilitiesNotIncludedInPrice:{
+        type: Array,
+        default: [],
     },
     description:{
         type: String,

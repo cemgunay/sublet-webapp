@@ -74,4 +74,30 @@ router.put("/:id/view", async(req,res) => {
     }
 });
 
+//Like a listing
+router.put("/:id/like", async (req, res) => {
+    try {
+        const listing = await Listing.findById(req.params.id);
+        const currentUser = await User.findById(req.body.userId);
+        const listingUser = listing.userId;
+
+        if(currentUser == listingUser)
+        {
+            res.status(403).json("Cannot like your own listing");
+        }
+
+        if(!currentUser.favourites.includes(req.params.id)){
+            await currentUser.updateOne({$push:{favourites:req.params.id}});
+            res.status(200).json("Successfully liked a listing!");
+        }
+        else
+        {
+            res.status(403).json("You have already liked this listing!")
+        }
+    } catch (err)
+    {
+        res.status(500).json(err)
+    }
+});
+
 module.exports = router;
