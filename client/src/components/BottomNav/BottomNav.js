@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { NavLink } from 'react-router-dom'
+import { AuthContext } from '../../context/AuthContext'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faMagnifyingGlass, faUser } from '@fortawesome/free-solid-svg-icons'
@@ -7,6 +8,9 @@ import { faMagnifyingGlass, faUser } from '@fortawesome/free-solid-svg-icons'
 import classes from './BottomNav.module.css'
 
 function BottomNav() {
+
+  const { user: currentUser } = useContext(AuthContext);
+
   return (
     <div className={classes.wrapper}>
       <nav className={classes.container}>
