@@ -1,5 +1,6 @@
 // import modules
 const express = require('express');
+const cors = require('cors');
 const app = express();
 const mongoose = require('mongoose');
 const morgan = require('morgan');
@@ -22,7 +23,11 @@ mongoose.connect(process.env.MONGO_URI, {
 // middleware
 app.use(express.json());
 app.use(helmet());
-app.use(morgan("common"));
+//app.use(morgan("common"));
+app.use(cors({
+    credentials: true,
+    origin: 'http://localhost:3000',
+  }));
 
 // routes
 app.use("/server/auth" , authRoute);

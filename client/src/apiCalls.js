@@ -1,4 +1,8 @@
-import axios from "axios"
+import axios from "axios";
+
+export default axios.create({
+    baseURL: 'http://localhost:8080/server'
+});
 
 export const loginCall = async (userCredentials, dispatch)=>{
     dispatch({type:"LOGIN_START"});
