@@ -7,7 +7,7 @@ import React from 'react'
 //import countryList from 'react-select-country-list'
 import Country from './Country'
 
-import classes from './SignUp.module.css'
+import classes from './SignUpParts.module.css'
 
 function Phone() {
 

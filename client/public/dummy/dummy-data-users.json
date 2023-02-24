@@ -1,11 +1,14 @@
 [{
     "id": 1,
     "firstname": "Anne",
-    "lastname": "BAWS"
+    "lastname": "BAWS",
+    "email": "boner",
+    "password": "test"
   },
   {
     "id": 2,
     "firstname": "Betty",
-    "lastname": "White"
+    "lastname": "White",
+    "email": "cum"
   }
 ]
