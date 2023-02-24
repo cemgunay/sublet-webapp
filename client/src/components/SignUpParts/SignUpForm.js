@@ -37,7 +37,7 @@ function SignUpForm() {
 
       try
       {
-        await axios.post("/auth/register", user);
+        await api.post("/auth/register", user);
         console.log(user);
         navigate("/");
       }
