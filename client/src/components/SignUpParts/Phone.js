@@ -9,7 +9,7 @@ import Country from './Country'
 
 import classes from './SignUp.module.css'
 
-function First() {
+function Phone() {
 
   return (
     <div className={classes.container}>
@@ -26,7 +26,7 @@ function First() {
   )
 }
 
-export default First
+export default Phone
 
 //Test Code For Country Select (DONT DELETE)
 
