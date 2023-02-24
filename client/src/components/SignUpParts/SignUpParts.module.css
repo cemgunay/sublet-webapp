@@ -1,0 +1,120 @@
+@import '../../index.css';
+
+.container{
+    display: flex;
+    height: 100%;
+    width: 100%;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    gap: 3rem;
+    text-align: center;
+    margin-bottom: 5rem;
+    margin-top: 1rem;
+}
+
+.formcontainer{
+    display: flex;
+    height: 100%;
+    width: 100%;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    text-align: center;
+    margin-bottom: 5rem;
+    margin-top: 1rem;
+}
+
+.country{
+    width: 100%;
+    border-radius: 0.5rem 0.5rem 0 0; 
+    border-width: 1px;
+    box-sizing: border-box;
+    padding: 10px;
+}
+
+.phonenumber{
+    width: 100%;
+    border-radius: 0 0 0.5rem 0.5rem; 
+    border-width: 1px;
+    box-sizing: border-box;
+    padding: 10px;
+}
+
+.email{
+    width: 100%;
+    border-radius: 00.5rem; 
+    border-width: 1px;
+    box-sizing: border-box;
+    padding: 10px;
+}
+
+.emailform{
+    width: 100%;
+    border-radius: 00.5rem; 
+    border-width: 1px;
+    box-sizing: border-box;
+}
+
+.text{
+    color: var(--color-secondary-light);
+    font-weight: 300;
+    font-size: x-small;
+    text-align: start;
+}
+
+.conditions{
+    font-weight: 400;
+    font-size: medium;
+    text-align: start;
+}
+
+.button{
+    background-color: var(--color-primary);
+    padding: 0.5rem; 
+    color: var(--color-white); 
+    width: 100%; 
+    border-radius: 0.5rem;
+    border-width: 0;
+}
+
+.seperator{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.seperatorText{
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-items: center;
+}
+
+.seperatorText::before, .seperatorText::after{
+    content: "";
+    height: 2px;
+    background-color: gray;
+    display: block;
+    
+}
+
+.socialsList{
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    column-gap: 0.5rem;
+    row-gap: 0.5rem;
+}
+
+.socials{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}

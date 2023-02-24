@@ -4,6 +4,7 @@ import ListingItem from './ListingItem'
 import classes from './ListingList.module.css'
 
 function ListingList(props) {
+
   return (
     <div className={classes.container}>
       {props.listings.length && props.listings

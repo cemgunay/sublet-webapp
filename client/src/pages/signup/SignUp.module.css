@@ -1,15 +1,14 @@
 .wrapper{
-    margin: 2rem;
+    margin: 2rem
 }
 
 .container{
-    height: 500px;
+    height: 100%;
     width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     text-align: center;
-    gap: 1rem;
 }
 
 .title{
@@ -25,51 +24,3 @@
     padding-bottom: 1rem;
     text-align: start;
 }
-
-.button{
-    background-color: #61C0BF;
-    padding: 0.5rem; 
-    color: #ffffff; 
-    width: 100%; 
-    border-radius: 0.5rem;
-    border-width: 0;
-}
-
-.seperator{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.seperatorText{
-    flex: 1;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    align-items: center;
-}
-
-.seperatorText::before, .seperatorText::after{
-    content: "";
-    height: 2px;
-    background-color: gray;
-    display: block;
-    
-}
-
-.socialsList{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    column-gap: 0.5rem;
-    row-gap: 0.5rem;
-}
-
-.socials{
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-}
-

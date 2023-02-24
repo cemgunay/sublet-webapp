@@ -1,6 +1,6 @@
 import React, { useRef } from 'react'
 
-import classes from './SignUp.module.css'
+import classes from './SignUpParts.module.css'
 
 function Third() {
 
