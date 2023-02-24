@@ -2,7 +2,7 @@ import React, { useRef } from 'react'
 
 import classes from './SignUp.module.css'
 
-function Third() {
+function SignUpForm() {
 
   const ref = useRef();
 
@@ -27,4 +27,4 @@ function Third() {
   )
 }
 
-export default Third
+export default SignUpForm

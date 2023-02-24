@@ -2,7 +2,7 @@ import React from 'react'
 
 import classes from './SignUp.module.css'
 
-function Second() {
+function Email() {
   return (
     <div className={classes.container}>
       <form>
@@ -14,4 +14,4 @@ function Second() {
   )
 }
 
-export default Second
+export default Email
