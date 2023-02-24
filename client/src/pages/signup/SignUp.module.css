@@ -9,6 +9,7 @@
     flex-direction: column;
     justify-content: space-between;
     text-align: center;
+    gap: 1rem;
 }
 
 .title{
@@ -61,6 +62,7 @@
     justify-content: center;
     align-items: center;
     column-gap: 0.5rem;
+    row-gap: 0.5rem;
 }
 
 .socials{

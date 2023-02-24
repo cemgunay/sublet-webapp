@@ -1,6 +1,6 @@
 import React, {useState} from 'react'
-import First from './First'
-import Second from './Second'
+import Phone from './Phone'
+import Email from './Email'
 
 import classes from '../../pages/signup/SignUp.module.css'
 
@@ -13,9 +13,9 @@ function Form(props) {
 
     const PageDisplay = () => {
         if (email === false) {
-        return <First />;
+        return <Email />;
         } else {
-        return <Second />;
+        return <Email />;
         }
     }
 
@@ -43,6 +43,9 @@ function Form(props) {
               <SocialIcon url='https://google.com' />
               Continue with Google
             </div>
+
+            {/*
+
             { email ? 
             <div className={classes.socials} onClick={changeEmail}>
               <SocialIcon url='phone' />
@@ -53,6 +56,8 @@ function Form(props) {
               Continue with Email
             </div>
             }
+
+          */}
             <div className={classes.socials}>
               <SocialIcon url='https://apple.com' />
               Continue with Apple

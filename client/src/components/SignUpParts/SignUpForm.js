@@ -3,7 +3,7 @@ import classes from './SignUp.module.css'
 import api from '../../apiCalls';
 import { useNavigate } from "react-router-dom";
 
-function Third() {
+function SignUpForm() {
 
   const firstName = useRef();
   const lastName = useRef();

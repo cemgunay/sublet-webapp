@@ -1,7 +1,7 @@
 import React, {useState} from 'react'
 import BottomNav from '../../components/BottomNav/BottomNav';
 import Form from '../../components/SignUpParts/Form'
-import Third from '../../components/SignUpParts/Third'
+import SignUpForm from '../../components/SignUpParts/SignUpForm'
 
 import classes from './SignUp.module.css'
 
@@ -13,7 +13,7 @@ function SignUp() {
     if (signUp === false){
       return <Form changeSignUp={signUp => setSignUp(signUp)}/>
     } else {
-      return <Third />
+      return <SignUpForm />
     }
   }
 
