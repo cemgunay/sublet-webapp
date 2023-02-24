@@ -1,6 +1,7 @@
 import React, { useRef } from 'react'
 import classes from './SignUp.module.css'
 import api from '../../apiCalls';
+import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 
 function SignUpForm() {
@@ -36,7 +37,7 @@ function SignUpForm() {
 
       try
       {
-        await api.post("/auth/register", user);
+        await axios.post("/auth/register", user);
         console.log(user);
         navigate("/");
       }
@@ -71,4 +72,4 @@ function SignUpForm() {
   )
 }
 
-export default Third;
+export default SignUpForm;
