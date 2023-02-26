@@ -6,14 +6,18 @@ function Email({ formData, setFormData }) {
 
   console.log(formData.email)
 
+  const handleOnChange = (e) => {
+    setFormData({...formData, email: e.target.value})
+  }
+
   return (
     <div className={classes.emailform}>
         <input
           className={classes.email}
-          type="text"
+          type="email"
           placeholder="Email"
           value={formData.email}
-          onChange={(event) => setFormData({...formData, email: event.target.value})}
+          onChange={handleOnChange}
         />
     </div>
   );

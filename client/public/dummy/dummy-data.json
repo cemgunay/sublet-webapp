@@ -15,7 +15,9 @@
     "bedrooms": 2,
     "beds": 2,
     "bathrooms": 1,
-    "availabletoview": true
+    "availabletoview": true,
+    "utilities": {"Hydro": true, "Electricity": true, "Water": false},
+    "amenities": ["Kitchen", "Kitchen", "Kitchen", "Kitchen", "Kitchen", "Kitchen"]
   },
   {
     "id":"2",

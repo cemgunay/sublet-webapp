@@ -59,8 +59,14 @@ function SignUpForm({ formData, setFormData }) {
         </div>
         <input
           className={classes.email}
-          type="date"
-          placeholder="Birthday"
+          type="text"
+   onFocus={
+    (e)=> {
+      e.currentTarget.type = "date";
+      e.currentTarget.focus();
+     }
+   }
+   placeholder="Birthday"
           ref={dateOfBirth}
         ></input>
         <div className={classes.text}>

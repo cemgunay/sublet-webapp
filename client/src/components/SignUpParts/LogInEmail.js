@@ -9,8 +9,8 @@ function LogInEmail() {
 
 
   return (
-    <div className={classes.emailform}>
-        <form>
+    <>
+        <form className={classes.emailcontainer}>
         <input className={classes.email} type="password" placeholder="Password" />
       <button className={classes.button} type="submit">
         Log In
@@ -19,7 +19,8 @@ function LogInEmail() {
         <div>
             FORGOR PASSWORD maybe latuh
         </div>
-    </div>
+
+        </>
   );
 }
 
