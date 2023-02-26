@@ -11,12 +11,23 @@
     text-align: center;
 }
 
-.title{
-    text-align: center;
-    padding: 1rem;
+.titlecontainer{
     border-bottom: solid;
     border-width: 0.1rem;
     border-color: lightgray;
+}
+
+.title{
+    text-align: center;
+    padding: 1rem;
+}
+
+.back{
+    padding-top: 1.3rem;
+    padding-bottom: 1rem;
+    padding-left: 0;
+    padding-right: 0;
+    position:absolute;
 }
 
 .welcome{

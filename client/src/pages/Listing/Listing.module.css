@@ -84,3 +84,47 @@
     border-width: 0.1rem;
     border-color: lightgray;
 }
+
+.bedrooms{
+  padding-bottom: 1rem;
+    padding-top: 1rem;
+    border-bottom: solid;
+    border-width: 0.1rem;
+    border-color: lightgray;
+}
+
+h2 {
+  margin: 0;
+}
+
+.utilities{
+  padding-bottom: 1rem;
+    padding-top: 1rem;
+    border-bottom: solid;
+    border-width: 0.1rem;
+    border-color: lightgray;
+}
+
+.amenities{
+  padding-bottom: 1rem;
+    padding-top: 1rem;
+    border-bottom: solid;
+    border-width: 0.1rem;
+    border-color: lightgray;
+}
+
+.location{
+  padding-bottom: 1rem;
+    padding-top: 1rem;
+    border-bottom: solid;
+    border-width: 0.1rem;
+    border-color: lightgray;
+}
+
+.availability{
+  padding-bottom: 1rem;
+    padding-top: 1rem;
+    border-bottom: solid;
+    border-width: 0.1rem;
+    border-color: lightgray;
+}

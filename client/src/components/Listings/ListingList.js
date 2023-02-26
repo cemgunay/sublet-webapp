@@ -25,6 +25,8 @@ function ListingList(props) {
             beds={listing.beds}
             bathrooms={listing.bathrooms}
             availabletoview={listing.availabletoview}
+            utilities={listing.utilities}
+            amenities={listing.amenities}
             />
         ))}
     </div>

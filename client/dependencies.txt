@@ -14,3 +14,7 @@ npm i --save @fortawesome/react-fontawesome@latest
 
 npm install react-slick --save
 npm install slick-carousel --save
+
+npm install react-horizontal-scrolling-menu
+
+npm install react-month-picker --save

@@ -9,13 +9,9 @@ import axios from "axios";
 import Socials from "./Socials";
 import LogInEmail from "./LogInEmail";
 
-function Form() {
+function Form({setPage, signUp, setSignUp, logIn, setLogIn}) {
   //used to toggle between phone and email (not used right now)
   const [email, setEmail] = useState(false);
-
-  const [signUp, setSignUp] = useState(false);
-
-  const [login, setLogIn] = useState(false);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -55,6 +51,8 @@ function Form() {
 
   //check on click if email entered is registered in db
   const handleClick = (e) => {
+
+    //check if blank - need to add shit here
     if (formData.email === "") {
       return;
     }
@@ -71,8 +69,10 @@ function Form() {
 
     if (hasMatch === false) {
       setSignUp(true);
+      setPage((currPage) => currPage + 1)
     } else {
       setLogIn(true);
+      setPage((currPage) => currPage + 1)
     }
   };
 
@@ -82,13 +82,13 @@ function Form() {
     <div className={classes.container}>
       {signUp ? (
         <SignUpForm formData={formData} setFormData={setFormData} />
-      ) : login ? (
+      ) : logIn ? (
         <LogInEmail />
       ) : (
         <>
-          <form>
+          <form className={classes.emailcontainer} onSubmit={handleClick}>
             {PageDisplay()}
-            <button className={classes.button} onClick={handleClick}>
+            <button className={classes.button}>
               Continue
             </button>
           </form>
