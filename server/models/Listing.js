@@ -10,16 +10,24 @@ const ListingSchema = new Schema({
         type: String,
         require: true,
     },
-    images:{
-        type: Array,
-        default: [],
-    },
+    images: [{
+        url: String,
+        filename: String,
+    }],
     address:{
         type: String,
         require: true,
     },
-    dates:{
+    city:{
         type: String,
+        require: true,
+    },
+    moveInDate:{
+        type: Date,
+        require: true,
+    },
+    moveOutDate:{
+        type: Date,
         require: true,
     },
     expiryDate:{
@@ -38,21 +46,65 @@ const ListingSchema = new Schema({
         type: String,
         require: true,
     },
-    bedrooms:{
-        type: Number,
-        require: true,
-    },
+    bedrooms: [{
+        bedType: String,
+        ensuite: Boolean,
+    }],
     bathrooms:{
         type: Number,
         require: true,
     },
-    utilitiesIncludedInPrice:{
-        type: Array,
-        default: [],
+    amenities: {
+        inUnitWasherAndDrier: {
+            type: Boolean,
+            default: false
+        },
+        airConditioning: {
+            type: Boolean,
+            default: false
+        },
+        petsAllowed: {
+            type: Boolean,
+            default: false
+        },
+        furnished: {
+            type: Boolean,
+            default: false
+        },
+        dishwasher: {
+            type: Boolean,
+            default: false
+        },
+        fitnessCenter: {
+            type: Boolean,
+            default: false
+        },
+        balcony: {
+            type: Boolean,
+            default: false
+        },
+        parking: {
+            type: Boolean,
+            default: false
+        },
     },
-    utilitiesNotIncludedInPrice:{
-        type: Array,
-        default: [],
+    utilities: {
+        hydro: {
+            type: Boolean,
+            default: false
+        },
+        electricity: {
+            type: Boolean,
+            default: false
+        },
+        water: {
+            type: Boolean,
+            default: false
+        },
+        wifi: {
+            type: Boolean,
+            default: false
+        }
     },
     description:{
         type: String,

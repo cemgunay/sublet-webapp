@@ -17,7 +17,7 @@ function SignUpForm({ formData, setFormData }) {
     e.preventDefault();
 
     if (passwordAgain.current.value !== password.current.value) {
-      password.current.setCustomValidity("Passwords don't match...");
+      passwordAgain.current.setCustomValidity("Passwords don't match...");
     } else {
       const user = {
         firstName: firstName.current.value,
