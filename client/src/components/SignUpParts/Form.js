@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Email from "./Email";
 import SignUpForm from "./SignUpForm";
+import api from "../../apiCalls";
 
 import classes from "./SignUpParts.module.css";
 
@@ -49,22 +50,22 @@ function Form({setPage, signUp, setSignUp, logIn, setLogIn}) {
     }
   */
 
-  //check on click if email entered is registered in db
-  const handleClick = (e) => {
+  // On click function to check if email exists in the DB
+  const handleClick = async (e) => {
+    e.preventDefault();
 
-    //check if blank - need to add shit here
+    //Check if form is blank when user clicks continue
     if (formData.email === "") {
       return;
     }
 
     var hasMatch = false;
-
-    for (var index = 0; index < user.length; ++index) {
-      if (user[index].email === formData.email) {
-        hasMatch = true;
-        console.log("true");
-        break;
-      }
+    // Check for email existance
+    try {
+      const email = await api.get("/users/" + formData.email);
+      hasMatch = true;
+    } catch (err) {
+      hasMatch = false;
     }
 
     if (hasMatch === false) {
@@ -83,7 +84,7 @@ function Form({setPage, signUp, setSignUp, logIn, setLogIn}) {
       {signUp ? (
         <SignUpForm formData={formData} setFormData={setFormData} />
       ) : logIn ? (
-        <LogInEmail />
+        <LogInEmail formData={formData} setFormData={setFormData} />
       ) : (
         <>
           <form className={classes.emailcontainer} onSubmit={handleClick}>
