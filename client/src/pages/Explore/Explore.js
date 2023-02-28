@@ -2,21 +2,21 @@ import React, { useState, useEffect, useContext } from "react";
 import BottomNav from "../../components/BottomNav/BottomNav";
 import ListingList from "../../components/Listings/ListingList";
 import axios from "axios";
-import api from "../../apiCalls";
+//import api from '../../api/axios'
 import { AuthContext } from "../../context/AuthContext";
 
 import classes from "./Explore.module.css";
 
 function Explore() {
+
+  //const { user } = useContext(AuthContext);
+
   const [listings, setListings] = useState([]);
-  const { user } = useContext(AuthContext);
-  console.log(listings);
-  console.log(user);
+
   //const [sort, setSort] = useState("ASC")
 
   useEffect(() => {
     axios.get("/dummy/dummy-data.json").then(response => {
-      console.log(response.data)
       setListings(response.data)
     }).catch(error => console.log(error));
   }, []); 

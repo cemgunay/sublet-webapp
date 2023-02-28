@@ -35,6 +35,10 @@
     margin-top: 1rem;
 }
 
+input{
+    outline: none;
+}
+
 .country{
     width: 100%;
     border-radius: 0.5rem 0.5rem 0 0; 
@@ -53,10 +57,17 @@
 
 .email{
     width: 100%;
-    border-radius: 00.5rem; 
+    border-radius: 0.5rem; 
     border-width: 1px;
     box-sizing: border-box;
+    border-style: solid;
+    border-color: var(--color-secondary-light);
     padding: 10px;
+}
+
+.email:focus{
+    border-color: var(--color-black);
+    transition: ease-in-out 70ms;
 }
 
 .emailform{
@@ -86,6 +97,7 @@
     width: 100%; 
     border-radius: 0.5rem;
     border-width: 0;
+    font-size: medium;
 }
 
 .seperator{
@@ -126,4 +138,56 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+}
+
+.error{
+    width: 100%;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-radius: 0.5rem; 
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--color-error);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
+.sadface{
+    margin-left: 1rem;
+    color: var(--color-error);
+}
+
+.incorrectpassword{
+    flex-grow: 1;
+    text-align: center;
+    margin-right: 1rem;
+}
+
+.password{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 0.5rem;
+}
+
+.passwordchecklist{
+    text-align: left;
+    font-size: small;
+    margin: 0;
+}
+
+
+.true{
+    color: var(--color-pass);
+}
+
+.false{
+    color: var(--color-error);
+}
+
+.hide{
+    display: none;
 }

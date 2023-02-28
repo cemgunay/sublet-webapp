@@ -8,6 +8,8 @@ function Email({ formData, setFormData }) {
     setFormData({ ...formData, email: e.target.value })
   }
 
+  console.log(formData.email)
+
   return (
     <div className={classes.emailform}>
       <input

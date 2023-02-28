@@ -1,35 +1,53 @@
 import React from "react";
 import { useRef, useContext, useState } from "react";
-import { loginCall } from "../../loginCalls";
 import { AuthContext } from "../../context/AuthContext";
-import classes from "./SignUpParts.module.css";
-import { CircularProgress } from "@material-ui/core";
 import { useNavigate } from "react-router-dom";
-import Error from './Error';
+
+import classes from "./SignUpParts.module.css";
+import { CircularProgress } from "@mui/material";
+
+import Error from "./Error";
+
+import axios from "../../api/axios";
+const BASE_URL = 'auth/login'
 
 function LogInEmail({ formData, setFormData }) {
+  
+  //get email data from previous page
   const email = formData.email;
-  const password = useRef();
-  const { user, isFetching, error, dispatch } = useContext(AuthContext);
-  const navigate = useNavigate();
-  const [isError, setIsError] = useState(false);
 
+  //get password entered from below form with ref
+  const password = useRef();
+
+  //authcontext stuff
+  //const { user, error } = useContext(AuthContext)
+  const { isFetching } = useContext(AuthContext)
+
+  //to conditionally render wrong password popup div
+  const [isError, setIsError] = useState(false)
+
+  const navigate = useNavigate();
+
+  //on submit use api to check if passwords match
   const handleClick = async (e) => {
     e.preventDefault();
 
-    loginCall({ email: email, password: password.current.value }, dispatch);
-    console.log(user);
-    if (!error) {
+    try {
+      const response = await axios.post(BASE_URL, {
+        email: email,
+        password: password.current.value,
+      });
+      console.log(response.data);
       navigate("/");
-    } else {
+    } catch (error) {
       setIsError(true);
     }
   };
 
   return (
     <>
-      { isError ? <Error/> : null}
       <form className={classes.emailcontainer} onSubmit={handleClick}>
+      {isError ? <Error /> : null}
         <input
           className={classes.email}
           type="password"

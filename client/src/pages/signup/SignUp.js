@@ -9,11 +9,7 @@ import classes from './SignUp.module.css'
 
 function SignUp() {
 
-  console.log('hello')
-
   const [page, setPage] = useState(0)
-
-  console.log(page)
 
   const [signUp, setSignUp] = useState(false);
 
