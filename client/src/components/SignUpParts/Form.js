@@ -1,34 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Email from "./Email";
 import SignUpForm from "./SignUpForm";
-import api from "../../apiCalls";
+import api from "../../api/axios";
 
 import classes from "./SignUpParts.module.css";
 
 //npm install react-social-icons
-import axios from "axios";
 import Socials from "./Socials";
 import LogInEmail from "./LogInEmail";
 
-function Form({setPage, signUp, setSignUp, logIn, setLogIn}) {
+function Form({ setPage, signUp, setSignUp, logIn, setLogIn }) {
   //used to toggle between phone and email (not used right now)
   const [email, setEmail] = useState(false);
 
   const [formData, setFormData] = useState({
     email: "",
+    firstName: "",
+    lastName: "",
   });
-
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    axios
-      .get("/dummy/dummy-data-users.json")
-      .then((response) => {
-        console.log(response.data);
-        setUser(response.data);
-      })
-      .catch((error) => console.log(error));
-  }, []);
 
   //display phone if user clicks phone (changed to return nothing right now)
   const PageDisplay = () => {
@@ -62,7 +51,8 @@ function Form({setPage, signUp, setSignUp, logIn, setLogIn}) {
     var hasMatch = false;
     // Check for email existance
     try {
-      const email = await api.get("/users/" + formData.email);
+      const email = await api.get("/users/" + formData.email.toLowerCase());
+      setEmail(email);
       hasMatch = true;
     } catch (err) {
       hasMatch = false;
@@ -70,10 +60,10 @@ function Form({setPage, signUp, setSignUp, logIn, setLogIn}) {
 
     if (hasMatch === false) {
       setSignUp(true);
-      setPage((currPage) => currPage + 1)
+      setPage((currPage) => currPage + 1);
     } else {
       setLogIn(true);
-      setPage((currPage) => currPage + 1)
+      setPage((currPage) => currPage + 1);
     }
   };
 
@@ -90,7 +80,7 @@ function Form({setPage, signUp, setSignUp, logIn, setLogIn}) {
           <form className={classes.emailcontainer} onSubmit={handleClick}>
             {PageDisplay()}
             <button className={classes.button}>
-              Continue
+              <div>Continue</div>
             </button>
           </form>
           <Socials />

@@ -10,9 +10,11 @@ import { faMagnifyingGlass, faUser } from "@fortawesome/free-solid-svg-icons";
 import classes from "./BottomNav.module.css";
 
 function BottomNav() {
+
   //const { user: currentUser } = useContext(AuthContext);
+
+  //to change the elements below
   const { user } = useContext(AuthContext);
-  console.log(user);
 
   return (
     <div className={classes.wrapper}>
