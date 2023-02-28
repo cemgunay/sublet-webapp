@@ -10,6 +10,7 @@ require("dotenv").config();
 const authRoute = require('./routes/auth');
 const listingRoute = require('./routes/listings');
 const userRoute = require('./routes/users');
+const requestRoute = require('./routes/requests');
 
 // db
 mongoose.set('strictQuery', false);
@@ -33,6 +34,7 @@ app.use(cors({
 app.use("/server/auth" , authRoute);
 app.use("/server/listings" , listingRoute);
 app.use("/server/users" , userRoute);
+app.use("/server/requests", requestRoute);
 
 // port
 const port = process.env.PORT || 8080;
