@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-const RequestSchema = new Schema(
+const BookingSchema = new Schema(
   {
     tenantId: {
       type: String,
@@ -15,7 +15,11 @@ const RequestSchema = new Schema(
       type: String,
       required: true,
     },
-    priceOffer: {
+    acceptedRequestId: {
+      type: String,
+      required: true,
+    },
+    acceptedPriceOffer: {
       type: Number,
       required: true,
     },
@@ -42,6 +46,6 @@ const RequestSchema = new Schema(
   { timestamps: true }
 );
 
-const RequestModel = mongoose.model("Request", RequestSchema);
+const BookingModel = mongoose.model("Booking", BookingSchema);
 
-module.exports = RequestModel;
+module.exports = BookingModel;
