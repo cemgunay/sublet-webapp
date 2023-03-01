@@ -11,6 +11,7 @@ const authRoute = require('./routes/auth');
 const listingRoute = require('./routes/listings');
 const userRoute = require('./routes/users');
 const requestRoute = require('./routes/requests');
+const bookingRoute = require('./routes/bookings');
 
 // db
 mongoose.set('strictQuery', false);
@@ -35,6 +36,7 @@ app.use("/server/auth" , authRoute);
 app.use("/server/listings" , listingRoute);
 app.use("/server/users" , userRoute);
 app.use("/server/requests", requestRoute);
+app.use("/server/bookings", bookingRoute);
 
 // port
 const port = process.env.PORT || 8080;
