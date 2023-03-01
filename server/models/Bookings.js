@@ -42,6 +42,10 @@ const BookingSchema = new Schema(
       type: String,
       required: true,
     },
+    depositAmount: {
+        type: Number,
+        required: true,
+      },
   },
   { timestamps: true }
 );
