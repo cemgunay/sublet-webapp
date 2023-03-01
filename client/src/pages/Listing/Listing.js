@@ -13,13 +13,12 @@ import Utilities from "../../components/Listing/Utilities";
 import Amenities from "../../components/Listing/Amenities";
 
 function Listing() {
+  
   //useParams and useLocation are to pass the listing prop from listingItem through to this component
-
-  const { id } = useParams();
+  //const { id } = useParams();
   const location = useLocation();
   const { state } = location;
   const listing = state.listing;
-  console.log(id);
 
   const [user, setUser] = useState([]);
 

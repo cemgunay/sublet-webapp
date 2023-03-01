@@ -1,0 +1,18 @@
+@import "../../../index.css";
+
+.input {
+  width: 100%;
+  border-radius: 0.5rem;
+  border-width: 1px;
+  box-sizing: border-box;
+  border-style: solid;
+  border-color: var(--color-secondary-light);
+  padding: 10px;
+  user-select: none;
+  outline: none;
+}
+
+input:focus {
+  border-color: var(--color-black);
+  transition: ease-in-out 70ms;
+}

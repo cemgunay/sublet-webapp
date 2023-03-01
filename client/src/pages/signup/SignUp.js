@@ -15,10 +15,14 @@ function SignUp() {
 
   const [logIn, setLogIn] = useState(false);
 
+  //will pass to form child component who will pass it to its child components (signup and login) if user changes email in signup to match one in the DB
+  const [emailChangedToMatch, setEmailChangedToMatch] = useState(false)
+
   const handleClick = () => {
     setPage((currPage) => currPage - 1)
     setLogIn(false);
     setSignUp(false);
+    setEmailChangedToMatch(false);
   }
 
   return (
@@ -31,7 +35,7 @@ function SignUp() {
       </div>
       <div className={classes.container}>
         <div className={classes.welcome}>Welcome to subLet</div>
-        <Form setPage={setPage} signUp={signUp} setSignUp={setSignUp} logIn={logIn} setLogIn={setLogIn}/>
+        <Form setPage={setPage} signUp={signUp} setSignUp={setSignUp} logIn={logIn} setLogIn={setLogIn} emailChangedToMatch={emailChangedToMatch} setEmailChangedToMatch={setEmailChangedToMatch}/>
       </div>
     </section>
     <footer>

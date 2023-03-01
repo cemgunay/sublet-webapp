@@ -1,0 +1,26 @@
+@import "../../index.css";
+
+.error {
+  width: 100%;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-radius: 0.5rem;
+  border-style: solid;
+  border-width: 1px;
+  border-color: var(--color-error);
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.sadface {
+  margin-left: 1rem;
+  color: var(--color-error);
+}
+
+.incorrectpassword {
+  flex-grow: 1;
+  text-align: center;
+  margin-right: 1rem;
+}

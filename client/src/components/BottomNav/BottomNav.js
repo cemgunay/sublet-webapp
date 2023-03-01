@@ -1,7 +1,6 @@
 import React from "react";
 import { useContext } from "react";
 import { NavLink } from "react-router-dom";
-//import { AuthContext } from '../../context/AuthContext'
 import { AuthContext } from "../../context/AuthContext";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -15,6 +14,8 @@ function BottomNav() {
 
   //to change the elements below
   const { user } = useContext(AuthContext);
+
+  console.log(user)
 
   return (
     <div className={classes.wrapper}>
