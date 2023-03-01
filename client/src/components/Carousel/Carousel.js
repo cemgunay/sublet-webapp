@@ -12,8 +12,6 @@ function Carousel(props) {
     arrows: false,
   };
 
-  console.log(props.images);
-
   return (
     <Slider {...settings}>
       {props.images.map((element, i) => (

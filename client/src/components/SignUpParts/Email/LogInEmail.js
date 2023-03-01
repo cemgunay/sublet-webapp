@@ -1,18 +1,19 @@
 import React from "react";
 import { useRef, useContext, useState } from "react";
-import { AuthContext } from "../../context/AuthContext";
+import { AuthContext } from "../../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-import classes from "./SignUpParts.module.css";
+import classes from "./LogInEmail.module.css";
 import { CircularProgress } from "@mui/material";
 
-import Error from "./Error";
+import Error from "../Error";
+import EmailChanged from "./EmailChanged";
 
-import axios from "../../api/axios";
-const BASE_URL = 'auth/login'
+import axios from "../../../api/axios";
+import FormInput from "../FormInput";
+const BASE_URL = "auth/login";
 
-function LogInEmail({ formData, setFormData }) {
-  
+function LogInEmail({ formData, setFormData, emailChangedToMatch }) {
   //get email data from previous page
   const email = formData.email;
 
@@ -21,14 +22,14 @@ function LogInEmail({ formData, setFormData }) {
 
   //authcontext stuff
   //const { user, error } = useContext(AuthContext)
-  const { isFetching } = useContext(AuthContext)
+  const { isFetching } = useContext(AuthContext);
 
   //to conditionally render wrong password popup div
-  const [isError, setIsError] = useState(false)
+  const [isError, setIsError] = useState(false);
 
   const navigate = useNavigate();
 
-  //on submit use api to check if passwords match
+  //on submit use api to check if passwords match, if so, log in user (need nino to confirm this)
   const handleClick = async (e) => {
     e.preventDefault();
 
@@ -47,13 +48,15 @@ function LogInEmail({ formData, setFormData }) {
   return (
     <>
       <form className={classes.emailcontainer} onSubmit={handleClick}>
-      {isError ? <Error /> : null}
-        <input
-          className={classes.email}
+        {emailChangedToMatch ? <EmailChanged /> : null}
+        {isError ? <Error /> : null}
+        {}
+        <FormInput
+          className={classes.input}
           type="password"
           placeholder="Password"
           autoComplete="on"
-          ref={password}
+          innerRef={password}
         />
         <button className={classes.button} type="submit">
           {isFetching ? <CircularProgress size="20px" /> : "Log In"}

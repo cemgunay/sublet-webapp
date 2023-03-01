@@ -1,22 +1,26 @@
 import React, { useState } from "react";
-import Email from "./Email";
+import Email from "./Email/Email";
 import SignUpForm from "./SignUpForm";
 import api from "../../api/axios";
 
-import classes from "./SignUpParts.module.css";
+import classes from "./Form.module.css";
 
 //npm install react-social-icons
-import Socials from "./Socials";
-import LogInEmail from "./LogInEmail";
+import Socials from "./Socials/Socials";
+import LogInEmail from "./Email/LogInEmail";
 
-function Form({ setPage, signUp, setSignUp, logIn, setLogIn }) {
+function Form({ setPage, signUp, setSignUp, logIn, setLogIn, emailChangedToMatch, setEmailChangedToMatch }) {
+
   //used to toggle between phone and email (not used right now)
   const [email, setEmail] = useState(false);
 
   const [formData, setFormData] = useState({
-    email: "",
     firstName: "",
     lastName: "",
+    email: "",
+    password: "",
+    dateOfBirth: "",
+    location: "",
   });
 
   //display phone if user clicks phone (changed to return nothing right now)
@@ -67,14 +71,12 @@ function Form({ setPage, signUp, setSignUp, logIn, setLogIn }) {
     }
   };
 
-  //onClick={() => setSignUp(true)}
-
   return (
     <div className={classes.container}>
       {signUp ? (
-        <SignUpForm formData={formData} setFormData={setFormData} />
+        <SignUpForm formData={formData} setFormData={setFormData} logIn={logIn} setLogIn={setLogIn} signUp={signUp} setSignUp={setSignUp} setEmailChangedToMatch={setEmailChangedToMatch} />
       ) : logIn ? (
-        <LogInEmail formData={formData} setFormData={setFormData} />
+        <LogInEmail formData={formData} setFormData={setFormData} emailChangedToMatch={emailChangedToMatch}/>
       ) : (
         <>
           <form className={classes.emailcontainer} onSubmit={handleClick}>

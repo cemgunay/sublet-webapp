@@ -1,0 +1,39 @@
+@import "../../../index.css";
+
+.input {
+  width: 100%;
+  border-radius: 0.5rem;
+  border-width: 1px;
+  box-sizing: border-box;
+  border-style: solid;
+  border-color: var(--color-secondary-light);
+  padding: 10px;
+  user-select: none;
+  outline: none;
+}
+
+input:focus {
+  border-color: var(--color-black);
+  transition: ease-in-out 70ms;
+}
+
+.emailcontainer {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.button {
+  background-color: var(--color-primary);
+  padding: 0.5rem;
+  color: var(--color-white);
+  width: 100%;
+  border-radius: 0.5rem;
+  border-width: 0;
+  font-size: medium;
+}
