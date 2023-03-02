@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Email from "./Email/Email";
 import SignUpForm from "./SignUpForm";
 import api from "../../api/axios";
@@ -14,6 +14,7 @@ function Form({ setPage, signUp, setSignUp, logIn, setLogIn, emailChangedToMatch
   //used to toggle between phone and email (not used right now)
   const [email, setEmail] = useState(false);
 
+  //initialize formData object, this will be used basically everywhere
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -22,6 +23,14 @@ function Form({ setPage, signUp, setSignUp, logIn, setLogIn, emailChangedToMatch
     dateOfBirth: "",
     location: "",
   });
+
+  //create temp location to retrive autoCompletedLocation from signupform
+  const [autoCompletedLocation, setAutoCompletedLocation] = useState("");
+
+  //useeffect to update location in formData based on given autoCompletedLocation
+  useEffect(() => {
+    setFormData(f => ({ ...f, location: autoCompletedLocation }));
+  }, [autoCompletedLocation]);
 
   //display phone if user clicks phone (changed to return nothing right now)
   const PageDisplay = () => {
@@ -74,7 +83,7 @@ function Form({ setPage, signUp, setSignUp, logIn, setLogIn, emailChangedToMatch
   return (
     <div className={classes.container}>
       {signUp ? (
-        <SignUpForm formData={formData} setFormData={setFormData} logIn={logIn} setLogIn={setLogIn} signUp={signUp} setSignUp={setSignUp} setEmailChangedToMatch={setEmailChangedToMatch} />
+        <SignUpForm formData={formData} setFormData={setFormData} logIn={logIn} setLogIn={setLogIn} signUp={signUp} setSignUp={setSignUp} setEmailChangedToMatch={setEmailChangedToMatch} setAutoCompletedLocation={setAutoCompletedLocation} />
       ) : logIn ? (
         <LogInEmail formData={formData} setFormData={setFormData} emailChangedToMatch={emailChangedToMatch}/>
       ) : (

@@ -21,3 +21,7 @@ npm install react-horizontal-scrolling-menu
 npm install react-month-picker --save
 
 npm i check-password-strength --save
+
+npm i react-google-autocomplete --save
+
+npm install env-cmd
