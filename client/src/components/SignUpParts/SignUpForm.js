@@ -4,10 +4,21 @@ import api from "../../api/axios";
 import { useNavigate } from "react-router-dom";
 
 import { passwordStrength as passwordStrengthFunction } from "check-password-strength";
+
+import { usePlacesWidget } from "react-google-autocomplete";
+
 import FormInput from "./FormInput";
 
-function SignUpForm({ formData, setFormData, logIn, setLogIn, signUp, setSignUp, setEmailChangedToMatch }) {
-  
+function SignUpForm({
+  formData,
+  setFormData,
+  logIn,
+  setLogIn,
+  signUp,
+  setSignUp,
+  setEmailChangedToMatch,
+  setAutoCompletedLocation,
+}) {
   const navigate = useNavigate();
 
   //useRefs for form
@@ -15,25 +26,46 @@ function SignUpForm({ formData, setFormData, logIn, setLogIn, signUp, setSignUp,
   const lastName = useRef();
   const dateOfBirth = useRef();
   const email = useRef();
-  const location = useRef();
+
+  //To make autocomplete work needed temp location 
+ 
+  const { ref } = usePlacesWidget({
+    apiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+    onPlaceSelected: (place) => {
+      console.log(place);
+      setAutoCompletedLocation(place.formatted_address);
+    },
+    options: {
+      types: ["(regions)"],
+    },
+  });
   const password = useRef();
+
+  //use effect to make location work with autocomplete
 
   //password check variables (this is lowkey bad practice, should do an object like formData)
   const [passwordLength, setPasswordLength] = useState(0);
   const [passwordStrength, setPasswordStrength] = useState(false);
   const [passwordContainsName, setPasswordContainsName] = useState(false);
   const [passwordContainsNumber, setPasswordContainsNumber] = useState(false);
+  const [
+    passwordContainsSpecialCharacter,
+    setPasswordContainsSpecialCharacter,
+  ] = useState(false);
+  const [passwordContainsUpperCase, setPasswordContainsUpperCase] =
+    useState(false);
 
   //change if all password checks are met, used for disabling button
   const [passAllChecks, setPassAllChecks] = useState(false);
 
   //set the passAllChecks
-
   useEffect(() => {
     if (
       passwordStrength &&
-      passwordContainsName &&
+      !passwordContainsName &&
       passwordContainsNumber &&
+      passwordContainsSpecialCharacter &&
+      passwordContainsUpperCase &&
       passwordLength >= 8
     ) {
       setPassAllChecks(true);
@@ -45,6 +77,8 @@ function SignUpForm({ formData, setFormData, logIn, setLogIn, signUp, setSignUp,
     passwordContainsName,
     passwordContainsNumber,
     passwordLength,
+    passwordContainsSpecialCharacter,
+    passwordContainsUpperCase,
   ]);
 
   //function to see if string contains numbers
@@ -52,10 +86,12 @@ function SignUpForm({ formData, setFormData, logIn, setLogIn, signUp, setSignUp,
     return /\d/.test(str);
   }
 
+  //change values of formData on change
   const handleOnChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  //change values of password in formData on change
   const handleOnChangePassword = (e) => {
     setFormData({ ...formData, password: e.target.value });
 
@@ -82,21 +118,40 @@ function SignUpForm({ formData, setFormData, logIn, setLogIn, signUp, setSignUp,
     } else {
       setPasswordStrength(false);
     }
+
+    var regexSpecial = /[ !@#$%^&*()_+\-=\]{};':"\\|,.<>?]/g;
+    var regexUpper = /[A-Z]/;
+
+    if (regexSpecial.test(e.target.value)) {
+      setPasswordContainsSpecialCharacter(true);
+    } else {
+      setPasswordContainsSpecialCharacter(false);
+    }
+
+    if (regexUpper.test(e.target.value)) {
+      setPasswordContainsUpperCase(true);
+    } else {
+      setPasswordContainsUpperCase(false);
+    }
   };
 
   //register user
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    setFormData({ ...formData, location: ref.current.value });
+
+    console.log(formData);
+
     await checkIfUserExists(formData);
 
     const user = {
-      firstName: firstName.current.value,
-      lastName: lastName.current.value,
-      email: email.current.value,
-      password: password.current.value,
-      dateOfBirth: dateOfBirth.current.value,
-      location: location.current.value,
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      password: formData.password,
+      dateOfBirth: formData.dateOfBirth,
+      location: formData.location,
     };
 
     try {
@@ -110,16 +165,18 @@ function SignUpForm({ formData, setFormData, logIn, setLogIn, signUp, setSignUp,
 
   //if user changes the email ine the sign up form, redirect them to log in page (and maybe also add a div that says account exists)
   const checkIfUserExists = async (formData) => {
-
     // Check for email existance
     try {
       await api.get("/users/" + formData.email.toLowerCase());
       setLogIn(true);
       setSignUp(false);
-      setEmailChangedToMatch(true)
-    } catch (err) {
-    }
-  }
+      setEmailChangedToMatch(true);
+    } catch (err) {}
+  };
+
+  //will add birthday validation later (can use min and max)
+
+  console.log(formData);
 
   return (
     <form onSubmit={handleSubmit} className={classes.formcontainer}>
@@ -174,13 +231,11 @@ function SignUpForm({ formData, setFormData, logIn, setLogIn, signUp, setSignUp,
         classNameSpan={classes.text}
       />
       <FormInput
-        className={classes.input}
         name="location"
         type="address"
         placeholder="Location"
-        value={formData.location}
-        onChange={handleOnChange}
-        innerRef={location}
+        value={ref.place}
+        innerRef={ref}
         text="Where are you located?"
         classNameSpan={classes.text}
       />
@@ -192,6 +247,7 @@ function SignUpForm({ formData, setFormData, logIn, setLogIn, signUp, setSignUp,
           type="password"
           placeholder="Password"
           value={formData.password}
+          pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*_=+-]).{8,100}$"
           onChange={handleOnChangePassword}
           innerRef={password}
         />
@@ -206,23 +262,44 @@ function SignUpForm({ formData, setFormData, logIn, setLogIn, signUp, setSignUp,
             Password Strength:
             {passwordStrengthFunction(formData.password).value}
           </li>
-          <li className={!passwordContainsName ? classes.true : classes.false}>
-            Can't contain your name or email address
-          </li>
-          <li className={passwordLength >= 8 ? classes.true : classes.false}>
-            At least 8 characters
-          </li>
-          <li className={passwordContainsNumber ? classes.true : classes.false}>
-            Contains a number or symbol
-          </li>
+          {passAllChecks ? null : (
+            <>
+              <li
+                className={!passwordContainsName ? classes.true : classes.false}
+              >
+                Can't contain your name or email address
+              </li>
+              <li
+                className={passwordLength >= 8 ? classes.true : classes.false}
+              >
+                At least 8 characters
+              </li>
+              <li
+                className={
+                  passwordContainsNumber && passwordContainsSpecialCharacter
+                    ? classes.true
+                    : classes.false
+                }
+              >
+                Contains a number and symbol
+              </li>
+              <li
+                className={
+                  passwordContainsUpperCase ? classes.true : classes.false
+                }
+              >
+                Contains an uppercase
+              </li>
+            </>
+          )}
         </div>
       </div>
 
       <div className={classes.conditions}>
         By selecting Agree and Continue. I agree to subLet's Terms of service,
-        Payments Terms of Service, Nondiscrimination Policy, and Privacy Policy
+        Payments Terms of Service, Nondiscrimination Policy, and Privacy Policy.
       </div>
-      <button className={classes.button} disabled={passAllChecks} type="submit">
+      <button className={classes.button} type="submit">
         {" "}
         Agree and Continue
       </button>
@@ -231,6 +308,8 @@ function SignUpForm({ formData, setFormData, logIn, setLogIn, signUp, setSignUp,
 }
 
 export default SignUpForm;
+
+//disabled={!passAllChecks}
 
 /*
 
