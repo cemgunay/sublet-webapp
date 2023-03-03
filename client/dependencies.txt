@@ -22,4 +22,10 @@ npm install react-month-picker --save
 
 npm i check-password-strength --save
 
+
 npm install react-responsive-masonry --legacy-peer-deps
+
+npm i react-google-autocomplete --save
+
+npm install env-cmd
+
