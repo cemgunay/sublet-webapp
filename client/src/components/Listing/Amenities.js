@@ -8,8 +8,8 @@ function Amenities(props) {
 
   return (
     <div className={classes.container}>{amenities.length && amenities
-        .map(amenity => (
-          <div>{amenity}</div>
+        .map((amenity, index) => (
+          <div key={index}>{amenity}</div>
           ))}</div>
   )
 }

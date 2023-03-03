@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import Carousel from '../Carousel/Carousel'
 
 import classes from './ListingItem.module.css'
 
@@ -8,7 +9,7 @@ function ListingItem(props) {
   return (
     <Link to={'/listing/'+props.id} state={{listing:props}} className={classes.container}>
         <div className={classes.image}>
-            <img src={props.image[0]} alt={props.title}/>
+          <Carousel dots={true} images={props.image} />
         </div>
         <div className={classes.content}>
           <div className={classes.first}>
