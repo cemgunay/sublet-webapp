@@ -11,6 +11,9 @@ import Carousel from "../../components/Carousel/Carousel";
 import Scroll from "../../components/Scroll/Scroll";
 import Utilities from "../../components/Listing/Utilities";
 import Amenities from "../../components/Listing/Amenities";
+import Modal from "../../components/Modal/Modal";
+
+import Collage from "../../components/Collage/Collage";
 
 function Listing() {
   
@@ -31,13 +34,17 @@ function Listing() {
       .catch((error) => console.log(error));
   }, [listing.userid]);
 
-  console.log(listing);
-  console.log(user);
+  const [openModal, setOpenModal] = useState(false)
+
+  const handleClick = () => {
+    setOpenModal(!openModal)
+  }
 
   return (
     <>
       <div className={classes.container}>
-        <Carousel images={listing.image} />
+        {openModal && <Modal closeModal={setOpenModal} images={listing.image}/>}
+        <Carousel images={listing.image} onClick={handleClick}/>
         <div className={classes.content}>
           <div className={classes.title}>
             <div className={classes.first}>
