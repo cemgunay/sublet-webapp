@@ -1,5 +1,18 @@
-.card {
+.container{
   background-color: white;
   border-radius: 6px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  height: 100%;
+  width: 120px;
+  padding: 0.5rem;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.title{
+  margin-bottom: 1rem;
 }

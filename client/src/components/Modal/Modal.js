@@ -1,21 +1,27 @@
-import React, { useState } from 'react'
-import Collage from '../Collage/Collage'
-import classes from './Modal.module.css'
+import React, { useState } from "react";
+import Collage from "../Collage/Collage";
+import Collage2 from "../Collage/Collage2";
+import Collage3 from "../Collage/Collage3";
+import classes from "./Modal.module.css";
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faChevronLeft } from '@fortawesome/free-solid-svg-icons'
+
+
 
 function Modal({ closeModal, images }) {
-
-    const handleClick = () => {
-        closeModal(false)
-    }
+  const handleClick = () => {
+    closeModal(false);
+  };
 
   return (
-    <>
-    <button onClick={handleClick}>Close</button>
-    <div>This is where the muhfuckin collage will go STYLL</div>
-    <Collage images={images}/>
-
-    </>
-  )
+    <div className={classes.modal}>
+      <div className={classes.back}>
+      <FontAwesomeIcon className={classes.back} icon={faChevronLeft} onClick={handleClick}/>
+      </div>
+      <Collage3 images={images} />
+    </div>
+  );
 }
 
-export default Modal
+export default Modal;

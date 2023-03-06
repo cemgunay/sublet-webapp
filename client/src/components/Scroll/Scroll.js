@@ -5,15 +5,18 @@ import ScrollCard from "./ScrollCard";
 
 import './Scroll.css'
 
-const getItems = () =>
+function Scroll(props) {
+
+  const getItems = () =>
   Array(4)
     .fill(0)
     .map((_, ind) => ({ id: `element-${ind}` }));
 
-function Scroll() {
   const [items, setItems] = React.useState(getItems);
   const [selected, setSelected] = React.useState([]);
   const [position, setPosition] = React.useState(0);
+
+  console.log(props.bedrooms)
 
   const isItemSelected = (id) => !!selected.find((el) => el === id);
 
@@ -31,17 +34,34 @@ function Scroll() {
 
   return (
     <ScrollMenu>
-      {items.map(({ id }) => (
+      {props.bedrooms.map((bedroom, index) => (
         <ScrollCard
-          itemId={id} // NOTE: itemId is required for track items
-          title={id}
-          key={id}
-          onClick={handleClick(id)}
-          selected={isItemSelected(id)}
-        />
+        itemId={index} // NOTE: itemId is required for track items
+        key={index}
+        title={"Bedroom " + (index+1)}
+        beds={bedroom.bedTypes}
+        onClick={handleClick(index+1)}
+        selected={isItemSelected(index+1)}
+      />
       ))}
     </ScrollMenu>
   );
 }
 
 export default Scroll;
+
+
+//This is from the api itself
+/*
+
+{items.map(({ id }) => (
+  <ScrollCard
+    itemId={id} // NOTE: itemId is required for track items
+    title={id}
+    key={id}
+    onClick={handleClick(id)}
+    selected={isItemSelected(id)}
+  />
+))}
+
+*/

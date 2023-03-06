@@ -5,9 +5,14 @@
     color: black;
   }
   
-.image img {
+.imageContainer {
   width: 100%;
-  object-fit: cover;
+  height: 13rem;
+  border-radius: 6px;
+}
+
+.imageContainer img{
+  object-fit: fill;
   border-radius: 6px;
 }
 

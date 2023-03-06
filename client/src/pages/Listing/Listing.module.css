@@ -3,6 +3,13 @@
   flex-direction: column;
   text-decoration: none;
   color: black;
+  overflow: hidden;
+  padding-bottom: 6rem;
+}
+
+.containerNoScroll {
+  height: 100vh;
+  overflow-y: hidden;
 }
 
 .image img {
@@ -16,7 +23,6 @@
   flex-direction: column;
   margin-left: 2rem;
   margin-right: 2rem;
-  margin-bottom: 5rem;
 }
 
 .title{

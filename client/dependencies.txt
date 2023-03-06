@@ -29,3 +29,6 @@ npm i react-google-autocomplete --save
 
 npm install env-cmd
 
+npm i framer-motion --legacy-peer-deps
+
+npm install @syncfusion/ej2-react-calendars 

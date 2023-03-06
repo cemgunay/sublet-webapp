@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import Slider from "react-slick";
 
-import classes from "./Carousel.module.css";
 import "./CarouselElement.css";
 
 function Carousel(props) {
@@ -13,12 +12,18 @@ function Carousel(props) {
     slidesToScroll: 1,
     arrows: false,
     dots: props.dots,
+    initialSlide: props.index
   };
 
+  const handleOnChange = (currentImage) => {
+    console.log(currentImage)
+    props.setData({ ...props.data, i: currentImage })
+  }
+
   return (
-    <Slider {...settings}>
+    <Slider {...settings} afterChange={handleOnChange}>
       {props.images.map((element, i) => (
-        <img className={classes.image} key={i} src={element} alt={element} onClick={props.onClick}/>
+        <img key={i} src={element} alt={element} onClick={props.onClick}/>
       ))}
     </Slider>
   );
