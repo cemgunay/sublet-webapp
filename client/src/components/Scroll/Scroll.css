@@ -1,18 +1,42 @@
+.react-horizontal-scrolling-menu--wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 15rem;
+}
+
+.react-horizontal-scrolling-menu--inner-wrapper {
+  display: flex;
+  overflow-y: hidden;
+  height: 100%;
+}
+
 .react-horizontal-scrolling-menu--scroll-container {
     display: flex;
     height: max-content;
     overflow-y: hidden;
     position: relative;
-    width: 100%;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
+    height: 100%;
   }
 
+  .react-horizontal-scrolling-menu--item{
+    padding-bottom: 2rem;
+    margin-top: 1rem;
+    margin-right: 1rem;
+    margin-left: 0.5rem;
+  }
+
+  /*
   .react-horizontal-scrolling-menu--item > div > div:nth-child(1) {
     padding: 1rem;
     margin: 1rem;
  }
+ */
+
+
+ /*
 
   .react-horizontal-scrolling-menu--item > div > div:nth-child(2) {
     height: 0px !important;
  }
+
+ */

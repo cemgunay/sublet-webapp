@@ -15,6 +15,9 @@ import Modal from "../../components/Modal/Modal";
 
 import Collage from "../../components/Collage/Collage";
 
+import CalendarComponent from "../../components/Listing/CalendarComponent";
+import BottomBar from "../../components/BottomBar/BottomBar";
+
 function Listing() {
   
   //useParams and useLocation are to pass the listing prop from listingItem through to this component
@@ -24,6 +27,8 @@ function Listing() {
   const listing = state.listing;
 
   const [user, setUser] = useState([]);
+
+  const [dates, setDates] = useState([new Date(), new Date()]);
 
   useEffect(() => {
     axios
@@ -40,9 +45,13 @@ function Listing() {
     setOpenModal(!openModal)
   }
 
+console.log(listing.bedrooms)
+
+console.log(dates)
+
   return (
     <>
-      <div className={classes.container}>
+      <div className={!openModal ? classes.container : classes.containerNoScroll}>
         {openModal && <Modal closeModal={setOpenModal} images={listing.image}/>}
         <Carousel images={listing.image} onClick={handleClick}/>
         <div className={classes.content}>
@@ -60,7 +69,7 @@ function Listing() {
             Entire Suite Subletted by {user.firstname}
             <div className={classes.details}>
               <p>
-                {listing.bedrooms} bedrooms - {listing.beds} beds -{" "}
+                {listing.bedrooms.length} bedrooms - {listing.beds} beds -{" "}
                 {listing.bathrooms} bathrooms
               </p>
             </div>
@@ -80,11 +89,7 @@ function Listing() {
           </div>
           <div className={classes.bedrooms}>
             <h2>Bedrooms</h2>
-            <Scroll />
-            <p>
-              Need to make bedroom an object in JSON with number of bedrooms and
-              bed size
-            </p>
+            <Scroll bedrooms={listing.bedrooms}/>
           </div>
           <div className={classes.utilities}>
             <h2>Utilities</h2>
@@ -97,11 +102,12 @@ function Listing() {
           <div className={classes.location}>
             <h2>Location</h2>
             <p>
-              Later issue STYLLLLL
+              This will be a map with a marker
             </p>
           </div>
           <div className={classes.availability}>
             <h2>Availability</h2>
+            <CalendarComponent dates={dates} setDates={setDates}/>
           </div>
           <div>
             Health & Safety
@@ -125,6 +131,9 @@ function Listing() {
             </p>
           </div>
         </div>
+      </div>
+      <div>
+        <BottomBar listing={listing} dates={dates}/>
       </div>
     </>
   );

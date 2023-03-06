@@ -14,7 +14,7 @@ function Collage(props) {
   };
 
   return (
-    <>
+    <div className={classes.collageModal}>
     {data.img && 
     
     <div className={classes.modal}>
@@ -38,7 +38,7 @@ function Collage(props) {
         ))}
       </Masonry>
     </ResponsiveMasonry>
-    </>
+    </div>
     
   );
 }
