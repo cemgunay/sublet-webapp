@@ -1,6 +1,11 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
+const bedroomSchema = new mongoose.Schema({
+    bedType: [{ type: String}],
+    ensuite: { type: Boolean },
+  }, { _id: false });
+  
 const ListingSchema = new Schema(
   {
     userId: {
@@ -40,12 +45,7 @@ const ListingSchema = new Schema(
     propertyType: {
       type: String,
     },
-    bedrooms: [
-      {
-        bedType: { type: Array, default: [] },
-        ensuite: Boolean,
-      },
-    ],
+    bedrooms: [bedroomSchema],
     bathrooms: {
       type: Number,
     },
