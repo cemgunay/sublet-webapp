@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye } from "@fortawesome/free-solid-svg-icons";
+import { faEye, faCircleChevronLeft } from "@fortawesome/free-solid-svg-icons";
 
 import axios from "axios";
 
@@ -26,6 +26,9 @@ function Listing() {
   const { state } = location;
   const listing = state.listing;
 
+  //for back button
+  const navigate = useNavigate();
+
   const [user, setUser] = useState([]);
 
   const [dates, setDates] = useState([new Date(), new Date()]);
@@ -45,15 +48,18 @@ function Listing() {
     setOpenModal(!openModal)
   }
 
-console.log(listing.bedrooms)
-
-console.log(dates)
+  const goBack = () => {
+    navigate('/')
+  }
 
   return (
     <>
+    <div className={classes.back} onClick={goBack}>
+    <FontAwesomeIcon icon={faCircleChevronLeft} inverse/>
+    </div>
       <div className={!openModal ? classes.container : classes.containerNoScroll}>
         {openModal && <Modal closeModal={setOpenModal} images={listing.image}/>}
-        <Carousel images={listing.image} onClick={handleClick}/>
+        <Carousel images={listing.image} onClick={handleClick} index={0} dots={true} from={'Listing'}/>
         <div className={classes.content}>
           <div className={classes.title}>
             <div className={classes.first}>

@@ -16,10 +16,11 @@ function Carousel(props) {
   };
 
   const handleOnChange = (currentImage) => {
-    console.log(currentImage)
+    if (props.from === 'Collage') {
     props.setData({ ...props.data, i: currentImage })
+    }
   }
-
+  
   return (
     <Slider {...settings} afterChange={handleOnChange}>
       {props.images.map((element, i) => (

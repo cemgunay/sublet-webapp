@@ -9,7 +9,7 @@ function ListingItem(props) {
   return (
     <Link to={'/listing/'+props.id} state={{listing:props}} className={classes.container}>
         <div className={classes.imageContainer}>
-          <Carousel dots={true} images={props.image} />
+          <Carousel dots={true} images={props.image} index={0} from={'Explore'}/>
         </div>
         <div className={classes.content}>
           <div className={classes.first}>
