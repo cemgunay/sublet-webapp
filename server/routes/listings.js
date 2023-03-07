@@ -25,20 +25,25 @@ const upload = multer({ dest: "uploads/" });
 // Create a listing
 router.post("/", upload.array("images"), async (req, res) => {
   try {
+
+    /*
     // Upload images to Cloudinary
     const uploads = req.files.map((file) =>
       cloudinary.uploader.upload(file.path)
     );
     const results = await Promise.all(uploads);
+  */
 
     // Create new listing object with image data
     const newListing = new Listing({
       userId: req.body.userId,
       title: req.body.title,
+      /*
       images: results.map((result) => ({
         url: result.secure_url,
         filename: result.public_id,
       })),
+      */
       address: req.body.address,
       city: req.body.city,
       moveInDate: req.body.moveInDate,
@@ -48,6 +53,7 @@ router.post("/", upload.array("images"), async (req, res) => {
       propertyType: req.body.propertyType,
       bedrooms: req.body.bedrooms,
       bathrooms: req.body.bathrooms,
+      /*
       amenities: {
         inUnitWasherAndDrier: req.body.amenities.inUnitWasherAndDrier,
         airConditioning: req.body.amenities.airConditioning,
@@ -58,12 +64,15 @@ router.post("/", upload.array("images"), async (req, res) => {
         balcony: req.body.amenities.balcony,
         parking: req.body.amenities.parking,
       },
+      */
+     /*
       utilities: {
         hydro: req.body.utilities.hydro,
         electricity: req.body.utilities.electricity,
         water: req.body.utilities.water,
         wifi: req.body.utilities.wifi,
       },
+      */
       description: req.body.description,
     });
 

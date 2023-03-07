@@ -5,11 +5,9 @@ const ListingSchema = new Schema(
   {
     userId: {
       type: String,
-      required: true,
     },
     title: {
       type: String,
-      require: true,
     },
     images: [
       {
@@ -19,23 +17,18 @@ const ListingSchema = new Schema(
     ],
     address: {
       type: String,
-      require: true,
     },
     city: {
       type: String,
-      require: true,
     },
     moveInDate: {
       type: Date,
-      require: true,
     },
     moveOutDate: {
       type: Date,
-      require: true,
     },
     expiryDate: {
       type: Date,
-      require: true,
     },
     views: {
       type: Number,
@@ -43,21 +36,18 @@ const ListingSchema = new Schema(
     },
     price: {
       type: Number,
-      require: true,
     },
     propertyType: {
       type: String,
-      require: true,
     },
     bedrooms: [
       {
-        bedType: String,
+        bedType: { type: Array, default: [] },
         ensuite: Boolean,
       },
     ],
     bathrooms: {
       type: Number,
-      require: true,
     },
     amenities: {
       inUnitWasherAndDrier: {
@@ -113,8 +103,10 @@ const ListingSchema = new Schema(
     },
     description: {
       type: String,
-      require: true,
     },
+    published: {
+      type: Boolean,
+    }
   },
   { timestamps: true }
 );
