@@ -108,8 +108,15 @@ const ListingSchema = new Schema(
       type: Boolean,
     }
   },
-  { timestamps: true }
+  { timestamps: true , toJSON: { virtuals: true }, toObject: { virtuals: true }}
 );
+
+ListingSchema.virtual('daysLeft').get(function () {
+    const now = new Date();
+    const diffTime = this.expiryDate.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+    return diffDays;
+  });
 
 const ListingModel = mongoose.model("Listing", ListingSchema);
 
