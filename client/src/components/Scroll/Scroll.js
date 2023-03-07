@@ -16,8 +16,6 @@ function Scroll(props) {
   const [selected, setSelected] = React.useState([]);
   const [position, setPosition] = React.useState(0);
 
-  console.log(props.bedrooms)
-
   const isItemSelected = (id) => !!selected.find((el) => el === id);
 
   const handleClick =

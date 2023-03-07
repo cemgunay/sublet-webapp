@@ -30,7 +30,7 @@ function Collage3(props) {
       <div className={classes.index}>{data.i + 1}/{images.length}</div>
       </div>
         <div className={classes.carousel}>
-        <Carousel images={images} index={data.i} setData={setData} data={data}/>
+        <Carousel images={images} index={data.i} setData={setData} data={data} from={'Collage'}/>
         </div>
                 
         </div>}

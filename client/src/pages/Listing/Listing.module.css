@@ -7,6 +7,19 @@
   padding-bottom: 6rem;
 }
 
+.back{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: fit-content;
+  z-index: 100;
+  padding: 1rem;
+}
+
+.leftchevron{
+  fill: white;
+}
+
 .containerNoScroll {
   height: 100vh;
   overflow-y: hidden;
