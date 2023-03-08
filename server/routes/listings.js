@@ -25,7 +25,6 @@ const upload = multer({ dest: "uploads/" });
 // Create a listing
 router.post("/", upload.array("images"), async (req, res) => {
   try {
-
     /*
     // Upload images to Cloudinary
     const uploads = req.files.map((file) =>
@@ -65,7 +64,7 @@ router.post("/", upload.array("images"), async (req, res) => {
         parking: req.body.amenities.parking,
       },
       */
-     /*
+      /*
       utilities: {
         hydro: req.body.utilities.hydro,
         electricity: req.body.utilities.electricity,
@@ -125,6 +124,66 @@ router.get("/:id", async (req, res) => {
     res.status(200).json(listing);
   } catch (err) {
     res.status(500).json(err);
+  }
+});
+
+//Get all listings with filters
+
+router.get("/", async (req, res) => {
+  const query = {};
+  if (req.query.city) {
+    query.city = req.query.city;
+  }
+  if (req.query.moveInDate) {
+    query.moveInDate = {
+      $gte: req.query.moveInDate[0],
+      $lte: req.query.moveInDate[1],
+    };
+  }
+  if (req.query.moveOutDate) {
+    query.moveOutDate = {
+      $gte: req.query.moveOutDate[0],
+      $lte: req.query.moveOutDate[1],
+    };
+  }
+  if (req.query.expiryDate) {
+    query.expiryDate = {
+      $gte: req.query.expiryDate[0],
+      $lte: req.query.expiryDate[1],
+    };
+  }
+  if (req.query.price) {
+    query.price = { $gte: req.query.price[0], $lte: req.query.price[1] };
+  }
+  if (req.query.propertyType) {
+    query.propertyType = req.query.propertyType;
+  }
+  if (req.query.numOfBedrooms) {
+    query["bedrooms.length"] = {
+      $gte: req.query.numOfBedrooms[0],
+      $lte: req.query.numOfBedrooms[1],
+    };
+  }
+  if (req.query.utilities) {
+    const { hydro, electricity, water, wifi } = req.query.utilities;
+    if (hydro) {
+      query["utilities.hydro"] = hydro;
+    }
+    if (electricity) {
+      query["utilities.electricity"] = electricity;
+    }
+    if (water) {
+      query["utilities.water"] = water;
+    }
+    if (wifi) {
+      query["utilities.wifi"] = wifi;
+    }
+  }
+  try {
+    const listings = await Listing.find(query).exec();
+    res.status(200).json(listings);
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
