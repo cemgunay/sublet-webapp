@@ -1,11 +1,14 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-const bedroomSchema = new mongoose.Schema({
-    bedType: [{ type: String}],
+const bedroomSchema = new mongoose.Schema(
+  {
+    bedType: [{ type: String }],
     ensuite: { type: Boolean },
-  }, { _id: false });
-  
+  },
+  { _id: false }
+);
+
 const ListingSchema = new Schema(
   {
     userId: {
@@ -106,17 +109,21 @@ const ListingSchema = new Schema(
     },
     published: {
       type: Boolean,
-    }
+    },
   },
-  { timestamps: true , toJSON: { virtuals: true }, toObject: { virtuals: true }}
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
-ListingSchema.virtual('daysLeft').get(function () {
-    const now = new Date();
-    const diffTime = this.expiryDate.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-    return diffDays;
-  });
+ListingSchema.virtual("daysLeft").get(function () {
+  const now = new Date();
+  const diffTime = this.expiryDate.getTime() - now.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return diffDays;
+});
+
+ListingSchema.virtual("numOfBedrooms").get(function () {
+  return this.bedrooms.length;
+});
 
 const ListingModel = mongoose.model("Listing", ListingSchema);
 
