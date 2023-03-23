@@ -89,6 +89,7 @@ router.post("/", upload.array("images"), async (req, res) => {
 router.put("/:id", async (req, res) => {
   try {
     const listing = await Listing.findById(req.params.id);
+    console.log(listing)
     if (listing.userId === req.body.userId) {
       //Check if listing belongs to user trying to update it
       await listing.updateOne({ $set: req.body });
@@ -102,10 +103,10 @@ router.put("/:id", async (req, res) => {
 });
 
 //Delete a listing
-router.delete("/:id", async (req, res) => {
+router.delete("/:id/:userId", async (req, res) => {
   try {
     const listing = await Listing.findById(req.params.id);
-    if (listing.userId === req.body.userId) {
+    if (listing.userId === req.params.userId) {
       //Check if listing belongs to user trying to delete it
       await listing.deleteOne();
       res.status(200).json("The listing has been deleted!");

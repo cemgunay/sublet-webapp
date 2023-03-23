@@ -13,9 +13,9 @@ function BottomNav() {
   //const { user: currentUser } = useContext(AuthContext);
 
   //to change the elements below
-  const { user } = useContext(AuthContext);
+  const { user: currentUser} = useContext(AuthContext);
 
-  console.log(user)
+  console.log(currentUser)
 
   return (
     <div className={classes.wrapper}>

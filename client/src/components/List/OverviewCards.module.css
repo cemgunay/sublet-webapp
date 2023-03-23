@@ -1,0 +1,30 @@
+.container{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+}
+
+.left{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.title{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.imagecontainer img{
+    width: 74px;
+}
+
+.desc {
+    font-size: x-small;
+    padding-left: 1rem;
+}

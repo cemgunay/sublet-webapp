@@ -16,7 +16,7 @@ import Modal from "../../components/Modal/Modal";
 import Collage from "../../components/Collage/Collage";
 
 import CalendarComponent from "../../components/Listing/CalendarComponent";
-import BottomBar from "../../components/BottomBar/BottomBar";
+import BottomBar from "../../components/Listing/BottomBar/BottomBar";
 
 function Listing() {
   

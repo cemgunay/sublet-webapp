@@ -1,27 +1,25 @@
-import React from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext";
 
 function List() {
 
-    const navigate = useNavigate()
+  const navigate = useNavigate();
 
-    const goToPostAListing = () => {
-        navigate('/list/postlisting')
-    }
+  const { user: currentUser} = useContext(AuthContext)
+
+  const goToInfo = () => {
+    navigate("info");
+  };
 
   return (
     <>
-    <div>Use subLet</div>
-    <div>You could save $XCAD / month</div>
-    <div>The above number will be based on the address they input below</div>
-    <div>Enter Location - estimate will be more accurate based on if they enter an actual address or a city obvi cuz itll be the average of whats seen in that google maps area</div>
-    <div>A map of current listings in area</div>
-    <div>subLet Insurance</div>
-    <div>Write about everything that we insure - see sample on airbnb website</div>
-    <div>3% fee and guests will also be charged a fee</div>
-    <button onClick={goToPostAListing}>Start subLetting</button>
+      <div>Welcome back {currentUser.firstName}</div>
+      <div>Check if user has an unfinished listing</div>
+      <div>Start new listing</div>
+      <button onClick={goToInfo}>Create a new listing</button>
     </>
-  )
+  );
 }
 
-export default List
+export default List;
