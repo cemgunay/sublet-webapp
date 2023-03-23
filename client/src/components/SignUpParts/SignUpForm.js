@@ -7,7 +7,15 @@ import { passwordStrength as passwordStrengthFunction } from "check-password-str
 
 import { usePlacesWidget } from "react-google-autocomplete";
 
+import PlacesAutocomplete from 'react-places-autocomplete';
+import {
+  geocodeByAddress,
+  geocodeByPlaceId,
+  getLatLng,
+} from 'react-places-autocomplete';
+
 import FormInput from "./FormInput";
+import Autocomplete from "../Autocomplete/Autocomplete";
 
 function SignUpForm({
   formData,
@@ -179,7 +187,10 @@ function SignUpForm({
   console.log(formData);
 
   return (
+    
+    
     <form onSubmit={handleSubmit} className={classes.formcontainer}>
+      <Autocomplete />
       <FormInput
         name="firstName"
         type="text"
@@ -304,6 +315,8 @@ function SignUpForm({
         Agree and Continue
       </button>
     </form>
+    
+    
   );
 }
 

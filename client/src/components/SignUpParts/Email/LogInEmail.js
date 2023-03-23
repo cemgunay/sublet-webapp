@@ -9,9 +9,9 @@ import { CircularProgress } from "@mui/material";
 import Error from "../Error";
 import EmailChanged from "./EmailChanged";
 
-import axios from "../../../api/axios";
+import api from "../../../api/axios";
+
 import FormInput from "../FormInput";
-const BASE_URL = "auth/login";
 
 function LogInEmail({ formData, setFormData, emailChangedToMatch }) {
   //get email data from previous page
@@ -21,8 +21,7 @@ function LogInEmail({ formData, setFormData, emailChangedToMatch }) {
   const password = useRef();
 
   //authcontext stuff
-  //const { user, error } = useContext(AuthContext)
-  const { isFetching } = useContext(AuthContext);
+  const {user, isFetching, error, dispatch} = useContext(AuthContext);
 
   //to conditionally render wrong password popup div
   const [isError, setIsError] = useState(false);
@@ -33,16 +32,24 @@ function LogInEmail({ formData, setFormData, emailChangedToMatch }) {
   const handleClick = async (e) => {
     e.preventDefault();
 
-    try {
-      const response = await axios.post(BASE_URL, {
-        email: email,
-        password: password.current.value,
-      });
-      console.log(response.data);
-      navigate("/");
-    } catch (error) {
-      setIsError(true);
-    }
+      const credentials = {
+        email:email,
+        password:password.current.value
+      }
+    
+    dispatch({type:"LOGIN_START"});
+
+      try {
+        const res = await api.post("/auth/login", credentials);
+        dispatch({type:"LOGIN_SUCCESS", payload: res.data });
+        console.log(res.data);
+        navigate("/");
+      } catch (err) {
+        dispatch({type:"LOGIN_FAILURE", payload: err });
+        console.log(err);
+        setIsError(true)
+      }
+
   };
 
   return (

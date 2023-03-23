@@ -1,0 +1,18 @@
+.wrapper{
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+.container {
+    height: 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    background-color: var(--color-white);
+}
+
+.left{
+    display: flex;
+    flex-direction: column;
+}

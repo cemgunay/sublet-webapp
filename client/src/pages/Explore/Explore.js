@@ -18,8 +18,11 @@ function Explore() {
   useEffect(() => {
     axios.get("/dummy/dummy-data.json").then(response => {
       setListings(response.data)
+      console.log('rerender useeffect')
     }).catch(error => console.log(error));
   }, []); 
+
+  console.log('rerender explore')
 
   /*useEffect(() => {
     const fetchListings = async () => {
@@ -50,7 +53,3 @@ function Explore() {
 }
 
 export default Explore;
-
-//DONT DELETE
-//const [listings, setListings] = useState()
-//const {DUMMY_DATA} = require('../../dummy/dummy-data');

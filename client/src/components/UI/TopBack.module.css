@@ -1,0 +1,15 @@
+.back{
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    width: 100%;
+    text-align: left;
+}
+
+.back svg{
+    margin-bottom: 0px;
+    margin-top: 0px;
+    margin-left: 2rem;
+    position: relative;
+    width: auto;
+    text-align: left;
+}

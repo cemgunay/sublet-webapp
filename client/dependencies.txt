@@ -27,6 +27,8 @@ npm install react-responsive-masonry --legacy-peer-deps
 
 npm i react-google-autocomplete --save
 
+npm install --save react-places-autocomplete
+
 npm install env-cmd
 
 npm i framer-motion --legacy-peer-deps
