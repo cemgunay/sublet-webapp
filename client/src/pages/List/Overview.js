@@ -16,12 +16,8 @@ function Overview() {
 
   const navigate = useNavigate();
 
-  console.log(data.userId)
-
   const handleOnSubmit = async (e) => {
     e.preventDefault();
-
-    console.log(data);
 
     const newListing = {
       userId: data.userId,
@@ -39,7 +35,7 @@ function Overview() {
 
   return (
     <>
-      <TopBack icon="xmark" />
+      <TopBack icon="xmark" path="/list"/>
       <div className={classes.container}>
         <div>Its easy to get started with subLet</div>
         <div className={classes.cards}>

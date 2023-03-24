@@ -4,14 +4,12 @@ import BottomBar from "../../components/List/BottomBar";
 
 import api from '../../api/axios'
 
-function AboutYourPlace() {
+function Basics() {
 
-  const [urlTitle, urlTitleReverse, page, setPage, data, setData, canSubmit, handleChange, currentUserId, loading]  = useOutletContext();
+  const [urlTitle, urlTitleReverse, page, setPage, data, canSubmit, handleChange, currentUserId]  = useOutletContext();
 
   const navigate = useNavigate()
-
-  console.log(data.title)
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -33,11 +31,9 @@ function AboutYourPlace() {
 
   return (
     <div>
-      <form id={urlTitleReverse[page]} onSubmit={handleSubmit}>
-        <div>{urlTitleReverse[page]}</div>
-        {loading ? <div>
-          holdup
-        </div> : <input type="text" placeholder="title" name="title" value={data.title || ''} required onChange={handleChange}/>}
+      <form id="Basics" onSubmit={handleSubmit}>
+        <div>Basics</div>
+        <input type="text" placeholder="title" name="title" value={data.title} required onChange={handleChange}/>
         <BottomBar
           form={urlTitleReverse[page]}
           page={page}
@@ -52,4 +48,4 @@ function AboutYourPlace() {
   );
 }
 
-export default AboutYourPlace;
+export default Basics;

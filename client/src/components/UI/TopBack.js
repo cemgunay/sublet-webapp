@@ -11,7 +11,7 @@ function TopBack(props) {
   const navigate = useNavigate()
 
   const handleOnClick = () => {
-    navigate('/')
+    navigate(props.path)
   }
 
   return (

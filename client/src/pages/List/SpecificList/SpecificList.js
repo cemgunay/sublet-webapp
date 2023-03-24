@@ -5,7 +5,16 @@ import useListFormContext from "../../../hooks/useListFormContext";
 
 function SpecificList() {
 
-  const { urlTitle, urlTitleReverse, page, setPage, data, canSubmit, handleChange, currentUserId } = useListFormContext()
+  const { urlTitle, urlTitleReverse, page, setPage, data, setData, canSubmit, handleChange, currentUserId, loading } = useListFormContext()
+
+  //to iterate through pages
+  const currentUrl = window.location.pathname
+  const n = currentUrl.lastIndexOf('/')
+  const result = currentUrl.substring(n + 1)
+
+  useEffect(() => {
+    setPage(urlTitle[result]);
+  });
 
   /*
 to figure out what page we are on after a save and exit:
@@ -22,7 +31,7 @@ this will also help if person refreshes in the middle of the process so it will 
   return (
     <>
       <TopBar />
-      <Outlet context={[urlTitle, urlTitleReverse, page, setPage, data, canSubmit, handleChange, currentUserId]}/>
+      <Outlet context={[urlTitle, urlTitleReverse, page, setPage, data, setData, canSubmit, handleChange, currentUserId, loading]}/>
     </>
   );
 }

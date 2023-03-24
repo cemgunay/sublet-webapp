@@ -1,10 +1,11 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import { AuthContext } from "./AuthContext";
 
+import api from "../api/axios";
+
 const ListFormContext = createContext({});
 
 export const ListFormProvider = ({ children }) => {
-
   //urlTitle hashmap
   const urlTitle = {
     aboutyourplace: 0,
@@ -21,27 +22,8 @@ export const ListFormProvider = ({ children }) => {
   //set initial current page
   const [page, setPage] = useState(0);
 
-  const currentUrl = window.location.pathname
-  const n = currentUrl.lastIndexOf('/')
-  const result = currentUrl.substring(n + 1)
-
-  useEffect(() => {
-    setPage(urlTitle[result]);
-  }, [urlTitle, result]);
-
-  //to get current page (uses bit after last backslash in url)
-  /*
-  useEffect(() => {
-    const currentUrl = window.location.pathname
-    const n = currentUrl.lastIndexOf('/')
-    const result = currentUrl.substring(n + 1)
-
-    setPage(urlTitle[result]);
-  }, [page]);
-  */
-
   //get current logged in user
-  const { user: currentUser} = useContext(AuthContext);
+  const { user: currentUser } = useContext(AuthContext);
   const currentUserId = currentUser._id;
 
   //form data that will be posted
@@ -59,10 +41,33 @@ export const ListFormProvider = ({ children }) => {
     description: "",
   });
 
-  useEffect(()=>{
-    localStorage.setItem("listId", JSON.stringify(data._id))
-  },[data._id])
+  console.log("listform rendered");
 
+  //to put list id in local storage
+  useEffect(() => {
+    localStorage.setItem("listId", JSON.stringify(data._id));
+  }, [data]);
+
+  //for loading effects
+  const [loading, setLoading] = useState(true);
+
+  //to update above data object with values from DB instead of using local storage (IDK if this makes sense lmao but whatever)
+  useEffect(() => {
+    api
+      .get("/listings/" + data._id)
+      .then((response) => {
+        console.log(response.data)
+        setData((data) => ({
+          ...data,
+          title: response.data.title,
+          address: response.data.address,
+        }));
+        setLoading(false);
+      })
+      .catch((error) => console.error(error));
+  }, [data._id]);
+
+  //to handle change of the inputs in all the forms
   const handleChange = (e) => {
     const type = e.target.type;
     const name = e.target.name;
@@ -73,8 +78,6 @@ export const ListFormProvider = ({ children }) => {
       ...prevData,
       [name]: value,
     }));
-
-    console.log(data)
   };
 
   const { ...requiredInputs } = data;
@@ -85,7 +88,18 @@ export const ListFormProvider = ({ children }) => {
 
   return (
     <ListFormContext.Provider
-      value={{ urlTitle, urlTitleReverse, page, setPage, data, setData, canSubmit, handleChange, currentUserId }}
+      value={{
+        urlTitle,
+        urlTitleReverse,
+        page,
+        setPage,
+        data,
+        setData,
+        canSubmit,
+        handleChange,
+        currentUserId,
+        loading,
+      }}
     >
       {children}
     </ListFormContext.Provider>
