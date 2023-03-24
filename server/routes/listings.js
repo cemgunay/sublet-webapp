@@ -89,7 +89,6 @@ router.post("/", upload.array("images"), async (req, res) => {
 router.put("/:id", async (req, res) => {
   try {
     const listing = await Listing.findById(req.params.id);
-    console.log(listing)
     if (listing.userId === req.body.userId) {
       //Check if listing belongs to user trying to update it
       await listing.updateOne({ $set: req.body });
@@ -123,6 +122,44 @@ router.get("/:id", async (req, res) => {
   try {
     const listing = await Listing.findById(req.params.id);
     res.status(200).json(listing);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+// Get all of the listings in progress for a user
+router.get("/listingsinprogress/:userId", async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const listings = await Listing.find({ userId, published: false });
+    res.send(listings);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal server error");
+  }
+});
+
+//Get the draft group of a listing in progress
+router.get("/draftgroup/:id", async (req, res) => {
+  try {
+    const listing = await Listing.findById(req.params.id);
+
+    if (!listing) {
+      return res.status(404).send("Listing not found");
+    }
+
+    if (!listing.title) {
+      return res.send("aboutyourplace");
+    }
+
+    if (!listing.address) {
+      return res.send("location");
+    }
+
+    //TO DO: Write out all the remaining conditional statements to determine the listings draftgroup
+
+    return res.send("No empty properties!");
   } catch (err) {
     res.status(500).json(err);
   }
@@ -218,14 +255,14 @@ router.put("/:id/favourite", async (req, res) => {
     const listingUser = listing.userId;
 
     if (currentUser == listingUser) {
-      res.status(403).json("Cannot like your own listing");
+      res.status(403).json("Cannot favourite your own listing");
     }
 
     if (!currentUser.favourites.includes(req.params.id)) {
       await currentUser.updateOne({ $push: { favourites: req.params.id } });
-      res.status(200).json("Successfully liked a listing!");
+      res.status(200).json("Successfully favourited a listing!");
     } else {
-      res.status(403).json("You have already liked this listing!");
+      res.status(403).json("You have already favourited this listing!");
     }
   } catch (err) {
     res.status(500).json(err);

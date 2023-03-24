@@ -60,7 +60,7 @@ function Overview() {
           <OverviewCards
             number={4}
             title="Finish up and publish"
-            desc="Set a price and publish your subLete"
+            desc="Set a price and publish your subLet"
             img='\List\si4x_wafz_200928 1.png'
           />
         </div>
