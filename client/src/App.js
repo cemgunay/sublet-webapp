@@ -15,6 +15,7 @@ import SpecificList from "./pages/List/SpecificList/SpecificList";
 import { RemoveTrailingSlash } from "./RemoveTrailingSlashes";
 import ListFormContextLayout from "./ListFormContextLayout";
 import Info from "./pages/List/Info";
+import Basics from "./pages/List/Basics";
 
 //import RequireAuth from "./components/Util/RequireAuth";
 
@@ -40,6 +41,7 @@ function App() {
             <Route path="list/:id" element={<SpecificList />}>
               <Route path="aboutyourplace" element={<AboutYourPlace />} />
               <Route path="location" element={<Location />} />
+              <Route path="basics" element={<Basics />} />
             </Route>
           </Route>
 

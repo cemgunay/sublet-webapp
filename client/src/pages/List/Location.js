@@ -7,13 +7,13 @@ function Location() {
 
   const navigate = useNavigate()
 
-  const [urlTitle, urlTitleReverse, page, setPage, data, canSubmit, handleChange, currentUserId]  = useOutletContext();
+  const [urlTitle, urlTitleReverse, page, setPage, data, setData, canSubmit, handleChange, currentUserId]  = useOutletContext();
+
+  console.log(data.address)
   
   const handleSubmit = async (e) => {
 
     e.preventDefault();
-
-    navigate('/list/overview');
 
     const {_id, ...updateData} = data
 
@@ -23,6 +23,10 @@ function Location() {
     } catch (err) {
         console.log(err)
     }
+
+    setData({data: {}})
+
+    navigate('/');
 
     //setData
 
@@ -35,7 +39,7 @@ function Location() {
     <div>
       <form id="location" onSubmit={handleSubmit}>
         <div>location</div>
-        <input type="address" placeholder="address" name="address" value={data.address} required onChange={handleChange}/>
+        <input type="address" placeholder="address" name="address" value={data.address || ''} required onChange={handleChange}/>
         <BottomBar
           form={urlTitleReverse[page]}
           page={page}

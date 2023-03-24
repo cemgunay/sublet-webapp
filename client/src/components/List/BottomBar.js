@@ -17,6 +17,9 @@ function BottomBar(props) {
 
       try {
           await api.delete("/listings/" + props.listId + "/" + user.userId);
+          
+          //also remove from local stora
+          localStorage.setItem("listId", JSON.stringify(""))
       } catch (err) {
           console.log(err)
       }
