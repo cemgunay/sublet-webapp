@@ -109,6 +109,7 @@ const ListingSchema = new Schema(
     },
     published: {
       type: Boolean,
+      default: false,
     },
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
