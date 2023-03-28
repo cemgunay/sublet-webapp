@@ -3,9 +3,11 @@ import { Outlet } from "react-router-dom";
 import TopBar from "../../../components/List/TopBar";
 import useListFormContext from "../../../hooks/useListFormContext";
 
+import classes from './SpecificList.module.css'
+
 function SpecificList() {
 
-  const { urlTitle, urlTitleReverse, page, setPage, data, setData, canSubmit, handleChange, currentUserId, loading } = useListFormContext()
+  const { urlTitle, urlTitleReverse, page, setPage, data, setData, canSubmit, handleChange, currentUserId, loading, canGoNext } = useListFormContext()
 
   //to iterate through pages
   const currentUrl = window.location.pathname
@@ -29,10 +31,12 @@ this will also help if person refreshes in the middle of the process so it will 
 */
 
   return (
-    <>
+    <div className={classes.container}>
       <TopBar />
-      <Outlet context={[urlTitle, urlTitleReverse, page, setPage, data, setData, canSubmit, handleChange, currentUserId, loading]}/>
-    </>
+      <div className={classes.outlet}>
+        <Outlet context={{urlTitle, urlTitleReverse, page, setPage, data, setData, canSubmit, handleChange, currentUserId, loading, canGoNext}}/>
+      </div>
+    </div>
   );
 }
 

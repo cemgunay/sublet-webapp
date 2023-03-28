@@ -4,9 +4,11 @@ import BottomBar from "../../components/List/BottomBar";
 
 import api from '../../api/axios'
 
+import classes from './Basics.module.css'
+
 function Basics() {
 
-  const [urlTitle, urlTitleReverse, page, setPage, data, canSubmit, handleChange, currentUserId]  = useOutletContext();
+  const {urlTitleReverse, page, setPage, data, handleChange, currentUserId}  = useOutletContext();
 
   const navigate = useNavigate()
   
@@ -30,10 +32,17 @@ function Basics() {
   };
 
   return (
-    <div>
-      <form id="Basics" onSubmit={handleSubmit}>
+    <div className={classes.container}>
+      <div className={classes.header}>
         <div>Basics</div>
+        <div>You can add more detail later, like bed types</div>
+      </div>
+      <form id="Basics" onSubmit={handleSubmit}>
+        <div>
         <input type="text" placeholder="title" name="title" value={data.title} required onChange={handleChange}/>
+        <input type="text" placeholder="title" name="title" value={data.title} required onChange={handleChange}/>
+        <input type="text" placeholder="title" name="title" value={data.title} required onChange={handleChange}/>
+        </div>
         <BottomBar
           form={urlTitleReverse[page]}
           page={page}

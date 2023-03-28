@@ -13,7 +13,7 @@ function OverviewCards(props) {
         <div className={classes.desc}>{props.desc}</div>
       </div>
       <div className={classes.imagecontainer}>
-        <img src={props.img} />
+        <img src={props.img} alt={props.img}/>
       </div>
     </div>
   );

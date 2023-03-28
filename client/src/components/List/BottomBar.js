@@ -17,8 +17,30 @@ function BottomBar(props) {
       try {
           await api.delete("/listings/" + props.listId + "/" + user.userId);
           
-          //also remove from local stora
+          //also remove from local storage
           localStorage.setItem("listId", JSON.stringify(""))
+
+          //const {_id, userId, expiryDate, ...updateData} = props.data
+
+          //props.setData(updateData)
+          //console.log(updateData)
+
+          props.setData(
+          {...props.data, 
+            _id: "",
+            title: "",
+            address: "",
+            city: "",
+            moveInDate: "",
+            moveOutDate: "",
+            aboutyourplace: {
+              propertyType: "",
+              privacyType: ""
+            },
+            price: "",
+            description: ""}
+          )
+
       } catch (err) {
         console.log(err);
       }
@@ -40,7 +62,7 @@ function BottomBar(props) {
           </button>
         </div>
         <div>
-          <button type="submit">Next</button>
+          <button type="submit" disabled={!props.canGoNext}>Next</button>
         </div>
       </div>
     </footer>

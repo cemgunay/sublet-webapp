@@ -11,6 +11,8 @@
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@mui/material": "^5.11.10",
     "@mui/styled-engine-sc": "^5.11.9",
+    "@reach/combobox": "^0.18.0",
+    "@react-google-maps/api": "^2.18.1",
     "@syncfusion/ej2-calendars": "^20.4.52",
     "@syncfusion/ej2-react-calendars": "^20.4.52",
     "@testing-library/jest-dom": "^5.16.5",
@@ -39,6 +41,7 @@
     "react-social-icons": "^5.15.0",
     "slick-carousel": "^1.8.1",
     "styled-components": "^5.3.6",
+    "use-places-autocomplete": "^4.0.0",
     "web-vitals": "^2.1.4"
   },
   "scripts": {

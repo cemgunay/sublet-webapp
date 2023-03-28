@@ -1,3 +1,17 @@
+.wrapper{
+    position: fixed;
+    top: 0;
+    width: 100%;
+}
+
+.container {
+    height: 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    background-color: var(--color-white);
+}
+
 .save{
     border: 1px solid #9C9C9C;
     border-radius: 85px;

@@ -43,15 +43,31 @@ router.post("/", upload.array("images"), async (req, res) => {
         filename: result.public_id,
       })),
       */
-      address: req.body.address,
-      city: req.body.city,
+      location: {
+        address1: req.body.location.address,
+        city: req.body.location.city,
+        countryregion: req.body.location.countryregion,
+        postalcode: req.body.location.postalcode,
+        stateprovince: req.body.location.stateprovince,
+        unitnumber: req.body.location.unitnumber,
+      },
+
       moveInDate: req.body.moveInDate,
       moveOutDate: req.body.moveOutDate,
       expiryDate: req.body.expiryDate,
       price: req.body.price,
-      propertyType: req.body.propertyType,
-      bedrooms: req.body.bedrooms,
-      bathrooms: req.body.bathrooms,
+
+      aboutyourplace:{
+        propertyType: req.body.aboutyourplace.propertyType,
+        privacyType: req.body.aboutyourplace.privacyType
+      },
+      basics: {
+        bedrooms: {
+          bedType: req.body.basics.bedrooms.bedType,
+          ensuite: req.body.basics.bedrooms.ensuite
+        },
+        bathrooms: req.body.basics.bathrooms,
+      },
       /*
       amenities: {
         inUnitWasherAndDrier: req.body.amenities.inUnitWasherAndDrier,
