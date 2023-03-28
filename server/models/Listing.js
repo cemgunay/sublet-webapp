@@ -9,6 +9,42 @@ const bedroomSchema = new mongoose.Schema(
   { _id: false }
 );
 
+
+//NOTE:
+//Dont need to use schemas for these because they are not arrays unlike bedroomSchema 
+//Can remove just commented so Nino can see
+
+/*
+const basicsSchema = new mongoose.Schema(
+  {
+    bedrooms: [bedroomSchema],
+    bathrooms: {type: Number},
+  },
+  { _id: false }
+)
+
+const aboutyourplaceSchema = new mongoose.Schema(
+  {
+    propertyType: {type: String},
+    privacyType: {type: String},
+  },
+  { _id: false }
+)
+
+const locationSchema = new mongoose.Schema(
+  {
+    address1: {type: String},
+    city: {type: String},
+    countryregion: {type: String},
+    postalcode: {type: String},
+    stateprovince: {type: String},
+    unitnumber: {type: String},
+  },
+  { _id: false }
+)
+*/
+
+
 const ListingSchema = new Schema(
   {
     userId: {
@@ -23,11 +59,13 @@ const ListingSchema = new Schema(
         filename: String,
       },
     ],
-    address: {
-      type: String,
-    },
-    city: {
-      type: String,
+    location: {
+      address1: {type: String},
+      city: {type: String},
+      countryregion: {type: String},
+      postalcode: {type: String},
+      stateprovince: {type: String},
+      unitnumber: {type: String}
     },
     moveInDate: {
       type: Date,
@@ -45,12 +83,13 @@ const ListingSchema = new Schema(
     price: {
       type: Number,
     },
-    propertyType: {
-      type: String,
+    aboutyourplace: {
+      propertyType: {type: String},
+      privacyType: {type: String}
     },
-    bedrooms: [bedroomSchema],
-    bathrooms: {
-      type: Number,
+    basics: {
+      bedrooms: [bedroomSchema],
+      bathrooms: {type: Number}
     },
     amenities: {
       inUnitWasherAndDrier: {
@@ -123,7 +162,7 @@ ListingSchema.virtual("daysLeft").get(function () {
 });
 
 ListingSchema.virtual("numOfBedrooms").get(function () {
-  return this.bedrooms.length;
+  return this.basics.bedrooms.length;
 });
 
 const ListingModel = mongoose.model("Listing", ListingSchema);

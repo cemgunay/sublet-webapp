@@ -190,7 +190,7 @@ function SignUpForm({
     
     
     <form onSubmit={handleSubmit} className={classes.formcontainer}>
-      <Autocomplete />
+      {/* <Autocomplete /> */}
       <FormInput
         name="firstName"
         type="text"

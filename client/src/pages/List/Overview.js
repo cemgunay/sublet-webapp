@@ -1,5 +1,4 @@
-import React, { useContext } from "react";
-import { useState } from "react";
+import React from "react";
 import OverviewCards from "../../components/List/OverviewCards";
 import BottomButton from "../../components/UI/BottomButton";
 import TopBack from "../../components/UI/TopBack";
@@ -21,7 +20,26 @@ function Overview() {
 
     const newListing = {
       userId: data.userId,
-      expiryDate: data.expiryDate
+      expiryDate: data.expiryDate,
+      location: {
+        address1: data.location.address,
+        city: data.location.city,
+        countryregion: data.location.countryregion,
+        postalcode: data.location.postalcode,
+        stateprovince: data.location.stateprovince,
+        unitnumber: data.location.unitnumber,
+      },
+      aboutyourplace:{
+        propertyType: data.aboutyourplace.propertyType,
+        privacyType: data.aboutyourplace.privacyType
+      },
+      basics: {
+        bedrooms: {
+          bedType: data.basics.bedrooms.bedType,
+          ensuite: data.basics.bedrooms.ensuite,
+        },
+        bathrooms: data.basics.bathrooms,
+      },
     };
 
     api.post('/listings', newListing)
