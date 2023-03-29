@@ -9,42 +9,6 @@ const bedroomSchema = new mongoose.Schema(
   { _id: false }
 );
 
-
-//NOTE:
-//Dont need to use schemas for these because they are not arrays unlike bedroomSchema 
-//Can remove just commented so Nino can see
-
-/*
-const basicsSchema = new mongoose.Schema(
-  {
-    bedrooms: [bedroomSchema],
-    bathrooms: {type: Number},
-  },
-  { _id: false }
-)
-
-const aboutyourplaceSchema = new mongoose.Schema(
-  {
-    propertyType: {type: String},
-    privacyType: {type: String},
-  },
-  { _id: false }
-)
-
-const locationSchema = new mongoose.Schema(
-  {
-    address1: {type: String},
-    city: {type: String},
-    countryregion: {type: String},
-    postalcode: {type: String},
-    stateprovince: {type: String},
-    unitnumber: {type: String},
-  },
-  { _id: false }
-)
-*/
-
-
 const ListingSchema = new Schema(
   {
     userId: {
@@ -164,6 +128,9 @@ ListingSchema.virtual("daysLeft").get(function () {
 ListingSchema.virtual("numOfBedrooms").get(function () {
   return this.basics.bedrooms.length;
 });
+
+ListingSchema.set('toObject', { virtuals: true });
+ListingSchema.set('toJSON', { virtuals: true });
 
 const ListingModel = mongoose.model("Listing", ListingSchema);
 

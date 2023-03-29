@@ -136,7 +136,7 @@ router.delete("/:id/:userId", async (req, res) => {
 //Get a listing
 router.get("/:id", async (req, res) => {
   try {
-    const listing = await Listing.findById(req.params.id);
+    const listing = await Listing.findById(req.params.id).select({});
     res.status(200).json(listing);
   } catch (err) {
     res.status(500).json(err);
