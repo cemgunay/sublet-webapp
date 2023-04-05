@@ -4,9 +4,20 @@ const multer = require("multer");
 const User = require("../models/User");
 const Listing = require("../models/Listing");
 const cloudinary = require("../utils/cloudinary");
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+
+// Configure Multer and Cloudinary storage
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  folder: 'listings',
+  dest: 'uploads/',
+  allowedFormats: ['jpg', 'jpeg', 'png'],
+  transformation: [{ width: 500, height: 500, crop: 'limit' }]
+});
 
 // Configure multer for file uploads
-const upload = multer({ dest: "uploads/" });
+const upload = multer({ storage: storage });
+
 
 // Create a listing
 /*router.post("/", async (req,res) => {
@@ -50,6 +61,8 @@ router.post("/", upload.array("images"), async (req, res) => {
         postalcode: req.body.location.postalcode,
         stateprovince: req.body.location.stateprovince,
         unitnumber: req.body.location.unitnumber,
+        lat: req.body.location.lat,
+        lng: req.body.location.lng,
       },
 
       moveInDate: req.body.moveInDate,
@@ -61,13 +74,18 @@ router.post("/", upload.array("images"), async (req, res) => {
         propertyType: req.body.aboutyourplace.propertyType,
         privacyType: req.body.aboutyourplace.privacyType
       },
+
       basics: {
+        /*
         bedrooms: {
           bedType: req.body.basics.bedrooms.bedType,
           ensuite: req.body.basics.bedrooms.ensuite
         },
+        */
         bathrooms: req.body.basics.bathrooms,
       },
+      
+
       /*
       amenities: {
         inUnitWasherAndDrier: req.body.amenities.inUnitWasherAndDrier,
@@ -105,6 +123,7 @@ router.post("/", upload.array("images"), async (req, res) => {
 router.put("/:id", async (req, res) => {
   try {
     const listing = await Listing.findById(req.params.id);
+
     if (listing.userId === req.body.userId) {
       //Check if listing belongs to user trying to update it
       await listing.updateOne({ $set: req.body });
@@ -116,6 +135,36 @@ router.put("/:id", async (req, res) => {
     res.status(500).json(err);
   }
 });
+
+//Update a listing (with photo update)
+router.put('/images/:id', upload.array('images'), async (req, res) => {
+  try {
+    // Find the Listing object to update
+    const listing = await Listing.findById(req.params.id);
+
+    // Create a new folder with the same name as the listing ID
+    const folderName = `listings/${listing._id}`;
+    await cloudinary.api.create_folder(folderName, { resource_type: 'auto' });
+
+    // Upload new images to Cloudinary and add to Listing's images array
+    const newImages = [];
+    for (const file of req.files) {
+      const result = await cloudinary.uploader.upload(file.path, {
+        folder: folderName,
+      });
+      newImages.push({ url: result.secure_url, filename: result.public_id });
+    }
+    listing.images.push(...newImages);
+
+    // Save the updated Listing object
+    const savedListing = await listing.save();
+
+    res.status(200).json(savedListing);
+  } catch (err) {
+    res.status(400).json('Error: ' + err);
+  }
+});
+
 
 //Delete a listing
 router.delete("/:id/:userId", async (req, res) => {

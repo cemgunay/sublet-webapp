@@ -8,32 +8,44 @@ import {
   GoogleMap,
   Marker,
   Autocomplete,
-  StandaloneSearchBox
 } from "@react-google-maps/api";
 
-import usePlacesAutocomplete, {getGeocode, getLatLng} from 'use-places-autocomplete'
+//These are if I need to implement location bias in search
 
-import { Combobox, ComboboxInput, ComboboxPopover, ComboboxList, ComboboxOption} from '@reach/combobox'
+/*
+import usePlacesAutocomplete, {
+  getGeocode,
+  getLatLng,
+} from "use-places-autocomplete";
 
-import '@reach/combobox/styles.css'
+import {
+  Combobox,
+  ComboboxInput,
+  ComboboxPopover,
+  ComboboxList,
+  ComboboxOption,
+} from "@reach/combobox";
 
-
+import "@reach/combobox/styles.css";
+*/
 
 import classes from "./Location.module.css";
+import ConfirmLocation from "../../components/List/ConfirmLocation";
+import ConfirmMarker from "../../components/List/ConfirmMarker";
 
-const libraries = ['places']
+//for the useJsApiLoader
+const libraries = ["places"];
 
 function Location() {
-
   //to fill in the address form from autocompleted address
-  const [address, setAddress] = useState({
+  const address = useState({
     address1: "",
     postalcode: "",
     city: "",
     stateprovince: "",
     countryregion: "",
-    unitnumber: ""
-  })
+    unitnumber: "",
+  });
 
   //get users current location
   const [center, setCenter] = useState({
@@ -49,24 +61,19 @@ function Location() {
     navigator.permissions
       .query({ name: "geolocation" })
       .then((response) => {
-
         if (response.state === "denied") {
-
           setCenter((center) => ({
             ...center,
             lat: 43.7223424,
             lng: -80.3706496,
           }));
           setIsCentered(true);
-
         } else if (response.state === "granted") {
-
           const options = {
             enableHighAccuracy: true,
           };
 
           const success = (position) => {
-            console.log(position);
             setCenter((center) => ({
               ...center,
               lat: position.coords.latitude,
@@ -80,11 +87,8 @@ function Location() {
           };
 
           navigator.geolocation.getCurrentPosition(success, error, options);
-
         } else {
-
           console.log(response.state);
-
         }
       })
       .catch((error) => console.error(error));
@@ -105,38 +109,28 @@ function Location() {
     }
   }, [isCentered, isLoaded]);
 
-  //useRef for loading map idk lol
+  //useRef for loading map and getting its reference element
   const mapRef = useRef();
-  
-  const onMapLoad = useCallback(
-    (map) => {
-      mapRef.current = map;
-    },
-    [],
-  )
+
+  const onMapLoad = useCallback((map) => {
+    mapRef.current = map;
+  }, []);
 
   //to reposition map and marker based on autocompleted address
-  const [searchResult, setSearchResult] = useState(/** @type google.maps.Map */("Result: none"));
+  const [searchResult, setSearchResult] = useState(
+    /** @type google.maps.Map */ ("Result: none")
+  );
 
+  //For the autocomplete component onLoad
   const onLoad = (autocomplete) => {
-    setSearchResult(autocomplete)
-  }
+    setSearchResult(autocomplete);
+  };
 
-  const [showFullAddress, setShowFullAddress] = useState(false)
-
-  const handleOnClick = () =>{
-    setShowFullAddress(true)
-  }
-
+  //For when the autocomplete is selected
   const handleOnPlaceChanged = async () => {
     if (searchResult != null) {
       const place = searchResult.getPlace();
-      console.log(place)
 
-      
-
-      const name = place.name;
-      const formattedAddress = place.formatted_address;
       const lat = place.geometry.location.lat();
       const lng = place.geometry.location.lng();
 
@@ -146,10 +140,7 @@ function Location() {
         lng: lng,
       }));
 
-      console.log(`Name: ${name}`);
-      console.log(`Formatted Address: ${formattedAddress}`);
-
-      await handleAddressFill(place);
+      handleAddressFill(place);
 
       setData((prevData) => ({
         ...prevData,
@@ -159,9 +150,15 @@ function Location() {
           countryregion: address.countryregion,
           postalcode: address.postalcode,
           stateprovince: address.stateprovince,
-          unitnumber: address.unitnumber
+          unitnumber: address.unitnumber,
+          lat: lat,
+          lng: lng,
         },
       }));
+
+      //If PlacesService has to be used
+
+      /*
 
       let coords = [];
 
@@ -180,40 +177,37 @@ function Location() {
         }
       );
 
-      setShowFullAddress(true)
+      */
 
-
+      setConfirmLocation(true);
     } else {
       alert("Please enter text");
     }
-  }
+  };
 
-  console.log(address)
-
+  //To fill the confirm address form and breakdown the full place address into components
   const handleAddressFill = (place) => {
-    console.log(place.address_components)
+    address.address1 = "";
+
     for (const component of place.address_components) {
-
       const componentType = component.types[0];
-
-      console.log(componentType)
 
       switch (componentType) {
         case "street_number": {
           address.address1 = `${component.long_name} ${address.address1}`;
           break;
         }
-  
+
         case "route": {
           address.address1 += component.short_name;
           break;
         }
-  
+
         case "postal_code": {
           address.postalcode = component.long_name;
           break;
         }
-  
+
         case "postal_code_suffix": {
           address.postalcode = `${address.postalcode}-${component.long_name}`;
           break;
@@ -225,12 +219,26 @@ function Location() {
           address.stateprovince = component.short_name;
           break;
         }
-        case "country":
+        case "country": {
           address.countryregion = component.long_name;
+          break;
+        }
+        default:
           break;
       }
     }
-  }
+  };
+
+  //For when user wants to manually enter address
+  const handleOnClick = () => {
+    setConfirmLocation(true);
+  };
+
+  //variables for setting front end rendering
+  const [confirmLocation, setConfirmLocation] = useState(false);
+  const [confirmMarker, setConfirmMarker] = useState(false);
+  const [incorrectAddress, setIncorrectAddress] = useState(false);
+  const [partialAddress, setPartialAddress] = useState();
 
   const navigate = useNavigate();
 
@@ -242,60 +250,196 @@ function Location() {
     setData,
     handleChange,
     currentUserId,
-    canGoNext
+    canGoNext,
   } = useOutletContext();
 
-  console.log(data)
+  //To check if manually entered address is valid and gives a recommendation
+  const handleCheck = () => {
+    const formattedAddress =
+      data.location.address1 +
+      ", " +
+      data.location.city +
+      ", " +
+      data.location.stateprovince +
+      " " +
+      data.location.postalcode +
+      ", " +
+      data.location.countryregion;
+
+    let geocoder = new window.google.maps.Geocoder();
+
+    console.log(formattedAddress);
+
+    geocoder.geocode(
+      { address: formattedAddress },
+      function handleResults(results, status) {
+        console.log(status);
+        console.log(results);
+        console.log(Object.hasOwn(results[0], "partial_match"));
+
+        const place = results[0];
+
+        const lat = place.geometry.location.lat();
+        const lng = place.geometry.location.lng();
+
+        setCenter((center) => ({
+          ...center,
+          lat: lat,
+          lng: lng,
+        }));
+
+        //check if there is a partial match
+        if (Object.hasOwn(results[0], "partial_match") === true) {
+          setIncorrectAddress(true);
+          setPartialAddress(results[0].formatted_address);
+        } else {
+          setIncorrectAddress(false);
+          setConfirmMarker(true);
+
+          const { _id, ...updateData } = data;
+
+          api
+            .put("/listings/" + data._id, updateData)
+            .then((response) => {
+              console.log(response);
+            })
+            .catch((error) => console.error(error));
+        }
+      }
+    );
+  };
 
   //to handle next button
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!confirmLocation && !confirmMarker) {
+      setConfirmLocation(true);
+    } else if (confirmLocation && !confirmMarker) {
+      handleCheck();
+    } else if (confirmLocation && confirmMarker) {
+      setData((prevData) => ({
+        ...prevData,
+        location: {
+          ...prevData.location,
+          lat: center.lat,
+          lng: center.lng,
+        },
+      }));
 
-    const { _id, ...updateData } = data;
+      const updateData = {
+        location: {
+          address1: data.location.address1,
+          city: data.location.city,
+          postalcode: data.location.postalcode,
+          countryregion: data.location.countryregion,
+          unitnumber: data.location.unitnumber,
+          stateprovince: data.location.stateprovince,
+          lat: center.lat,
+          lng: center.lng,
+        },
+        userId: data.userId,
+      };
 
-    try {
-      await api.put("/listings/" + data._id, updateData);
-    } catch (err) {
-      console.log(err);
+      console.log(updateData);
+
+      //const { _id, ...updateData } = data;
+
+      try {
+        await api.put("/listings/" + data._id, updateData);
+      } catch (err) {
+        console.log(err);
+      }
+
+      const currentUrl = window.location.pathname;
+      const newUrl = currentUrl.substring(0, currentUrl.lastIndexOf("/"));
+      setPage((prev) => prev + 1);
+      navigate(newUrl + "/" + urlTitleReverse[page + 1]);
+
+      //setData
+
+      //increase page number
+
+      console.log("submitted!");
     }
-
-    setData({ data: {} });
-
-    navigate("/");
-
-    //setData
-
-    //increase page number
-
-    console.log("submitted!");
   };
+
+
+  //auto render the correct component based on whats already filled in from server
+  const [addressExists, setAddressExists] = useState(false);
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    api.get("/listings/" + data._id).then((response) => {
+        console.log(response.data);
+        
+        const address = response.data.location.address1
+
+        if (address) {
+          setAddressExists(true)
+        } else {
+          setAddressExists(false)
+        }
+        
+        setLoading(false)
+      })
+      .catch((error) => console.error(error));
+  }, [data._id])
+
+  //auto render the correct component based on whats already filled in from server
+  useEffect(() => {
+    if (addressExists) {
+      setConfirmLocation(true);
+      setConfirmMarker(true);
+    }
+  }, [addressExists]);
+
+  console.log(confirmLocation);
 
   return (
     <div className={classes.container}>
-      <div>
-        Wheres yo shit located fam?
-      </div>
+      {loading ? <div>HOLDUP</div> : 
+      <>
+      <div>Wheres yo shit located fam?</div>
       <form className={classes.form} id="location" onSubmit={handleSubmit}>
         {!showMap ? (
           "holdup"
         ) : (
           <div className={classes.mapContainer}>
             <Autocomplete onLoad={onLoad} onPlaceChanged={handleOnPlaceChanged}>
-              <input type="address" placeholder="address" name="address" ref={mapRef}/>
+              <input
+                type="address"
+                placeholder="address"
+                name="address"
+                ref={mapRef}
+              />
             </Autocomplete>
-            {showFullAddress ? null : 
-            <div>
-              <button type="button" onClick={handleOnClick}>enter that shit manually young BLUD</button>
-            </div>}
-            {!showFullAddress ? null : 
-            <>
-            <input type="address" placeholder="Street Address" name="address1" value={data.location.address1} onChange={handleChange} required/>
-            <input type="address" placeholder="Apartment, unit, suite, or floor #" name="unitnumber" value={data.location.unitnumber} onChange={handleChange}/>
-            <input type="address" placeholder="City" name="city" value={data.location.city} onChange={handleChange} required/>
-            <input type="address" placeholder="State/Province" name="stateprovince" value={data.location.stateprovince} onChange={handleChange} required/>
-            <input type="address" placeholder="Postal Code" name="postalcode" value={data.location.postalcode} onChange={handleChange} required/>
-            <input type="address" placeholder="Country/Region" name="countryregion" value={data.location.countryregion} onChange={handleChange} required/>
-            </>}
+            {confirmLocation ? (
+              <div>
+                <ConfirmLocation
+                  data={data}
+                  handleChange={handleChange}
+                  confirmLocation={confirmLocation}
+                  setConfirmLocation={setConfirmLocation}
+                  handleAddressFill={handleAddressFill}
+                  setConfirmMarker={setConfirmMarker}
+                  setCenter={setCenter}
+                  incorrectAddress={incorrectAddress}
+                  partialAddress={partialAddress}
+                />
+                {confirmMarker ? (
+                  <ConfirmMarker
+                    onMapLoad={onMapLoad}
+                    center={center}
+                    setCenter={setCenter}
+                    data={data}
+                  />
+                ) : null}
+              </div>
+            ) : (
+              <button type="button" onClick={handleOnClick}>
+                enter that shit manually young BLUD
+              </button>
+            )}
             <GoogleMap
               center={center}
               zoom={15}
@@ -322,8 +466,15 @@ function Location() {
           data={data}
           setData={setData}
           canGoNext={canGoNext}
+          confirmLocation={confirmLocation}
+          setConfirmLocation={setConfirmLocation}
+          confirmMarker={confirmMarker}
+          setConfirmMarker={setConfirmMarker}
         />
       </form>
+      </>
+      }
+      
     </div>
   );
 }

@@ -2,7 +2,6 @@ import { createContext, useState, useEffect, useContext } from "react";
 import { AuthContext } from "./AuthContext";
 
 import api from "../api/axios";
-import { faBullseye } from "@fortawesome/free-solid-svg-icons";
 
 const ListFormContext = createContext({});
 
@@ -11,6 +10,12 @@ export const ListFormProvider = ({ children }) => {
   const urlTitle = {
     aboutyourplace: 0,
     location: 1,
+    basics: 2,
+    amenities: 3,
+    photos: 4,
+    title: 5,
+    description: 6,
+    price: 7,
   };
 
   //urlTitle reverse hashmap (auto generated)
@@ -39,6 +44,8 @@ export const ListFormProvider = ({ children }) => {
       postalcode: "",
       stateprovince: "",
       unitnumber: "",
+      lat: "",
+      lng: "",
     },
     moveInDate: "",
     moveOutDate: "",
@@ -47,14 +54,18 @@ export const ListFormProvider = ({ children }) => {
       privacyType: "",
     },
     basics: {
-      bedrooms: {
-        bedType: [""],
-        ensuite: false,
-      },
-      bathrooms: "",
+      bedrooms: [
+        {
+          bedType: [],
+          ensuite: false,
+        },
+      ],
+      bathrooms: 0,
     },
+    amenities: {},
+    utilities: {},
     expiryDate: "01-01-2050",
-    price: "",
+    price: 0,
     description: "",
   });
 
@@ -78,7 +89,8 @@ export const ListFormProvider = ({ children }) => {
         setData((data) => ({
           ...data,
           title: response.data.title,
-          address: response.data.address,
+          description: response.data.description,
+          price: response.data.price,
           aboutyourplace: {
             ...data.aboutyourplace,
             propertyType: response.data.aboutyourplace.propertyType,
@@ -92,7 +104,16 @@ export const ListFormProvider = ({ children }) => {
             countryregion: response.data.location.countryregion,
             stateprovince: response.data.location.stateprovince,
             unitnumber: response.data.location.unitnumber,
-          }
+            lat: response.data.location.lat,
+            lng: response.data.location.lng,
+          },
+          basics: {
+            ...data.basics,
+            bedrooms: response.data.basics.bedrooms,
+            bathrooms: response.data.basics.bathrooms,
+          },
+          amenities: response.data.amenities,
+          utilities: response.data.utilities,
         }));
         setLoading(false);
       })
@@ -100,6 +121,8 @@ export const ListFormProvider = ({ children }) => {
   }, [data._id]);
 
   //to get list id from URL THIS WILL BE USED IF SOMEHOW URL CHANGES IDKKKKK
+
+  /*
   const currentUrl = window.location.pathname;
   const x = currentUrl.slice(
     currentUrl.indexOf("/") + 1,
@@ -110,6 +133,7 @@ export const ListFormProvider = ({ children }) => {
   //console.log(JSON.parse(localStorage.getItem("listId")) || "")
   //console.log(data._id)
   //6421dd0e09d14e017654f557
+  */
 
   //WHAT WE CAN DO:
   //check if local storage has an ID if not use this bad boy
@@ -119,15 +143,44 @@ export const ListFormProvider = ({ children }) => {
     const type = e.target.type;
     const name = e.target.name;
 
+    console.log(e.target);
+
     const value = type === "checkbox" ? e.target.checked : e.target.value;
 
-    setData((prevData) => ({
-      ...prevData,
-      [urlTitleReverse[page]]: {
-        ...prevData[urlTitleReverse[page]],
+    if (
+      typeof data[urlTitleReverse[page]] === "object" &&
+      data[urlTitleReverse[page]] !== null
+    ) {
+      setData((prevData) => ({
+        ...prevData,
+        [urlTitleReverse[page]]: {
+          ...prevData[urlTitleReverse[page]],
+          [name]: value,
+        },
+      }));
+    } else if (urlTitleReverse[page] === "price") {
+      if (name === "price") {
+        const withouDollarSignValue = value.replace(/^\$/, "");
+        const numberValue = parseInt(withouDollarSignValue)
+        setData((prevData) => ({
+          ...prevData,
+          [name]: numberValue,
+        }));
+      } else {
+        setData((prevData) => ({
+          ...prevData,
+          utilities: {
+            ...prevData.utilities,
+            [name]: value,
+          },
+        }));
+      }
+    } else {
+      setData((prevData) => ({
+        ...prevData,
         [name]: value,
-      },
-    }));
+      }));
+    }
   };
 
   //to disable/enable submit at the end
@@ -142,19 +195,64 @@ export const ListFormProvider = ({ children }) => {
 
   useEffect(() => {
     if (data) {
-      const {location: {unitnumber, ...requiredLocation}, ...requiredData } = data;
-      const copyData = {...requiredData, location: {...requiredLocation}}
-      console.log(copyData)
-      setCanGoNext(
-        [...Object.values(copyData[urlTitleReverse[page]])].every(Boolean)
-      );
+      const {
+        location: { unitnumber, ...requiredLocation },
+        basics: { bathrooms, ...requiredBasics },
+        amenities,
+        ...requiredData
+      } = data;
+      const copyData = {
+        ...requiredData,
+        location: { ...requiredLocation },
+        basics: { ...requiredBasics },
+      };
+      if (urlTitleReverse[page] === "basics") {
+        if (copyData.basics.bedrooms.length > 0) {
+          for (let i = 0; i < copyData.basics.bedrooms.length; i++) {
+            if (
+              copyData.basics.bedrooms[i].bedType === undefined ||
+              copyData.basics.bedrooms[i].bedType.length === 0
+            ) {
+              setCanGoNext(false);
+            } else {
+              setCanGoNext(true);
+            }
+          }
+        } else {
+          setCanGoNext(false);
+        }
+      } else if (urlTitleReverse[page] === "amenities") {
+        setCanGoNext(true);
+      } else if (urlTitleReverse[page] === "photos") {
+        setCanGoNext(false);
+      } else if (
+        urlTitleReverse[page] === "title" ||
+        urlTitleReverse[page] === "description"
+      ) {
+        setCanGoNext(
+          [...Object.values(copyData[urlTitleReverse[page]])].filter(Boolean)
+            .length > 0
+        );
+      } else if (urlTitleReverse[page] === "documents") {
+        setCanGoNext(true);
+      } else if (urlTitleReverse[page] === "price") {
+       if(copyData.price > 24) {
+        setCanGoNext(true)
+       } else {
+        setCanGoNext(false)
+       }
+      } else {
+        setCanGoNext(
+          [...Object.values(copyData[urlTitleReverse[page]])].every(Boolean)
+        );
+      }
     } else {
       console.log("no data");
     }
-  }, [data, page]);
+  }, [data, page, urlTitleReverse]);
 
   console.log(data);
-  console.log(canGoNext)
+  console.log(canGoNext);
 
   return (
     <ListFormContext.Provider

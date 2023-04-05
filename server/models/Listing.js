@@ -65,7 +65,9 @@ const ListingSchema = new Schema(
       countryregion: {type: String},
       postalcode: {type: String},
       stateprovince: {type: String},
-      unitnumber: {type: String}
+      unitnumber: {type: String},
+      lat: {type: Number},
+      lng: {type: Number}
     },
     moveInDate: {
       type: Date,

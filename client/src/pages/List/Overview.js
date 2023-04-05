@@ -17,7 +17,7 @@ function Overview() {
 
   const handleOnSubmit = async (e) => {
     e.preventDefault();
-
+    
     const newListing = {
       userId: data.userId,
       expiryDate: data.expiryDate,
@@ -28,19 +28,29 @@ function Overview() {
         postalcode: data.location.postalcode,
         stateprovince: data.location.stateprovince,
         unitnumber: data.location.unitnumber,
+        lat: data.location.lat,
+        lng: data.location.lng,
       },
       aboutyourplace:{
         propertyType: data.aboutyourplace.propertyType,
         privacyType: data.aboutyourplace.privacyType
       },
+      title: "",
+      description: "",
+      
       basics: {
-        bedrooms: {
-          bedType: data.basics.bedrooms.bedType,
-          ensuite: data.basics.bedrooms.ensuite,
-        },
+        /*
+        bedrooms: [{
+          bedType: data.basics.bedrooms[0].bedType,
+          ensuite: data.basics.bedrooms[0].ensuite,
+        }],
+        */
         bathrooms: data.basics.bathrooms,
       },
+      
     };
+
+    console.log(newListing)
 
     api.post('/listings', newListing)
     .then(response => {
