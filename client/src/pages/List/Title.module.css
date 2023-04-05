@@ -1,0 +1,21 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.rectangle {
+  width: 327px;
+  height: 164px;
+
+  background: #ffffff;
+  border: 1px solid #989898;
+  border-radius: 9px;
+}

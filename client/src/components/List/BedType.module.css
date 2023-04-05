@@ -1,0 +1,31 @@
+.bedTypeSelection {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid var(--color-secondary-light);
+  border-radius: 15px;
+  font-size: smaller;
+}
+
+.bedTypeItem input[type="checkbox"] {
+  display: none;
+}
+
+.bedTypeItem input[type="checkbox"]:checked + label.bedTypeSelection {
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+/*
+
+.bedTypeList input[type=checkbox]{
+    display: none;
+}
+
+.bedTypeList input[type=checkbox]:checked + .bedTypeItem{
+    background-color: green;
+}
+
+*/

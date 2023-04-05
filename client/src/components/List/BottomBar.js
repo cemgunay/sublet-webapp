@@ -37,6 +37,16 @@ function BottomBar(props) {
               propertyType: "",
               privacyType: ""
             },
+            location: {
+              address1: "",
+              city: "",
+              countryregion: "",
+              postalcode: "",
+              stateprovince: "",
+              unitnumber: "",
+              lat: "",
+              lng: ""
+            },
             price: "",
             description: ""}
           )
@@ -45,6 +55,10 @@ function BottomBar(props) {
         console.log(err);
       }
       navigate("/list/overview");
+    } else if (props.confirmLocation && !props.confirmMarker) {
+      props.setConfirmLocation(false)
+    } else if (props.confirmMarker) {
+      props.setConfirmMarker(false)
     } else {
       const currentUrl = window.location.pathname;
       const newUrl = currentUrl.substring(0, currentUrl.lastIndexOf("/"));

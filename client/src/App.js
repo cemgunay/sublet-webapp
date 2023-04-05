@@ -16,6 +16,12 @@ import { RemoveTrailingSlash } from "./RemoveTrailingSlashes";
 import ListFormContextLayout from "./ListFormContextLayout";
 import Info from "./pages/List/Info";
 import Basics from "./pages/List/Basics";
+import Amenities from "./pages/List/Amenities";
+import Photos from "./pages/List/Photos";
+import Title from "./pages/List/Title";
+import Description from "./pages/List/Description";
+import Documents from "./pages/List/Documents";
+import Price from "./pages/List/Price";
 
 //import RequireAuth from "./components/Util/RequireAuth";
 
@@ -42,6 +48,12 @@ function App() {
               <Route path="aboutyourplace" element={<AboutYourPlace />} />
               <Route path="location" element={<Location />} />
               <Route path="basics" element={<Basics />} />
+              <Route path="amenities" element={<Amenities />} />
+              <Route path="photos" element={<Photos />} />
+              <Route path="title" element={<Title />} />
+              <Route path="description" element={<Description />} />
+              <Route path="documents" element={<Documents />} />
+              <Route path="price" element={<Price />} />
             </Route>
           </Route>
 
