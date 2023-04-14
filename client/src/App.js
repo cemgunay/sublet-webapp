@@ -22,6 +22,8 @@ import Title from "./pages/List/Title";
 import Description from "./pages/List/Description";
 import Documents from "./pages/List/Documents";
 import Price from "./pages/List/Price";
+import UploadImages from "./pages/List/UploadImages";
+import Publish from "./pages/List/Publish";
 
 //import RequireAuth from "./components/Util/RequireAuth";
 
@@ -54,6 +56,7 @@ function App() {
               <Route path="description" element={<Description />} />
               <Route path="documents" element={<Documents />} />
               <Route path="price" element={<Price />} />
+              <Route path="publish" element={<Publish />} />
             </Route>
           </Route>
 

@@ -7,6 +7,8 @@ import './Scroll.css'
 
 function Scroll(props) {
 
+  console.log(props.bedrooms)
+
   const getItems = () =>
   Array(4)
     .fill(0)
@@ -30,6 +32,8 @@ function Scroll(props) {
       );
     };
 
+  
+
   return (
     <ScrollMenu>
       {props.bedrooms.map((bedroom, index) => (
@@ -37,7 +41,7 @@ function Scroll(props) {
         itemId={index} // NOTE: itemId is required for track items
         key={index}
         title={"Bedroom " + (index+1)}
-        beds={bedroom.bedTypes}
+        beds={bedroom.bedType || bedroom.bedTypes}
         onClick={handleClick(index+1)}
         selected={isItemSelected(index+1)}
       />

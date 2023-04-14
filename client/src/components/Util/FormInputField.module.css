@@ -1,0 +1,44 @@
+.inputDiv {
+    width: 100%;
+    text-align: left;
+  }
+  
+  .input {
+    width: 100%;
+    border-radius: 0.5rem;
+    border-width: 1px;
+    box-sizing: border-box;
+    border-style: solid;
+    border-color: var(--color-secondary-light);
+    padding: 10px;
+    user-select: none;
+    outline: none;
+  }
+  
+  .input:focus {
+    border-color: var(--color-black);
+    transition: ease-in-out 70ms;
+  }
+  
+  .errorMessage {
+    text-align: left;
+    font-size: x-small;
+    color: var(--color-error);
+    display: none;
+  }
+  
+  .input:invalid[focused="true"] ~ .errorMessage {
+    display: block;
+  }
+  
+  .input:invalid[focused="true"] {
+    border-color: var(--color-error);
+  }
+  
+  .text {
+    font-size: x-small;
+    font-weight: 200;
+    color: var(--color-secondary-light);
+    text-align: left;
+  }
+  

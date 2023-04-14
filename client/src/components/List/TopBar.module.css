@@ -1,18 +1,28 @@
-.wrapper{
-    position: fixed;
-    top: 0;
-    width: 100%;
+.wrapper {
+  position: fixed;
+  top: 0;
+  left: 2rem; /* add left margin only */
+  width: calc(100% - 4rem);
+  z-index: 100;
 }
 
 .container {
-    height: 4rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    background-color: var(--color-white);
+  height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--color-white);
 }
 
-.save{
-    border: 1px solid #9C9C9C;
-    border-radius: 85px;
+.save {
+  border: 1px solid #9c9c9c;
+  border-radius: 85px;
+  padding: 5px;
 }
+
+.questions {
+    border: 1px solid #9c9c9c;
+    border-radius: 85px;
+    padding: 5px;
+  }
+  

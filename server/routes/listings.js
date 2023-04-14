@@ -152,7 +152,7 @@ router.put('/images/:id', upload.array('images'), async (req, res) => {
       const result = await cloudinary.uploader.upload(file.path, {
         folder: folderName,
       });
-      newImages.push({ url: result.secure_url, filename: result.public_id });
+      newImages.push({ url: result.secure_url, filename: result.public_id, file: file, progress: 100 });
     }
     listing.images.push(...newImages);
 
@@ -195,7 +195,6 @@ router.get("/:id", async (req, res) => {
 // Get all of the listings in progress for a user
 router.get("/listingsinprogress/:userId", async (req, res) => {
   const { userId } = req.params;
-
   try {
     const listings = await Listing.find({ userId, published: false });
     res.send(listings);

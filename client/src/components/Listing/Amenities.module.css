@@ -1,8 +1,7 @@
 .container{
     width: 100%;
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;	
-    column-gap: 22%;
+    grid-template-columns: 1fr 1fr 1fr;
     text-align: center;
     padding-top: 1rem;
 }

@@ -200,6 +200,7 @@ function SignUpForm({
         errorMessage="Your first name can't be empty or contain an unsopported character"
         pattern="^[A-Za-z0-9]{1,150}$"
         innerRef={firstName}
+        required={true}
       />
       <FormInput
         className={classes.input}
@@ -213,6 +214,7 @@ function SignUpForm({
         pattern="^[A-Za-z0-9]{1,150}$"
         text="Make sure it matches the name of your Government ID"
         classNameSpan={classes.text}
+        required={true}
       />
       <FormInput
         className={classes.input}
@@ -228,6 +230,7 @@ function SignUpForm({
         innerRef={dateOfBirth}
         text="To sign up you must be atleast 18 years of age"
         classNameSpan={classes.text}
+        required={true}
       />
       <FormInput
         className={classes.input}
@@ -240,6 +243,7 @@ function SignUpForm({
         errorMessage="Please enter a valid email address"
         text="We'll email you contract confirmation and receipts"
         classNameSpan={classes.text}
+        required={true}
       />
       <FormInput
         name="location"
@@ -249,6 +253,7 @@ function SignUpForm({
         innerRef={ref}
         text="Where are you located?"
         classNameSpan={classes.text}
+        required={true}
       />
 
       <div className={classes.password}>
@@ -261,6 +266,7 @@ function SignUpForm({
           pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*_=+-]).{8,100}$"
           onChange={handleOnChangePassword}
           innerRef={password}
+          required={true}
         />
         <div
           className={

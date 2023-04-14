@@ -37,6 +37,7 @@ function Overview() {
       },
       title: "",
       description: "",
+      price: 0,
       
       basics: {
         /*

@@ -1,19 +1,47 @@
+@import '../../index.css';
+
 .wrapper{
     position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
+    z-index: 100;
 }
 
 .container {
     height: 4rem;
     display: flex;
     align-items: center;
-    justify-content: space-around;
+    justify-content: space-between;
     background-color: var(--color-white);
+    margin-left: 2rem;
+    margin-right: 2rem;
 }
 
 .left{
     display: flex;
     flex-direction: column;
 }
+
+.leftbutton{
+    border: none;
+    color: black;
+    background-color: white;
+    text-decoration: underline;
+}
+
+.nextbutton{
+    border: none;
+    border-radius: 5px;
+    color: white;
+    background-color: var(--color-primary);
+    padding: 1rem 2rem;
+}
+
+.disabled {
+    border: none;
+    border-radius: 5px;
+    color: white;
+    background-color: var(--color-secondary-light);
+    cursor: not-allowed;
+  }
