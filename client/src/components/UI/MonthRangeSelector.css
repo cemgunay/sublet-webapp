@@ -1,0 +1,9 @@
+.react-datepicker__day--keyboard-selected {
+  background-color: unset;
+  color: inherit;
+}
+
+.date-picker .react-datepicker__navigation--previous,
+.date-picker .react-datepicker__navigation--next {
+  display: none;
+}

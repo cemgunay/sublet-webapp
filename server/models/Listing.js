@@ -21,6 +21,8 @@ const ListingSchema = new Schema(
       {
         url: String,
         filename: String,
+        file: Object,
+        progress: Number
       },
     ],
     location: {
@@ -39,6 +41,15 @@ const ListingSchema = new Schema(
     moveOutDate: {
       type: Date,
     },
+    shorterStays: {
+      type: Boolean,
+      default: false
+    },
+    availableToView: {
+      type: Boolean,
+      default: true
+    },
+    viewingDates: [{ type: String }],
     expiryDate: {
       type: Date,
     },
@@ -48,6 +59,7 @@ const ListingSchema = new Schema(
     },
     price: {
       type: Number,
+      default: 0
     },
     aboutyourplace: {
       propertyType: {type: String},

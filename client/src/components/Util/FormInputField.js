@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 
-import classes from "./FormInput.module.css";
+import classes from "./FormInputField.module.css";
 
-function FormInput(props) {
+function FormInputField(props) {
 
   const [focused, setFocused] = useState('false');
 
@@ -32,6 +32,6 @@ function FormInput(props) {
   );
 }
 
-export default FormInput;
+export default FormInputField;
 
 //{props.text ? <span className={props.classNameSpan}>{props.text}</span> : null}

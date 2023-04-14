@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import api from "../../api/axios";
 
 import classes from "./BottomBar.module.css";
+import FormProgressBar from "./FormProgressBar";
 
 function BottomBar(props) {
   const navigate = useNavigate();
@@ -67,16 +68,24 @@ function BottomBar(props) {
     }
   };
 
+  useEffect(() => {
+    if (props.onHandleBack) {
+      props.onHandleBack(handleBack);
+    }
+  }, [props, handleBack])
+  
+
   return (
     <footer className={classes.wrapper}>
+      <FormProgressBar page={props.page}/>
       <div className={classes.container}>
         <div classes={classes.left}>
-          <button type="button" onClick={handleBack}>
+          <button className={classes.leftbutton} type="button" onClick={handleBack}>
             Back
           </button>
         </div>
         <div>
-          <button type="submit" disabled={!props.canGoNext}>Next</button>
+          <button className={classes.nextbutton + (props.canGoNext ? "" : ` ${classes.disabled}`)} type="submit" disabled={!props.canGoNext}>Next</button>
         </div>
       </div>
     </footer>

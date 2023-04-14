@@ -1,0 +1,173 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: black;
+  overflow: auto;
+  padding-bottom: 6rem;
+  margin-left: 2rem;
+  margin-right: 2rem;
+  position: relative;
+  height: 100vh;
+}
+
+.noScroll {
+  overflow: hidden;
+}
+
+.headercontainer {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  background-color: white;
+  z-index: 10;
+}
+
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.back {
+  position: absolute;
+  left: 0;
+}
+
+.leftchevron {
+  fill: white;
+}
+
+.containerscroll{
+  max-height: 13rem;
+}
+
+.containerNoScroll {
+  height: 100vh;
+  overflow-y: hidden;
+}
+
+.image img {
+  width: 100%;
+  object-fit: cover;
+  overflow-x: auto;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+  border-bottom: solid;
+  border-width: 0.1rem;
+  border-color: lightgray;
+}
+
+.first {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.content h3 {
+  font-size: medium;
+  font-weight: 500;
+  margin: 0;
+}
+
+.content p {
+  font-weight: 200;
+  margin: 0;
+}
+
+.content address {
+  font-weight: 200;
+  margin: 0;
+}
+
+.bio {
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+  border-bottom: solid;
+  border-width: 0.1rem;
+  border-color: lightgray;
+}
+
+.details {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.details p {
+  font-size: smaller;
+}
+
+.traits {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+  border-bottom: solid;
+  border-width: 0.1rem;
+  border-color: lightgray;
+}
+
+.about {
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+  border-bottom: solid;
+  border-width: 0.1rem;
+  border-color: lightgray;
+}
+
+.bedrooms {
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+  border-bottom: solid;
+  border-width: 0.1rem;
+  border-color: lightgray;
+}
+
+h2 {
+  margin: 0;
+}
+
+.utilities {
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+  border-bottom: solid;
+  border-width: 0.1rem;
+  border-color: lightgray;
+}
+
+.amenities {
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+  border-bottom: solid;
+  border-width: 0.1rem;
+  border-color: lightgray;
+}
+
+.location {
+  height: 300px;
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+  border-bottom: solid;
+  border-width: 0.1rem;
+  border-color: lightgray;
+}
+
+.availability {
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+  border-bottom: solid;
+  border-width: 0.1rem;
+  border-color: lightgray;
+}

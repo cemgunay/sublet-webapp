@@ -16,6 +16,7 @@ export const ListFormProvider = ({ children }) => {
     title: 5,
     description: 6,
     price: 7,
+    publish: 8,
   };
 
   //urlTitle reverse hashmap (auto generated)
@@ -47,8 +48,11 @@ export const ListFormProvider = ({ children }) => {
       lat: "",
       lng: "",
     },
-    moveInDate: "",
-    moveOutDate: "",
+    moveInDate: null,
+    moveOutDate: null,
+    shorterStays: false,
+    availableToView: true,
+    viewingDates: [],
     aboutyourplace: {
       propertyType: "",
       privacyType: "",
@@ -67,6 +71,7 @@ export const ListFormProvider = ({ children }) => {
     expiryDate: "01-01-2050",
     price: 0,
     description: "",
+    images: [],
   });
 
   console.log("listform rendered");
@@ -114,6 +119,10 @@ export const ListFormProvider = ({ children }) => {
           },
           amenities: response.data.amenities,
           utilities: response.data.utilities,
+          images: response.data.images,
+          shorterStays: response.data.shorterStays,
+          availableToView: response.data.availableToView,
+          viewingDates: response.data.viewingDates,
         }));
         setLoading(false);
       })
@@ -140,42 +149,61 @@ export const ListFormProvider = ({ children }) => {
 
   //to handle change of the inputs in all the forms
   const handleChange = (e) => {
-    const type = e.target.type;
-    const name = e.target.name;
+    if (e.target) {
+      const type = e.target.type;
+      const name = e.target.name;
 
-    console.log(e.target);
+      console.log(e.target);
 
-    const value = type === "checkbox" ? e.target.checked : e.target.value;
+      const value = type === "checkbox" ? e.target.checked : e.target.value;
 
-    if (
-      typeof data[urlTitleReverse[page]] === "object" &&
-      data[urlTitleReverse[page]] !== null
-    ) {
-      setData((prevData) => ({
-        ...prevData,
-        [urlTitleReverse[page]]: {
-          ...prevData[urlTitleReverse[page]],
-          [name]: value,
-        },
-      }));
-    } else if (urlTitleReverse[page] === "price") {
-      if (name === "price") {
-        const withouDollarSignValue = value.replace(/^\$/, "");
-        const numberValue = parseInt(withouDollarSignValue)
+      if (
+        typeof data[urlTitleReverse[page]] === "object" &&
+        data[urlTitleReverse[page]] !== null
+      ) {
         setData((prevData) => ({
           ...prevData,
-          [name]: numberValue,
-        }));
-      } else {
-        setData((prevData) => ({
-          ...prevData,
-          utilities: {
-            ...prevData.utilities,
+          [urlTitleReverse[page]]: {
+            ...prevData[urlTitleReverse[page]],
             [name]: value,
           },
         }));
+      } else if (urlTitleReverse[page] === "price") {
+        if (name === "price") {
+          const withouDollarSignValue = value.replace(/^\$/, "");
+          const numberValue = parseInt(withouDollarSignValue);
+          if (!isNaN(numberValue)) {
+            setData((prevData) => ({
+              ...prevData,
+              [name]: numberValue,
+            }));
+          } else {
+            setData((prevData) => ({
+              ...prevData,
+              [name]: 0, // Set an empty string or any default value for price when it's not a valid number
+            }));
+          }
+        } else {
+          setData((prevData) => ({
+            ...prevData,
+            utilities: {
+              ...prevData.utilities,
+              [name]: value,
+            },
+          }));
+        }
+      } else {
+        setData((prevData) => ({
+          ...prevData,
+          [name]: value,
+        }));
       }
     } else {
+      console.log(e);
+
+      const name = e.name;
+      const value = e.value;
+
       setData((prevData) => ({
         ...prevData,
         [name]: value,
@@ -206,6 +234,7 @@ export const ListFormProvider = ({ children }) => {
         location: { ...requiredLocation },
         basics: { ...requiredBasics },
       };
+      console.log(copyData);
       if (urlTitleReverse[page] === "basics") {
         if (copyData.basics.bedrooms.length > 0) {
           for (let i = 0; i < copyData.basics.bedrooms.length; i++) {
@@ -224,7 +253,6 @@ export const ListFormProvider = ({ children }) => {
       } else if (urlTitleReverse[page] === "amenities") {
         setCanGoNext(true);
       } else if (urlTitleReverse[page] === "photos") {
-        setCanGoNext(false);
       } else if (
         urlTitleReverse[page] === "title" ||
         urlTitleReverse[page] === "description"
@@ -236,11 +264,19 @@ export const ListFormProvider = ({ children }) => {
       } else if (urlTitleReverse[page] === "documents") {
         setCanGoNext(true);
       } else if (urlTitleReverse[page] === "price") {
-       if(copyData.price > 24) {
-        setCanGoNext(true)
-       } else {
-        setCanGoNext(false)
-       }
+        if (copyData.price > 24) {
+          setCanGoNext(true);
+        } else {
+          setCanGoNext(false);
+        }
+      } else if (urlTitleReverse[page] === "publish") {
+        if (copyData.moveInDate && copyData.moveOutDate) {
+          setCanGoNext(true);
+        } else {
+          setCanGoNext(false);
+        }
+      } else if (!urlTitleReverse[page]) {
+        setCanGoNext(true);
       } else {
         setCanGoNext(
           [...Object.values(copyData[urlTitleReverse[page]])].every(Boolean)
@@ -268,6 +304,7 @@ export const ListFormProvider = ({ children }) => {
         currentUserId,
         loading,
         canGoNext,
+        setCanGoNext,
       }}
     >
       {children}

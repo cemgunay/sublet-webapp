@@ -47,6 +47,17 @@ function Location() {
     unitnumber: "",
   });
 
+  const {
+    urlTitleReverse,
+    page,
+    setPage,
+    data,
+    setData,
+    handleChange,
+    currentUserId,
+    canGoNext,
+  } = useOutletContext();
+
   //get users current location
   const [center, setCenter] = useState({
     lat: "",
@@ -58,41 +69,45 @@ function Location() {
 
   //useEffect to set current location
   useEffect(() => {
-    navigator.permissions
-      .query({ name: "geolocation" })
-      .then((response) => {
-        if (response.state === "denied") {
-          setCenter((center) => ({
-            ...center,
-            lat: 43.7223424,
-            lng: -80.3706496,
-          }));
-          setIsCentered(true);
-        } else if (response.state === "granted") {
-          const options = {
-            enableHighAccuracy: true,
-          };
-
-          const success = (position) => {
+    if (data.location.lat) {
+      setIsCentered(true);
+    } else {
+      navigator.permissions
+        .query({ name: "geolocation" })
+        .then((response) => {
+          if (response.state === "denied") {
             setCenter((center) => ({
               ...center,
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
+              lat: 43.7223424,
+              lng: -80.3706496,
             }));
             setIsCentered(true);
-          };
+          } else if (response.state === "granted") {
+            const options = {
+              enableHighAccuracy: true,
+            };
 
-          const error = (error) => {
-            console.log(error.code, error.message);
-          };
+            const success = (position) => {
+              setCenter((center) => ({
+                ...center,
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+              }));
+              setIsCentered(true);
+            };
 
-          navigator.geolocation.getCurrentPosition(success, error, options);
-        } else {
-          console.log(response.state);
-        }
-      })
-      .catch((error) => console.error(error));
-  }, []);
+            const error = (error) => {
+              console.log(error.code, error.message);
+            };
+
+            navigator.geolocation.getCurrentPosition(success, error, options);
+          } else {
+            console.log(response.state);
+          }
+        })
+        .catch((error) => console.error(error));
+    }
+  }, [data.location.lat]);
 
   //load google maps api
   const { isLoaded } = useJsApiLoader({
@@ -242,16 +257,15 @@ function Location() {
 
   const navigate = useNavigate();
 
-  const {
-    urlTitleReverse,
-    page,
-    setPage,
-    data,
-    setData,
-    handleChange,
-    currentUserId,
-    canGoNext,
-  } = useOutletContext();
+  //update the center on refresh
+  useEffect(() => {
+    setCenter({
+      lat: data.location.lat,
+      lng: data.location.lng,
+    });
+  }, [data.location.lat, data.location.lng]);
+
+  console.log(center);
 
   //To check if manually entered address is valid and gives a recommendation
   const handleCheck = () => {
@@ -363,27 +377,28 @@ function Location() {
     }
   };
 
-
   //auto render the correct component based on whats already filled in from server
   const [addressExists, setAddressExists] = useState(false);
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get("/listings/" + data._id).then((response) => {
+    api
+      .get("/listings/" + data._id)
+      .then((response) => {
         console.log(response.data);
-        
-        const address = response.data.location.address1
+
+        const address = response.data.location.address1;
 
         if (address) {
-          setAddressExists(true)
+          setAddressExists(true);
         } else {
-          setAddressExists(false)
+          setAddressExists(false);
         }
-        
-        setLoading(false)
+
+        setLoading(false);
       })
       .catch((error) => console.error(error));
-  }, [data._id])
+  }, [data._id]);
 
   //auto render the correct component based on whats already filled in from server
   useEffect(() => {
@@ -397,84 +412,88 @@ function Location() {
 
   return (
     <div className={classes.container}>
-      {loading ? <div>HOLDUP</div> : 
-      <>
-      <div>Wheres yo shit located fam?</div>
-      <form className={classes.form} id="location" onSubmit={handleSubmit}>
-        {!showMap ? (
-          "holdup"
-        ) : (
-          <div className={classes.mapContainer}>
-            <Autocomplete onLoad={onLoad} onPlaceChanged={handleOnPlaceChanged}>
-              <input
-                type="address"
-                placeholder="address"
-                name="address"
-                ref={mapRef}
-              />
-            </Autocomplete>
-            {confirmLocation ? (
-              <div>
-                <ConfirmLocation
-                  data={data}
-                  handleChange={handleChange}
-                  confirmLocation={confirmLocation}
-                  setConfirmLocation={setConfirmLocation}
-                  handleAddressFill={handleAddressFill}
-                  setConfirmMarker={setConfirmMarker}
-                  setCenter={setCenter}
-                  incorrectAddress={incorrectAddress}
-                  partialAddress={partialAddress}
-                />
-                {confirmMarker ? (
-                  <ConfirmMarker
-                    onMapLoad={onMapLoad}
-                    center={center}
-                    setCenter={setCenter}
-                    data={data}
-                  />
-                ) : null}
-              </div>
+      {loading ? (
+        <div>HOLDUP</div>
+      ) : (
+        <>
+          <div>Wheres yo shit located fam?</div>
+          <form className={classes.form} id="location" onSubmit={handleSubmit}>
+            {!showMap ? (
+              "holdup"
             ) : (
-              <button type="button" onClick={handleOnClick}>
-                enter that shit manually young BLUD
-              </button>
+              <div className={classes.mapContainer}>
+                <Autocomplete
+                  onLoad={onLoad}
+                  onPlaceChanged={handleOnPlaceChanged}
+                >
+                  <input
+                    type="address"
+                    placeholder="address"
+                    name="address"
+                    ref={mapRef}
+                  />
+                </Autocomplete>
+                {confirmLocation ? (
+                  <div>
+                    <ConfirmLocation
+                      data={data}
+                      handleChange={handleChange}
+                      confirmLocation={confirmLocation}
+                      setConfirmLocation={setConfirmLocation}
+                      handleAddressFill={handleAddressFill}
+                      setConfirmMarker={setConfirmMarker}
+                      setCenter={setCenter}
+                      incorrectAddress={incorrectAddress}
+                      partialAddress={partialAddress}
+                    />
+                    {confirmMarker ? (
+                      <ConfirmMarker
+                        onMapLoad={onMapLoad}
+                        center={center}
+                        setCenter={setCenter}
+                        data={data}
+                      />
+                    ) : null}
+                  </div>
+                ) : (
+                  <button type="button" onClick={handleOnClick}>
+                    enter that shit manually young BLUD
+                  </button>
+                )}
+                <GoogleMap
+                  center={center}
+                  zoom={15}
+                  mapContainerStyle={{ width: "100%", height: "100%" }}
+                  options={{
+                    zoomControl: false,
+                    streetViewControl: false,
+                    mapTypeControl: false,
+                    fullscreenControl: false,
+                  }}
+                  onLoad={onMapLoad}
+                >
+                  <Marker position={center} />
+                </GoogleMap>
+              </div>
             )}
-            <GoogleMap
-              center={center}
-              zoom={15}
-              mapContainerStyle={{ width: "100%", height: "100%" }}
-              options={{
-                zoomControl: false,
-                streetViewControl: false,
-                mapTypeControl: false,
-                fullscreenControl: false,
-              }}
-              onLoad={onMapLoad}
-            >
-              <Marker position={center} />
-            </GoogleMap>
-          </div>
-        )}
-        <BottomBar
-          form={urlTitleReverse[page]}
-          page={page}
-          setPage={setPage}
-          urlTitleReverse={urlTitleReverse}
-          listId={data._id}
-          currentUserId={currentUserId}
-          data={data}
-          setData={setData}
-          canGoNext={canGoNext}
-          confirmLocation={confirmLocation}
-          setConfirmLocation={setConfirmLocation}
-          confirmMarker={confirmMarker}
-          setConfirmMarker={setConfirmMarker}
-        />
-      </form>
-      </>
-      }
-      
+            <BottomBar
+              form={urlTitleReverse[page]}
+              page={page}
+              setPage={setPage}
+              urlTitleReverse={urlTitleReverse}
+              listId={data._id}
+              currentUserId={currentUserId}
+              data={data}
+              setData={setData}
+              canGoNext={canGoNext}
+              confirmLocation={confirmLocation}
+              setConfirmLocation={setConfirmLocation}
+              confirmMarker={confirmMarker}
+              setConfirmMarker={setConfirmMarker}
+            />
+          </form>
+        </>
+      )}
     </div>
   );
 }

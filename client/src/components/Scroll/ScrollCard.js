@@ -5,7 +5,6 @@ import classes from "./ScrollCard.module.css";
 
 function ScrollCard(props) {
   const visibility = React.useContext(VisibilityContext);
-
   return (
     <div className={classes.container}
       onClick={() => props.onClick(visibility)}

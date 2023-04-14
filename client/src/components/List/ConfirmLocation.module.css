@@ -1,3 +1,5 @@
+@import '../../index.css';
+
 .container {
   position: absolute;
   top: 5rem;
@@ -8,6 +10,30 @@
   background-color: white;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+.title{
+  margin-left: 2rem;
+}
+
+.addressformcontainer{
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-left: 2rem;
+  margin-right: 2rem;
+  width: calc(100% - 4rem);
+}
+
+.errorcontainer{
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.errormessage{
+  color: var(--color-error);
 }
