@@ -5,28 +5,17 @@ import classes from './ListingList.module.css'
 
 function ListingList(props) {
 
+  console.log(props.listings)
+
+  //const images = props.data.images.map(({ url }) => url);
+
   return (
     <div className={classes.container}>
       {props.listings.length && props.listings
       .map(listing => (
         <ListingItem 
             key={listing.id}
-            id={listing.id} 
-            userid={listing.userid}
-            image={listing.image}
-            title={listing.title}
-            address={listing.address}
-            description={listing.description} 
-            days_left={listing.days_left}
-            dates={listing.dates}
-            price={listing.price}
-            views={listing.views}
-            bedrooms={listing.bedrooms}
-            beds={listing.beds}
-            bathrooms={listing.bathrooms}
-            availabletoview={listing.availabletoview}
-            utilities={listing.utilities}
-            amenities={listing.amenities}
+            listing={listing}
             />
         ))}
     </div>

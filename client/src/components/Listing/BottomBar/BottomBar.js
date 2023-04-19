@@ -1,30 +1,62 @@
-import React from 'react'
+import React, {useEffect} from "react";
+import { useNavigate } from "react-router-dom";
+import IncrementalInputField from "../../Util/IncrementalInputField";
 
-import classes from './BottomBar.module.css'
+import classes from "./BottomBar.module.css";
 
-function BottomBar(props) {
+function BottomBar({data, setData, listing, handleChange}) {
 
-    const month = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const getMonth = (date) => {
+    const dateToChange = new Date(date);
+    const options = { month: "short", year: "numeric" };
+    const monthYearString = dateToChange.toLocaleDateString("en-US", options);
+    return monthYearString;
+  };
+
+  useEffect(() => {
+    setData((prevData) => ({
+      ...prevData,
+      price: listing.price
+    }))
+  }, [setData, listing])
+
+  useEffect(() => {
+    setData((prevData) => ({
+      ...prevData,
+      startDate: listing.moveInDate,
+      endDate: listing.moveOutDate
+    }))
+  }, [setData, listing])
+
+  const navigate = useNavigate();
+
+const handleOnClick = () => {
+  navigate('/request/' + listing._id, { state: {data, listing} });
+}  
+  
 
   return (
     <footer className={classes.wrapper}>
+      {!listing ? null : (
         <div className={classes.container}>
-        <div classes={classes.left}>
+          <div classes={classes.left}>
+            <IncrementalInputField
+              data={data}
+              setData={setData}
+              type="price"
+              from="BottomBar"
+              handleChange={handleChange}
+            />
             <div>
-            {props.listing.price} month
+              {getMonth(data.startDate)} -
+              {getMonth(data.endDate)}
             </div>
-            <div>
-            {month[props.dates[0].getMonth()]} - 
-            {month[props.dates[1].getMonth()]}
-            </div>
+          </div>
+          <div onClick={handleOnClick}>Request</div>
         </div>
-        <div>
-            Request
-        </div>
-
-        </div>
+      )}
     </footer>
-  )
+  );
 }
 
-export default BottomBar
+export default BottomBar;

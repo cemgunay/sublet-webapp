@@ -112,17 +112,26 @@ function Publish() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { _id, ...updateData } = data;
+    setData((prevData) => ({
+      ...prevData,
+      published: true,
+    }));
+
+    const { _id, published, ...updateData } = data;
+    const updatedData = {
+      ...updateData,
+      published: true,
+    };
 
     try {
-      await api.put("/listings/" + data._id, updateData);
+      await api.put("/listings/" + data._id, updatedData);
     } catch (err) {
       console.log(err);
     }
 
-    localStorage.setItem("listId", JSON.stringify(""))
+    //localStorage.setItem("listId", JSON.stringify(""))
 
-    navigate("/list");
+    //navigate("/list");
   };
 
   return (
@@ -143,7 +152,14 @@ function Publish() {
               seePreview ? classes.slideUp : classes.slideDown
             }`}
           >
-            <Preview data={data} setSeePreview={setSeePreview} currentUser={currentUser} moveInExists={moveInExists} moveOutExists={moveOutExists} options={options}/>
+            <Preview
+              data={data}
+              setSeePreview={setSeePreview}
+              currentUser={currentUser}
+              moveInExists={moveInExists}
+              moveOutExists={moveOutExists}
+              options={options}
+            />
           </div>
         </div>
       ) : null}
@@ -185,13 +201,15 @@ function Publish() {
               disableHighlightToday
             />
 
-            {((!moveOutExists || !data.moveOutDate) || (!moveInExists || !data.moveInDate)) ? null : (
+            {!moveOutExists ||
+            !data.moveOutDate ||
+            !moveInExists ||
+            !data.moveInDate ? null : (
               <div>
-                {data.moveInDate.$d.toLocaleDateString("en-US", options)} - {data.moveOutDate.$d.toLocaleDateString("en-US", options)}
+                {data.moveInDate.$d.toLocaleDateString("en-US", options)} -{" "}
+                {data.moveOutDate.$d.toLocaleDateString("en-US", options)}
               </div>
             )}
-
-
           </LocalizationProvider>
         </div>
         <div className={classes.shorterstayscontainer}>
@@ -231,16 +249,14 @@ function Publish() {
                 <div>DW you can always change this</div>
               </>
             ) : null}
-
-            
           </div>
           <div>
-              <div>Confirm a few details and publish</div>
-              <div>
-                We'll let you know if you need to verify your identity or any
-                other needed documents
-              </div>
+            <div>Confirm a few details and publish</div>
+            <div>
+              We'll let you know if you need to verify your identity or any
+              other needed documents
             </div>
+          </div>
         </div>
         <BottomBar
           form={urlTitleReverse[page]}

@@ -4,23 +4,34 @@ import Carousel from '../Carousel/Carousel'
 
 import classes from './ListingItem.module.css'
 
-function ListingItem(props) {
+function ListingItem({listing}) {
+
+  console.log(listing)
+
+  const images = listing.images.map(({ url }) => url);
+
+  const formattedAddress =
+      listing.location.address1 +
+      ", " +
+      listing.location.city +
+      ", " +
+      listing.location.stateprovince;
 
   return (
-    <Link to={'/listing/'+props.id} state={{listing:props}} className={classes.container}>
+    <Link to={'/listing/'+listing._id} state={{listing:listing}} className={classes.container}>
         <div className={classes.imageContainer}>
-          <Carousel dots={true} images={props.image} index={0} from={'Explore'}/>
+          <Carousel dots={true} images={images} index={0} from={'Explore'}/>
         </div>
         <div className={classes.content}>
           <div className={classes.first}>
-            <h3>{props.title}</h3>
-            <p>{props.days_left}</p>
+            <h3>{listing.title}</h3>
+            <p>{listing.days_left}</p>
           </div>
-          <address>{props.address}</address>
-          <p>{props.dates}</p>
+          <address>{formattedAddress}</address>
+          <p>{listing.dates}</p>
           <div className={classes.second}>
-            <h3 className={classes.price}>{props.price}</h3>
-            <p>{props.views}</p>
+            <h3 className={classes.price}>{listing.price}</h3>
+            <p>{listing.views}</p>
           </div>
         </div>
     </Link>

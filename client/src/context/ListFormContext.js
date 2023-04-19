@@ -72,6 +72,7 @@ export const ListFormProvider = ({ children }) => {
     price: 0,
     description: "",
     images: [],
+    published: false
   });
 
   console.log("listform rendered");
@@ -123,6 +124,7 @@ export const ListFormProvider = ({ children }) => {
           shorterStays: response.data.shorterStays,
           availableToView: response.data.availableToView,
           viewingDates: response.data.viewingDates,
+          published: response.data.published
         }));
         setLoading(false);
       })

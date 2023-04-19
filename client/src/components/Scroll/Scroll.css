@@ -1,7 +1,7 @@
 .react-horizontal-scrolling-menu--wrapper {
   display: flex;
   flex-direction: column;
-  height: 15rem;
+  height: 13rem;
 }
 
 .react-horizontal-scrolling-menu--inner-wrapper {

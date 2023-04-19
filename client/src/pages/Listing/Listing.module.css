@@ -7,7 +7,12 @@
   padding-bottom: 6rem;
 }
 
-.back{
+.carouselcontainer{
+  width: 100%;
+  height: 15rem;
+}
+
+.back {
   position: absolute;
   top: 0;
   left: 0;
@@ -16,7 +21,7 @@
   padding: 1rem;
 }
 
-.leftchevron{
+.leftchevron {
   fill: white;
 }
 
@@ -38,12 +43,12 @@
   margin-right: 2rem;
 }
 
-.title{
-    padding-bottom: 1rem;
-    padding-top: 1rem;
-    border-bottom: solid;
-    border-width: 0.1rem;
-    border-color: lightgray;
+.title {
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+  border-bottom: solid;
+  border-width: 0.1rem;
+  border-color: lightgray;
 }
 
 .first {
@@ -69,81 +74,82 @@
 }
 
 .bio {
-    padding-bottom: 1rem;
-    padding-top: 1rem;
-    border-bottom: solid;
-    border-width: 0.1rem;
-    border-color: lightgray;
-}
-
-.details{
-    display: flex;
-    gap: 0.5rem;
-}
-
-.details p{
-    font-size: smaller;
-}
-
-.traits{
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding-bottom: 1rem;
-    padding-top: 1rem;
-    border-bottom: solid;
-    border-width: 0.1rem;
-    border-color: lightgray;
-}
-
-.about{
-    padding-bottom: 1rem;
-    padding-top: 1rem;
-    border-bottom: solid;
-    border-width: 0.1rem;
-    border-color: lightgray;
-}
-
-.bedrooms{
   padding-bottom: 1rem;
-    padding-top: 1rem;
-    border-bottom: solid;
-    border-width: 0.1rem;
-    border-color: lightgray;
+  padding-top: 1rem;
+  border-bottom: solid;
+  border-width: 0.1rem;
+  border-color: lightgray;
+}
+
+.details {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.details p {
+  font-size: smaller;
+}
+
+.traits {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+  border-bottom: solid;
+  border-width: 0.1rem;
+  border-color: lightgray;
+}
+
+.about {
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+  border-bottom: solid;
+  border-width: 0.1rem;
+  border-color: lightgray;
+}
+
+.bedrooms {
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+  border-bottom: solid;
+  border-width: 0.1rem;
+  border-color: lightgray;
 }
 
 h2 {
   margin: 0;
 }
 
-.utilities{
+.utilities {
   padding-bottom: 1rem;
-    padding-top: 1rem;
-    border-bottom: solid;
-    border-width: 0.1rem;
-    border-color: lightgray;
+  padding-top: 1rem;
+  border-bottom: solid;
+  border-width: 0.1rem;
+  border-color: lightgray;
 }
 
-.amenities{
+.amenities {
   padding-bottom: 1rem;
-    padding-top: 1rem;
-    border-bottom: solid;
-    border-width: 0.1rem;
-    border-color: lightgray;
+  padding-top: 1rem;
+  border-bottom: solid;
+  border-width: 0.1rem;
+  border-color: lightgray;
 }
 
-.location{
+.location {
+  height: 300px;
   padding-bottom: 1rem;
-    padding-top: 1rem;
-    border-bottom: solid;
-    border-width: 0.1rem;
-    border-color: lightgray;
+  padding-top: 1rem;
+  border-bottom: solid;
+  border-width: 0.1rem;
+  border-color: lightgray;
 }
 
-.availability{
+.availability {
   padding-bottom: 1rem;
-    padding-top: 1rem;
-    border-bottom: solid;
-    border-width: 0.1rem;
-    border-color: lightgray;
+  padding-top: 1rem;
+  border-bottom: solid;
+  border-width: 0.1rem;
+  border-color: lightgray;
 }

@@ -1,0 +1,25 @@
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.inputField {
+    align-self: flex-start; /* or 'center' if you prefer */
+    flex: none;
+    outline: none;
+    border: none;
+    width: 100px;
+    background-color: transparent;
+    text-align: center;
+  }
+
+.container button {
+  border: none;
+  background-color: transparent;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+  cursor: pointer;
+}

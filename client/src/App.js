@@ -22,8 +22,9 @@ import Title from "./pages/List/Title";
 import Description from "./pages/List/Description";
 import Documents from "./pages/List/Documents";
 import Price from "./pages/List/Price";
-import UploadImages from "./pages/List/UploadImages";
 import Publish from "./pages/List/Publish";
+import RequestFormContextLayout from "./RequestFormContextLayout";
+import Request from "./pages/Request/Request";
 
 //import RequireAuth from "./components/Util/RequireAuth";
 
@@ -36,7 +37,11 @@ function App() {
           {/* Public Routes */}
           <Route path="/" element={<Explore />} />
           <Route path="signup" element={<SignUp />} />
-          <Route path="listing/:id" element={<Listing />} />
+          
+          <Route element={<RequestFormContextLayout />}>
+            <Route path="listing/:id" element={<Listing />} />
+            <Route path="request/:id" element={<Request />} />
+          </Route>
 
           {/* Private Routes */}
           <Route path="profile" element={<Profile />} />

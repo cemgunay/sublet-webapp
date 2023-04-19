@@ -10,7 +10,14 @@
 .card {
   display: flex;
   flex-direction: column;
+  justify-content: space-around;
   gap: 0.5rem;
+  height: 100%;
+}
+
+.text{
+  display: flex;
+  flex-direction: column;
 }
 
 .title{

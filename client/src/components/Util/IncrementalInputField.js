@@ -1,11 +1,16 @@
 import React, { useState } from "react";
 
-import classes from "./IncrementalInput.module.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMinus, faPlus } from "@fortawesome/free-solid-svg-icons";
 
-function IncrementalInput(props) {
+import classes from "./IncrementalInputField.module.css";
+
+function IncrementalInputField(props) {
   const [beds, setBeds] = useState(0);
 
-  const [value, setValue] = useState("")
+  console.log(props);
+
+  const [value, setValue] = useState("");
 
   const handlePlus = () => {
     if (props.type === "bedrooms") {
@@ -23,7 +28,7 @@ function IncrementalInput(props) {
     } else if (props.type === "beds") {
       setBeds(beds + 1);
     } else if (props.type === "price") {
-      setValue(parseInt(props.data.price))
+      setValue(parseInt(props.data.price));
       if (props.data.price === "") {
         props.setData((prevData) => ({
           ...prevData,
@@ -35,7 +40,6 @@ function IncrementalInput(props) {
           price: prevData.price + 25,
         }));
       }
-      
     } else {
       props.setData((prevData) => ({
         ...prevData,
@@ -65,11 +69,10 @@ function IncrementalInput(props) {
     } else if (props.type === "price") {
       if (props.data.price > 25) {
         props.setData((prevData) => ({
-        ...prevData,
-        price: props.data.price - 25,
-      }));
+          ...prevData,
+          price: props.data.price - 25,
+        }));
       }
-      
     } else {
       if (props.data.basics.bathrooms > 0) {
         props.setData((prevData) => ({
@@ -111,17 +114,18 @@ function IncrementalInput(props) {
     return (
       <div className={classes.container}>
         <button id="minus" type="button" onClick={handleMinus}>
-          -
+          <FontAwesomeIcon icon={faMinus} />
         </button>
         <input
+          className={classes.inputField} // Add this line
           type="text"
           name="price"
           placeholder="$00"
-          value={props.data.price !== 0 ? `$${props.data.price}` : ""}
-          onChange={props.handleChange}
+          value={props.data.price !== 0 ? `$${props.data.price} month` : ""}
+          readOnly
         />
         <button id="plus" type="button" onClick={handlePlus}>
-          +
+          <FontAwesomeIcon icon={faPlus} />
         </button>
       </div>
     );
@@ -140,7 +144,7 @@ function IncrementalInput(props) {
   }
 }
 
-export default IncrementalInput;
+export default IncrementalInputField;
 
 /*
     const handlePlus = () => {

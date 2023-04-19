@@ -4,20 +4,19 @@ const multer = require("multer");
 const User = require("../models/User");
 const Listing = require("../models/Listing");
 const cloudinary = require("../utils/cloudinary");
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
 
 // Configure Multer and Cloudinary storage
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  folder: 'listings',
-  dest: 'uploads/',
-  allowedFormats: ['jpg', 'jpeg', 'png'],
-  transformation: [{ width: 500, height: 500, crop: 'limit' }]
+  folder: "listings",
+  dest: "uploads/",
+  allowedFormats: ["jpg", "jpeg", "png"],
+  transformation: [{ width: 500, height: 500, crop: "limit" }],
 });
 
 // Configure multer for file uploads
 const upload = multer({ storage: storage });
-
 
 // Create a listing
 /*router.post("/", async (req,res) => {
@@ -70,9 +69,9 @@ router.post("/", upload.array("images"), async (req, res) => {
       expiryDate: req.body.expiryDate,
       price: req.body.price,
 
-      aboutyourplace:{
+      aboutyourplace: {
         propertyType: req.body.aboutyourplace.propertyType,
-        privacyType: req.body.aboutyourplace.privacyType
+        privacyType: req.body.aboutyourplace.privacyType,
       },
 
       basics: {
@@ -84,7 +83,6 @@ router.post("/", upload.array("images"), async (req, res) => {
         */
         bathrooms: req.body.basics.bathrooms,
       },
-      
 
       /*
       amenities: {
@@ -137,14 +135,14 @@ router.put("/:id", async (req, res) => {
 });
 
 //Update a listing (with photo update)
-router.put('/images/:id', upload.array('images'), async (req, res) => {
+router.put("/images/:id", upload.array("images"), async (req, res) => {
   try {
     // Find the Listing object to update
     const listing = await Listing.findById(req.params.id);
 
     // Create a new folder with the same name as the listing ID
     const folderName = `listings/${listing._id}`;
-    await cloudinary.api.create_folder(folderName, { resource_type: 'auto' });
+    await cloudinary.api.create_folder(folderName, { resource_type: "auto" });
 
     // Upload new images to Cloudinary and add to Listing's images array
     const newImages = [];
@@ -152,7 +150,12 @@ router.put('/images/:id', upload.array('images'), async (req, res) => {
       const result = await cloudinary.uploader.upload(file.path, {
         folder: folderName,
       });
-      newImages.push({ url: result.secure_url, filename: result.public_id, file: file, progress: 100 });
+      newImages.push({
+        url: result.secure_url,
+        filename: result.public_id,
+        file: file,
+        progress: 100,
+      });
     }
     listing.images.push(...newImages);
 
@@ -161,10 +164,9 @@ router.put('/images/:id', upload.array('images'), async (req, res) => {
 
     res.status(200).json(savedListing);
   } catch (err) {
-    res.status(400).json('Error: ' + err);
+    res.status(400).json("Error: " + err);
   }
 });
-
 
 //Delete a listing
 router.delete("/:id/:userId", async (req, res) => {
@@ -233,6 +235,11 @@ router.get("/draftgroup/:id", async (req, res) => {
 
 router.get("/", async (req, res) => {
   const query = {};
+
+  const filters = req.query.filters ? JSON.parse(req.query.filters) : {};
+
+  console.log(filters.price)
+
   if (req.query.city) {
     query.city = req.query.city;
   }
@@ -254,11 +261,11 @@ router.get("/", async (req, res) => {
       $lte: req.query.expiryDate[1],
     };
   }
-  if (req.query.price) {
-    query.price = { $gte: req.query.price[0], $lte: req.query.price[1] };
+  if (filters.price) {
+    query.price = { $gte: filters.price[0], $lte: filters.price[1] };
   }
-  if (req.query.propertyType) {
-    query.propertyType = req.query.propertyType;
+  if (filters.propertyType) {
+    query["aboutyourplace.propertyType"] = filters.propertyType;
   }
   if (req.query.numOfBedrooms) {
     query["bedrooms.length"] = {
@@ -289,15 +296,18 @@ router.get("/", async (req, res) => {
   }
 });
 
-//Get all listings
+//Get all listings without filters
+/*
 router.get("/", async (req, res) => {
   try {
-    const listings = await Listing.find();
+    const listings = await Listing.find({ published: true });
     res.status(200).json(listings);
   } catch (err) {
-    res.status(500).json(err);
+    console.error('Error in GET /listings endpoint:', err);
+    res.status(500).json({ message: 'Internal Server Error', error: err.message });
   }
 });
+*/
 
 //Add view to listing
 router.put("/:id/view", async (req, res) => {
