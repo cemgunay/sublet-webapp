@@ -45,7 +45,7 @@ function Listing() {
   useEffect(() => {
     setData((prevData) => ({
       ...prevData,
-      _id: id,
+      listingId: id,
     }));
   }, [id, setData]);
 

@@ -37,10 +37,11 @@ function App() {
           {/* Public Routes */}
           <Route path="/" element={<Explore />} />
           <Route path="signup" element={<SignUp />} />
-          
+
           <Route element={<RequestFormContextLayout />}>
-            <Route path="listing/:id" element={<Listing />} />
-            <Route path="request/:id" element={<Request />} />
+            <Route path="listing/:id" element={<Listing />}>
+              <Route path="request/:id" element={<Request />} />
+            </Route>
           </Route>
 
           {/* Private Routes */}

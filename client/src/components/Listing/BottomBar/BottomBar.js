@@ -2,6 +2,7 @@ import React, {useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import IncrementalInputField from "../../Util/IncrementalInputField";
 
+import api from "../../../api/axios";
 import classes from "./BottomBar.module.css";
 
 function BottomBar({data, setData, listing, handleChange}) {
@@ -31,7 +32,17 @@ function BottomBar({data, setData, listing, handleChange}) {
   const navigate = useNavigate();
 
 const handleOnClick = () => {
-  navigate('/request/' + listing._id, { state: {data, listing} });
+
+  const newRequest = {
+  }
+
+  api.post('/requests/' + listing._id, newRequest)
+  .then(response => {
+    console.log(response.data)
+    setData({...data, _id: response.data._id})
+    navigate('request/' + data._id, { state: {data, listing} });
+  })
+  .catch(error => console.error(error))
 }  
   
 
