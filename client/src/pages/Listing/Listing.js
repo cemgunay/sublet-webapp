@@ -4,7 +4,6 @@ import { useLocation, useParams, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faCircleChevronLeft } from "@fortawesome/free-solid-svg-icons";
 
-import axios from "axios";
 import api from "../../api/axios";
 
 import classes from "./Listing.module.css";
@@ -14,9 +13,8 @@ import Utilities from "../../components/Listing/Utilities";
 import Amenities from "../../components/Listing/Amenities";
 import Modal from "../../components/Modal/Modal";
 
-import CalendarComponent from "../../components/Listing/CalendarComponent";
 import BottomBar from "../../components/Listing/BottomBar/BottomBar";
-import MonthGrid from "../../components/Listing/MonthGrid";
+import MonthGrid from "../../components/Util/MonthGrid";
 import LocationMarker from "../../components/Util/LocationMarker";
 import useRequestFormContext from "../../hooks/useRequestFormContext";
 
@@ -48,6 +46,19 @@ function Listing() {
       listingId: id,
     }));
   }, [id, setData]);
+
+  //to set the data object with its tenantId
+
+  const userId = listing?.userId;
+
+  useEffect(() => {
+    if (listing){
+      setData((prevData) => ({
+        ...prevData,
+        tenantId: userId
+      }));
+    }
+  }, [userId, setData, listing]);
 
   //for back button
   const navigate = useNavigate();
@@ -91,6 +102,16 @@ function Listing() {
       endDate: endDate
     }));
   }, [setData]);
+
+  const getMonth = (date) => {
+    const dateToChange = new Date(date);
+    const options = { month: "short", year: "numeric" };
+    const monthYearString = dateToChange.toLocaleDateString("en-US", options);
+    return monthYearString;
+  };
+
+  console.log(listing)
+
 
   return (
     <>
@@ -172,6 +193,7 @@ function Listing() {
               {!listing.shorterStays ? null : (
                 <div>Shorter stays available</div>
               )}
+              {getMonth(data.startDate)} -{getMonth(data.endDate)}
               <MonthGrid
                 moveInDate={listing.moveInDate}
                 moveOutDate={listing.moveOutDate}

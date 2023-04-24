@@ -5,15 +5,21 @@
   gap: 1rem;
 }
 
+.inputWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .inputField {
-    align-self: flex-start; /* or 'center' if you prefer */
-    flex: none;
-    outline: none;
-    border: none;
-    width: 100px;
-    background-color: transparent;
-    text-align: center;
-  }
+  outline: none;
+  border: none;
+  width: auto;
+  max-width: 50px;
+  background-color: transparent;
+  text-align: center;
+  font-size: medium;
+}
 
 .container button {
   border: none;

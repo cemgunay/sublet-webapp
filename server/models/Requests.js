@@ -15,7 +15,7 @@ const RequestSchema = new Schema(
       type: String,
       required: true,
     },
-    priceOffer: {
+    price: {
       type: Number,
       required: true,
     },
@@ -27,16 +27,8 @@ const RequestSchema = new Schema(
       type: Date,
       required: true,
     },
-    sublettors: {
-      type: Number,
-      required: true,
-    },
-    viewingDateTime: {
+    viewingDate: {
       type: Date,
-    },
-    paymentMethod: {
-      type: String,
-      required: true,
     },
   },
   { timestamps: true }

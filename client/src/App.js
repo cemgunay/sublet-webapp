@@ -39,9 +39,8 @@ function App() {
           <Route path="signup" element={<SignUp />} />
 
           <Route element={<RequestFormContextLayout />}>
-            <Route path="listing/:id" element={<Listing />}>
-              <Route path="request/:id" element={<Request />} />
-            </Route>
+            <Route path="listing/:id" element={<Listing />} />
+            <Route path="listing/:listingId/request/:requestId" element={<Request />} />
           </Route>
 
           {/* Private Routes */}

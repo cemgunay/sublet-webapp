@@ -7,8 +7,6 @@ import './Scroll.css'
 
 function Scroll(props) {
 
-  console.log(props.bedrooms)
-
   const getItems = () =>
   Array(4)
     .fill(0)

@@ -1,12 +1,13 @@
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import IncrementalInputField from "../../Util/IncrementalInputField";
+
+import { v4 as uuid } from "uuid";
 
 import api from "../../../api/axios";
 import classes from "./BottomBar.module.css";
 
-function BottomBar({data, setData, listing, handleChange}) {
-
+function BottomBar({ data, setData, listing, handleChange }) {
   const getMonth = (date) => {
     const dateToChange = new Date(date);
     const options = { month: "short", year: "numeric" };
@@ -17,34 +18,31 @@ function BottomBar({data, setData, listing, handleChange}) {
   useEffect(() => {
     setData((prevData) => ({
       ...prevData,
-      price: listing.price
-    }))
-  }, [setData, listing])
+      price: listing.price,
+    }));
+  }, [setData, listing]);
 
   useEffect(() => {
     setData((prevData) => ({
       ...prevData,
       startDate: listing.moveInDate,
-      endDate: listing.moveOutDate
-    }))
-  }, [setData, listing])
+      endDate: listing.moveOutDate,
+    }));
+  }, [setData, listing]);
 
   const navigate = useNavigate();
 
-const handleOnClick = () => {
+  const handleOnClick = async (e) => {
+    e.preventDefault();
 
-  const newRequest = {
-  }
+    const id = uuid(); // generate a random UUID for URL
 
-  api.post('/requests/' + listing._id, newRequest)
-  .then(response => {
-    console.log(response.data)
-    setData({...data, _id: response.data._id})
-    navigate('request/' + data._id, { state: {data, listing} });
-  })
-  .catch(error => console.error(error))
-}  
-  
+    console.log(data.price)
+
+    navigate(`request/${id}?startDate=${data.startDate}&endDate=${data.endDate}&viewingDate=${data.viewingDate}&price=${data.price}`, {
+      state: { stateData: data, listing },
+    });
+  };
 
   return (
     <footer className={classes.wrapper}>
@@ -59,8 +57,7 @@ const handleOnClick = () => {
               handleChange={handleChange}
             />
             <div>
-              {getMonth(data.startDate)} -
-              {getMonth(data.endDate)}
+              {getMonth(data.startDate)} -{getMonth(data.endDate)}
             </div>
           </div>
           <div onClick={handleOnClick}>Request</div>
