@@ -8,8 +8,6 @@ import classes from "./IncrementalInputField.module.css";
 function IncrementalInputField(props) {
   const [beds, setBeds] = useState(0);
 
-  console.log(props);
-
   const [value, setValue] = useState("");
 
   const handlePlus = () => {
@@ -116,14 +114,20 @@ function IncrementalInputField(props) {
         <button id="minus" type="button" onClick={handleMinus}>
           <FontAwesomeIcon icon={faMinus} />
         </button>
-        <input
-          className={classes.inputField} // Add this line
-          type="text"
-          name="price"
-          placeholder="$00"
-          value={props.data.price !== 0 ? `$${props.data.price} month` : ""}
-          readOnly
-        />
+        <div className={classes.inputWrapper}>
+          <input
+            className={classes.inputField}
+            type="text"
+            name="price"
+            placeholder="$00"
+            value={props.data.price !== 0 ? `$${props.data.price}` : ""}
+            onChange={props.handleOnChange}
+            readOnly={props.from === "BottomBar"}
+          />
+          <span className="monthLabel">
+            month
+          </span>
+        </div>
         <button id="plus" type="button" onClick={handlePlus}>
           <FontAwesomeIcon icon={faPlus} />
         </button>

@@ -13,12 +13,10 @@ router.post("/:listingId", async (req, res) => {
       tenantId: req.body.tenantId,
       subTenantId: req.body.subTenantId,
       listingId: req.params.listingId,
-      priceOffer: req.body.priceOffer,
+      price: req.body.price,
       startDate: req.body.startDate,
       endDate: req.body.endDate,
-      sublettors: req.body.sublettors,
-      viewingDateTime: req.body.viewingDateTime,
-      paymentMethod: req.body.paymentMethod,
+      viewingDate: req.body.viewingDate
     });
 
     //Save request to DB and return response
