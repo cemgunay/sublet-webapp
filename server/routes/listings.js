@@ -168,6 +168,35 @@ router.put("/images/:id", upload.array("images"), async (req, res) => {
   }
 });
 
+// Delete a photo from a listing
+router.delete("/images/:id/:photoId", async (req, res) => {
+  try {
+    // Find the Listing object to update
+    const listing = await Listing.findById(req.params.id);
+
+    // Find the photo to delete
+    const photoIndex = listing.images.findIndex(
+      (image) => image.filename === req.params.photoId
+    );
+    if (photoIndex === -1) {
+      return res.status(404).json({ message: "Photo not found" });
+    }
+
+    // Delete the photo from Cloudinary
+    await cloudinary.uploader.destroy(req.params.photoId);
+
+    // Remove the photo from the Listing's images array
+    listing.images.splice(photoIndex, 1);
+
+    // Save the updated Listing object
+    const savedListing = await listing.save();
+
+    res.status(200).json(savedListing);
+  } catch (err) {
+    res.status(400).json("Error: " + err);
+  }
+});
+
 //Delete a listing
 router.delete("/:id/:userId", async (req, res) => {
   try {
