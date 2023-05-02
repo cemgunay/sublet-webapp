@@ -1,6 +1,13 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
+const RequestStatus = Object.freeze({
+  PENDINGTENANT: "pendingTenant",
+  PENDINGSUBTENANT: "pendingSubTenant",
+  ACCEPTED: "accepted",
+  REJECTED: "rejected",
+});
+
 const RequestSchema = new Schema(
   {
     tenantId: {
@@ -29,6 +36,12 @@ const RequestSchema = new Schema(
     },
     viewingDate: {
       type: Date,
+    },
+    status: {
+      type: String,
+      enum: Object.values(RequestStatus),
+      required: true,
+      default: RequestStatus.PENDINGTENANT,
     },
   },
   { timestamps: true }

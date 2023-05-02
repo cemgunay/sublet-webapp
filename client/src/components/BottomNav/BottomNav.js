@@ -4,7 +4,11 @@ import { NavLink } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMagnifyingGlass, faUser } from "@fortawesome/free-solid-svg-icons";
+import {
+  faHouse,
+  faMagnifyingGlass,
+  faUser,
+} from "@fortawesome/free-solid-svg-icons";
 
 import classes from "./BottomNav.module.css";
 
@@ -12,34 +16,67 @@ function BottomNav() {
   //const { user: currentUser } = useContext(AuthContext);
 
   //to change the elements below
-  const { user: currentUser } = useContext(AuthContext);
+  const { user: currentUser, role } = useContext(AuthContext);
 
   console.log(currentUser);
+  console.log(role);
 
   return (
     <div className={classes.wrapper}>
       <nav className={classes.container}>
         {currentUser ? (
-          <>
-            <NavLink
-              to="/"
-              className={({ isActive }) =>
-                isActive ? classes.active : undefined
-              }
-            >
-              <FontAwesomeIcon icon={faMagnifyingGlass} />
-              Explore
-            </NavLink>
-            <NavLink
-              to="/profile"
-              className={({ isActive }) =>
-                isActive ? classes.active : undefined
-              }
-            >
-              <FontAwesomeIcon icon={faUser} />
-              Profile
-            </NavLink>
-          </>
+          role === "subtenant" ? (
+            <>
+              <NavLink
+                to="/"
+                className={({ isActive }) =>
+                  isActive ? classes.active : undefined
+                }
+              >
+                <FontAwesomeIcon icon={faMagnifyingGlass} />
+                Explore
+              </NavLink>
+              <NavLink
+                to="/sublets"
+                className={({ isActive }) =>
+                  isActive ? classes.active : undefined
+                }
+              >
+                <FontAwesomeIcon icon={faHouse} />
+                subLets
+              </NavLink>
+              <NavLink
+                to="/profile"
+                className={({ isActive }) =>
+                  isActive ? classes.active : undefined
+                }
+              >
+                <FontAwesomeIcon icon={faUser} />
+                Profile
+              </NavLink>
+            </>
+          ) : (
+            <>
+              <NavLink
+                to="/host"
+                className={({ isActive }) =>
+                  isActive ? classes.active : undefined
+                }
+              >
+                <FontAwesomeIcon icon={faHouse} />
+                subLets
+              </NavLink>
+              <NavLink
+                to="/host/profile"
+                className={({ isActive }) =>
+                  isActive ? classes.active : undefined
+                }
+              >
+                <FontAwesomeIcon icon={faUser} />
+                Profile
+              </NavLink>
+            </>
+          )
         ) : (
           <>
             <NavLink

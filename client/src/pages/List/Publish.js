@@ -131,7 +131,7 @@ function Publish() {
 
     //localStorage.setItem("listId", JSON.stringify(""))
 
-    //navigate("/list");
+    //navigate("/host/list");
   };
 
   return (

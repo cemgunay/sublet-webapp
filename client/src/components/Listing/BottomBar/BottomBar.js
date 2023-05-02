@@ -4,7 +4,6 @@ import IncrementalInputField from "../../Util/IncrementalInputField";
 
 import { v4 as uuid } from "uuid";
 
-import api from "../../../api/axios";
 import classes from "./BottomBar.module.css";
 
 function BottomBar({ data, setData, listing, handleChange }) {

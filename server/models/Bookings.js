@@ -19,7 +19,7 @@ const BookingSchema = new Schema(
       type: String,
       required: true,
     },
-    acceptedPriceOffer: {
+    acceptedPrice: {
       type: Number,
       required: true,
     },
@@ -31,16 +31,8 @@ const BookingSchema = new Schema(
       type: Date,
       required: true,
     },
-    sublettors: {
-      type: Number,
-      required: true,
-    },
-    viewingDateTime: {
+    viewingDate: {
       type: Date,
-    },
-    paymentMethod: {
-      type: String,
-      required: true,
     },
     depositAmount: {
         type: Number,

@@ -1,10 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import api from "../../api/axios";
-import {
-  useNavigate,
-  useLocation,
-  useParams
-} from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -22,57 +18,81 @@ import { faCircleChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import BottomBlock from "../../components/UI/BottomBlock";
 
 function Request() {
+  //from URL
   const { listingId, requestId } = useParams();
 
+  //if state was passed from previous location
   const location = useLocation();
   const { state } = location;
 
   const [listing, setListing] = useState(null);
 
+  //from context
   const { data, setData, handleChange } = useRequestFormContext();
 
-  const navigate = useNavigate();
+  //to set the initial dates for MonthGrid
+  const [defaultMoveInDate, setDefaultMoveInDate] = useState(null);
+  const [defaultMoveOutDate, setDefaultMoveOutDate] = useState(null);
 
-  console.log(data);
+  //to set the initial price
+  const [originalPrice, setOriginalPrice] = useState(data.price);
+  //to set the initial price
+  const [originalMoveInDate, setOriginalMoveInDate] = useState(data.startDate);
+  //to set the initial price
+  const [originalMoveOutDate, setOriginalMoveOutDate] = useState(data.endDate);
 
   //On refresh, get listing and tenant id from DB
   useEffect(() => {
-    api.get("/listings/" + listingId).then((response) => {
-      console.log(response.data);
-      setListing(response.data);
-      setData((prevData) => ({
-        ...prevData,
-        listingId: listingId,
-        tenantId: response.data.userId,
-        viewingDate: null,
-      }));
-    });
+    api
+      .get("/listings/" + listingId)
+      .then((response) => {
+        console.log(response.data);
+        setListing(response.data);
+        setData((prevData) => ({
+          ...prevData,
+          listingId: listingId,
+          tenantId: response.data.userId,
+        }));
+      })
+      .catch((error) => console.error(error));
   }, [listingId, setData]);
 
-  //when startDate and endDate change update URL
+  //if coming from sublets, get request status from DB
   useEffect(() => {
-    // Replace the current URL entry without adding a new one to the history
+    api
+      .get("/requests/" + requestId)
+      .then((response) => {
+        console.log(response.data);
+        setData((prevData) => ({
+          ...prevData,
+          status: response.data.status,
+        }));
+      })
+      .catch((error) => console.error(error));
+  }, [requestId, setData]);
+
+  //when startDate and endDate change update URL
+  const navigate = useNavigate();
+
+  useEffect(() => {
     navigate(
       `?startDate=${data.startDate}&endDate=${data.endDate}&viewingDate=${data.viewingDate}&price=${data.price}`,
       { replace: true }
     );
-  }, [
-    data.startDate,
-    data.endDate,
-    data.price,
-    data.viewingDate,
-    navigate,
-    requestId,
-  ]);
+  }, [data.startDate, data.endDate, data.viewingDate, data.price, navigate]);
 
   //if there is no state, take listing from parameters
   useEffect(() => {
     if (!state) {
       api.get("/listings/" + listingId).then((response) => {
         setListing(response.data);
+        setDefaultMoveInDate(response.data.moveInDate);
+        setDefaultMoveOutDate(response.data.moveOutDate);
       });
     } else {
       setListing(state.listing);
+      setDefaultMoveInDate(state.listing.moveInDate);
+      setDefaultMoveOutDate(state.listing.moveOutDate);
     }
   }, [listingId, state]);
 
@@ -91,7 +111,7 @@ function Request() {
     const isoDates = listing.viewingDates.map((d) =>
       dayjs(d).format("YYYY-MM-DD")
     );
-    return !isoDates.includes(date.format("YYYY-MM-DD"));
+    return !isoDates.includes(dayjs(date).format("YYYY-MM-DD"));
   };
 
   //for changing the subLet dates
@@ -114,6 +134,21 @@ function Request() {
     return monthYearString;
   };
 
+  //to format date
+  function formatDate(dateString) {
+    if (!dateString) {
+      return "No viewing date selected";
+    }
+
+    const date = new Date(dateString);
+
+    if (isNaN(date.getTime())) {
+      return "";
+    }
+
+    return date.toISOString();
+  }
+
   //to get the difference between in months between two ISO
   const getMonthDiff = (dateString1, dateString2) => {
     const date1 = new Date(dateString1);
@@ -125,22 +160,19 @@ function Request() {
   };
 
   //for the totals to be displayed
-  const subTotal = parseFloat((
-    data.price * getMonthDiff(data.startDate, data.endDate)
-  ).toFixed(2));
-  const atic = parseFloat((
-    ((data.price * getMonthDiff(data.startDate, data.endDate)) / 2) *
-    0.04
-  ).toFixed(2));
+  const subTotal = parseFloat(
+    (data.price * getMonthDiff(data.startDate, data.endDate)).toFixed(2)
+  );
+  const atic = parseFloat((data.price * 2 * 0.04).toFixed(2));
 
-  const total = (subTotal + atic).toFixed(2)
+  const total = (subTotal + atic).toFixed(2);
   const due = subTotal / 2 + atic;
 
   const goBack = () => {
     navigate(-1);
   };
 
-  const handleOnClick = async (e) => {
+  const handleRequest = async (e) => {
     e.preventDefault();
 
     const newRequest = {
@@ -150,18 +182,64 @@ function Request() {
       price: data.price,
       startDate: data.startDate,
       endDate: data.endDate,
+      viewingDate: data.viewingDate,
+    };
+
+      api
+        .post("/requests/" + listing._id, newRequest)
+        .then((response) => {
+          console.log(response.data);
+          //navigate("/sublets");
+        })
+        .catch((error) => console.error(error));
+    
+  };
+
+  const handleAccept = (e) => {
+    e.preventDefault();
+
+    const updateRequest = {
+      subTenantId: data.subTenantId,
+      status: "accepted",
     };
 
     api
-      .post("/requests/" + listing._id, newRequest)
+      .put("/requests/update/" + data._id, updateRequest)
       .then((response) => {
         console.log(response.data);
-        navigate('/')
+        api
+          .post("/bookings/" + listing._id + "/" + requestId)
+          .then((response) => {
+            console.log(response);
+            //navigate("/sublets");
+          })
+          .catch((error) => console.error(error));
+        //navigate("/");
       })
       .catch((error) => console.error(error));
   };
 
-  console.log(data)
+  const handleDecline = (e) => {};
+
+  const handleUpdate = (e) => {
+    e.preventDefault();
+
+    const updateRequest = {
+      subTenantId: data.subTenantId,
+      price: data.price,
+      startDate: data.startDate,
+      endDate: data.endDate,
+      status: "pendingTenant",
+    };
+
+    api
+      .put("/requests/update/" + data._id, updateRequest)
+      .then((response) => {
+        console.log(response.data);
+        //navigate("/");
+      })
+      .catch((error) => console.error(error));
+  };
 
   return (
     <div>
@@ -199,7 +277,12 @@ function Request() {
         <div>loadingg</div>
       ) : (
         <div className={classes.contentcontainer}>
+          {data.status === "pendingSubTenant" ? (
+            <div>Countered Dates</div>
+          ) : null}
           <MonthGrid
+            defaultMoveInDate={defaultMoveInDate}
+            defaultMoveOutDate={defaultMoveOutDate}
             moveInDate={data.startDate}
             moveOutDate={data.endDate}
             shorterStays={listing.shorterStays}
@@ -208,7 +291,11 @@ function Request() {
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DatePicker
               label={"Select Viewing Date"}
-              value={data.viewingDate}
+              value={
+                data.viewingDate && data.viewingDate !== "null"
+                  ? dayjs(data.viewingDate)
+                  : null
+              }
               onChange={handleOnChangeViewing}
               components={{
                 textField: TextField,
@@ -223,7 +310,11 @@ function Request() {
             />
           </LocalizationProvider>
           <div>
-            <div>Price Offer</div>
+            {data.status === "pendingSubTenant" ? (
+              <div>Countered Price</div>
+            ) : (
+              <div>Price Offer</div>
+            )}
             <IncrementalInputField
               data={data}
               setData={setData}
@@ -238,11 +329,12 @@ function Request() {
               <div>subLet months</div>
               {getMonth(data.startDate)} -{getMonth(data.endDate)}
               <div>Move in - Move out</div>
-              {new Date(data.startDate)?.toLocaleDateString()} - {new Date(data.endDate)?.toLocaleDateString()}
+              {new Date(data.startDate)?.toLocaleDateString()} -{" "}
+              {new Date(data.endDate)?.toLocaleDateString()}
             </div>
             <div className={classes.details}>
               <div>viewing date</div>
-              {data.viewingDate?.toISOString() ?? 'No viewing date selected'}
+              {formatDate(data.viewingDate) ?? "No viewing date selected"}
             </div>
             <div className={classes.details}>
               <div>price details</div>
@@ -273,7 +365,17 @@ function Request() {
               <div>ATIC</div>
             </div>
           </div>
-          <BottomBlock handleOnClick={handleOnClick}/>
+          <BottomBlock
+            handleRequest={handleRequest}
+            handleAccept={handleAccept}
+            handleDecline={handleDecline}
+            handleUpdate={handleUpdate}
+            data={data}
+            originalPrice={originalPrice}
+            originalMoveInDate={originalMoveInDate}
+            originalMoveOutDate={originalMoveOutDate}
+            status={data.status}
+          />
         </div>
       )}
     </div>

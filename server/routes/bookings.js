@@ -9,6 +9,9 @@ const Booking = require("../models/Bookings");
 // Create booking for a listing
 router.post("/:listingId/:requestId", async (req, res) => {
   try {
+    
+    console.log(req.params)
+
     const request = await Request.findById(req.params.requestId);
 
     //Create new booking object
@@ -17,13 +20,11 @@ router.post("/:listingId/:requestId", async (req, res) => {
       subTenantId: request.subTenantId,
       listingId: req.params.listingId,
       acceptedRequestId: req.params.requestId,
-      acceptedPriceOffer: request.priceOffer,
+      acceptedPrice: request.price,
       startDate: request.startDate,
       endDate: request.endDate,
-      sublettors: request.sublettors,
-      viewingDateTime: request.viewingDateTime,
-      paymentMethod: request.paymentMethod,
-      depositAmount: request.priceOffer * 2,
+      viewingDate: request.viewingDate,
+      depositAmount: (request.price * 2) * 1.04,
     });
 
     //Save booking to DB and return response

@@ -1,0 +1,11 @@
+.requestItem {
+  width: 100%;
+  border: 1px solid lightgrey;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: black;
+}
