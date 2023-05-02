@@ -52,10 +52,10 @@ function Listing() {
   const userId = listing?.userId;
 
   useEffect(() => {
-    if (listing){
+    if (listing) {
       setData((prevData) => ({
         ...prevData,
-        tenantId: userId
+        tenantId: userId,
       }));
     }
   }, [userId, setData, listing]);
@@ -95,13 +95,16 @@ function Listing() {
 
   const beds = listing?.basics?.bedrooms?.map(({ bedType }) => bedType) || [];
 
-  const handleDataChange = useCallback(({startDate, endDate}) => {
-    setData((prevData) => ({
-      ...prevData,
-      startDate: startDate,
-      endDate: endDate
-    }));
-  }, [setData]);
+  const handleDataChange = useCallback(
+    ({ startDate, endDate }) => {
+      setData((prevData) => ({
+        ...prevData,
+        startDate: startDate,
+        endDate: endDate,
+      }));
+    },
+    [setData]
+  );
 
   const getMonth = (date) => {
     const dateToChange = new Date(date);
@@ -110,8 +113,7 @@ function Listing() {
     return monthYearString;
   };
 
-  console.log(listing)
-
+  console.log(listing);
 
   return (
     <>
@@ -195,6 +197,8 @@ function Listing() {
               )}
               {getMonth(data.startDate)} -{getMonth(data.endDate)}
               <MonthGrid
+                defaultMoveInDate={listing.moveInDate}
+                defaultMoveOutDate={listing.moveOutDate}
                 moveInDate={listing.moveInDate}
                 moveOutDate={listing.moveOutDate}
                 shorterStays={listing.shorterStays}

@@ -6,7 +6,7 @@ function Info() {
     const navigate = useNavigate();
 
     const goToOverview = () => {
-        navigate("/list/overview");
+        navigate("/host/list/overview");
       };
 
   return (

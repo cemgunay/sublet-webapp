@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import BottomNav from "../../components/BottomNav/BottomNav";
-import ListingList from "../../components/Listings/ListingList";
-import axios from "axios";
+import ListingList from "../../components/Util/Listings/ListingList";
 import api from "../../api/axios";
 //import api from '../../api/axios'
 import { AuthContext } from "../../context/AuthContext";
@@ -15,16 +14,6 @@ function Explore() {
   console.log("rerender explore");
 
   const [listings, setListings] = useState([]);
-
-  //OLD WAY WITH DUMMY DATA
-  /*
-  useEffect(() => {
-    axios.get("/dummy/dummy-data.json").then(response => {
-      setListings(response.data)
-      console.log('rerender useeffect')
-    }).catch(error => console.log(error));
-  }, []); 
-  */
 
   useEffect(() => {
     const fetchListings = async () => {

@@ -16,7 +16,7 @@ function TopBar() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    navigate("/list");
+    navigate("/host/list");
 
     const { _id, ...updateData } = data;
 

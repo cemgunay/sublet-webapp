@@ -47,7 +47,7 @@ function SpecificList() {
 
     if(location.pathname.endsWith('aboutyourplace')){
       if(!data._id){
-        navigate('/list/overview')
+        navigate('/host/list/overview')
       }
     }
 

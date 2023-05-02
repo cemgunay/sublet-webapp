@@ -25,6 +25,11 @@ import Price from "./pages/List/Price";
 import Publish from "./pages/List/Publish";
 import RequestFormContextLayout from "./RequestFormContextLayout";
 import Request from "./pages/Request/Request";
+import SubletsTenant from "./pages/Sublets/SubletsTenant/SubletsTenant";
+import SubletsSubtenant from "./pages/Sublets/SubletsSubtenant/SubletsSubtenant";
+import RequireAuth from "./components/RequireAuth";
+import Sublet from "./pages/Sublet/Sublet";
+import RequestDetails from "./pages/Sublet/RequestDetails";
 
 //import RequireAuth from "./components/Util/RequireAuth";
 
@@ -40,28 +45,47 @@ function App() {
 
           <Route element={<RequestFormContextLayout />}>
             <Route path="listing/:id" element={<Listing />} />
-            <Route path="listing/:listingId/request/:requestId" element={<Request />} />
           </Route>
 
           {/* Private Routes */}
-          <Route path="profile" element={<Profile />} />
+          <Route element={<RequireAuth />}>
+            <Route element={<RequestFormContextLayout />}>
+              <Route path="profile" element={<Profile />} />
+              <Route
+                path="listing/:listingId/request/:requestId"
+                element={<Request />}
+              />
+            </Route>
+            <Route path="sublets" element={<SubletsSubtenant />} />
 
-          {/* Context Provider Pseudo Layout Route without a path to give context to nested routes */}
-          <Route element={<ListFormContextLayout />}>
-            <Route path="list" element={<List />} />
-            <Route path="list/info" element={<Info />} />
-            <Route path="list/overview" element={<Overview />} />
-            <Route path="list/:id" element={<SpecificList />}>
-              <Route path="aboutyourplace" element={<AboutYourPlace />} />
-              <Route path="location" element={<Location />} />
-              <Route path="basics" element={<Basics />} />
-              <Route path="amenities" element={<Amenities />} />
-              <Route path="photos" element={<Photos />} />
-              <Route path="title" element={<Title />} />
-              <Route path="description" element={<Description />} />
-              <Route path="documents" element={<Documents />} />
-              <Route path="price" element={<Price />} />
-              <Route path="publish" element={<Publish />} />
+            {/* Creating a root path for when on host side*/}
+            <Route path="host" element={<Layout />}>
+              <Route path="/host" element={<SubletsTenant />} />
+              <Route path="/host/listing/:id" element={<Sublet />} />
+              <Route element={<RequestFormContextLayout />}>
+                <Route
+                  path="/host/listing/:listingId/request/:requestId"
+                  element={<RequestDetails />}
+                />
+              </Route>
+              {/* Context Provider Pseudo Layout Route without a path to give context to nested routes */}
+              <Route element={<ListFormContextLayout />}>
+                <Route path="list" element={<List />} />
+                <Route path="list/info" element={<Info />} />
+                <Route path="list/overview" element={<Overview />} />
+                <Route path="list/:id" element={<SpecificList />}>
+                  <Route path="aboutyourplace" element={<AboutYourPlace />} />
+                  <Route path="location" element={<Location />} />
+                  <Route path="basics" element={<Basics />} />
+                  <Route path="amenities" element={<Amenities />} />
+                  <Route path="photos" element={<Photos />} />
+                  <Route path="title" element={<Title />} />
+                  <Route path="description" element={<Description />} />
+                  <Route path="documents" element={<Documents />} />
+                  <Route path="price" element={<Price />} />
+                  <Route path="publish" element={<Publish />} />
+                </Route>
+              </Route>
             </Route>
           </Route>
 

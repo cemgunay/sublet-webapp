@@ -14,7 +14,6 @@ import classes from "./Preview.module.css";
 import LocationMarker from "../Util/LocationMarker";
 
 function Preview(props) {
-  const navigate = useNavigate();
 
   const [dates, setDates] = useState([new Date(), new Date()]);
 

@@ -17,10 +17,12 @@ const months = [
   "August",
 ];
 
-const MonthGrid = ({ moveInDate, moveOutDate, shorterStays, onDataChange }) => {
+const MonthGrid = ({ moveInDate, moveOutDate, shorterStays, onDataChange, defaultMoveInDate, defaultMoveOutDate }) => {
   const [schoolYear, setSchoolYear] = useState({ start: 2022, end: 2023 });
   const [animationDirection, setAnimationDirection] = useState("forward");
   const [key, setKey] = useState(0);
+
+  
   const [selectedMonths, setSelectedMonths] = useState([]);
   const [startDate, setStartDate] = useState(moveInDate);
   const [endDate, setEndDate] = useState(moveOutDate);
@@ -70,6 +72,14 @@ const MonthGrid = ({ moveInDate, moveOutDate, shorterStays, onDataChange }) => {
     const monthYear = `${month}-${schoolYear.start}-${schoolYear.end}`;
     const selectedIndex = selectedMonths.findIndex((m) => m.id === monthYear);
 
+    //for debugging styll
+    /*
+    console.log(monthYear)
+    console.log(selectedIndex)
+    console.log(index)
+    console.log(selectedMonths)
+    */
+
     if (selectedIndex !== -1) {
       // If the selected month is at the beginning or end of the range, unselect it
       if (selectedIndex === 0 || selectedIndex === selectedMonths.length - 1) {
@@ -81,6 +91,7 @@ const MonthGrid = ({ moveInDate, moveOutDate, shorterStays, onDataChange }) => {
         });
       }
     } else {
+
       // If there are no selected months, or the clicked month is adjacent to the existing range, select it
       if (index === 0) {
         const prevIndex = selectedMonths.findIndex(
@@ -192,22 +203,32 @@ const MonthGrid = ({ moveInDate, moveOutDate, shorterStays, onDataChange }) => {
       const firstMonthIndex = months.indexOf(firstMonth.month);
       const lastMonthIndex = months.indexOf(lastMonth.month);
 
-      const defaultStart = new Date(moveInDate);
-      const defaultEnd = new Date(moveOutDate);
+      const defaultStart = new Date(defaultMoveInDate);
+      const defaultEnd = new Date(defaultMoveOutDate);
       const defaultStartMonthIndex = (defaultStart.getMonth() - 8 + 12) % 12;
       const defaultEndMonthIndex = (defaultEnd.getMonth() - 8 + 12) % 12;
+
+      //for debugging styll
+      /*
+      console.log(defaultStart)
+      console.log(defaultStartMonthIndex)
+      console.log(defaultStart.getFullYear())
+      console.log(firstMonth)
+      console.log(firstMonthIndex)
+      console.log(firstMonth.schoolYear.end)
+      */
 
       if (firstMonthIndex === defaultStartMonthIndex) {
         if (
           firstMonthIndex > 3 &&
           firstMonth.schoolYear.end === defaultStart.getFullYear()
         ) {
-          setStartDate(moveInDate);
+          setStartDate(defaultMoveInDate);
         } else if (
           firstMonthIndex < 4 &&
           firstMonth.schoolYear.start === defaultStart.getFullYear()
         ) {
-          setStartDate(moveInDate);
+          setStartDate(defaultMoveInDate);
         }
 
         if (lastMonthIndex === defaultEndMonthIndex) {
@@ -215,12 +236,12 @@ const MonthGrid = ({ moveInDate, moveOutDate, shorterStays, onDataChange }) => {
             lastMonthIndex > 3 &&
             lastMonth.schoolYear.end === defaultStart.getFullYear()
           ) {
-            setEndDate(moveOutDate);
+            setEndDate(defaultMoveOutDate);
           } else if (
             lastMonthIndex < 4 &&
             lastMonth.schoolYear.start === defaultStart.getFullYear()
           ) {
-            setEndDate(moveOutDate);
+            setEndDate(defaultMoveOutDate);
           }
         } else {
           if (lastMonthIndex > 3) {
@@ -246,12 +267,12 @@ const MonthGrid = ({ moveInDate, moveOutDate, shorterStays, onDataChange }) => {
           lastMonthIndex > 3 &&
           lastMonth.schoolYear.end === defaultStart.getFullYear()
         ) {
-          setEndDate(moveOutDate);
+          setEndDate(defaultMoveOutDate);
         } else if (
           lastMonthIndex < 4 &&
           lastMonth.schoolYear.start === defaultStart.getFullYear()
         ) {
-          setEndDate(moveOutDate);
+          setEndDate(defaultMoveOutDate);
         }
 
         if (firstMonthIndex === defaultStartMonthIndex) {
@@ -259,13 +280,12 @@ const MonthGrid = ({ moveInDate, moveOutDate, shorterStays, onDataChange }) => {
             firstMonthIndex > 3 &&
             firstMonth.schoolYear.end === defaultStart.getFullYear()
           ) {
-            console.log("hi");
-            setStartDate(moveInDate);
+            setStartDate(defaultMoveInDate);
           } else if (
             firstMonthIndex < 4 &&
             firstMonth.schoolYear.start === defaultStart.getFullYear()
           ) {
-            setStartDate(moveInDate);
+            setStartDate(defaultMoveInDate);
           }
         } else {
           if (firstMonthIndex > 3) {
@@ -324,7 +344,7 @@ const MonthGrid = ({ moveInDate, moveOutDate, shorterStays, onDataChange }) => {
         }
       }
     }
-  }, [selectedMonths, moveInDate, moveOutDate]);
+  }, [selectedMonths, defaultMoveInDate, defaultMoveOutDate]);
 
   useEffect(() => {
     if (startDate && endDate && userHasChangedDates) {

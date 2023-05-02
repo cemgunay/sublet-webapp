@@ -24,28 +24,22 @@ export const RequestFormProvider = ({ children }) => {
     subTenantId: currentUserId,
     listingId: "",
     price: priceFromURL ? parseFloat(priceFromURL) : 0,
-    startDate: startDateFromURL ? new Date(startDateFromURL) : null,
-    endDate: endDateFromURL ? new Date(endDateFromURL) : null,
-    viewingDate: viewingDateFromURL ? new Date(viewingDateFromURL) : null,
+    startDate: startDateFromURL ? startDateFromURL : null,
+    endDate: endDateFromURL ? endDateFromURL : null,
+    viewingDate: viewingDateFromURL ? viewingDateFromURL : null,
   });
-
-  console.log(data);
 
   //to handle change of the inputs in all the forms
   const handleChange = (e) => {
     if (e.target) {
-      console.log(e.target);
 
       const type = e.target.type;
       const name = e.target.name;
       const value = type === "checkbox" ? e.target.checked : e.target.value;
 
       if (name === "price") {
-        console.log("whats poppin");
         const withouDollarSignValue = value.replace(/^\$/, "");
-        console.log(withouDollarSignValue);
         const numberValue = parseInt(withouDollarSignValue);
-        console.log(name);
         if (!isNaN(numberValue)) {
           setData((prevData) => ({
             ...prevData,

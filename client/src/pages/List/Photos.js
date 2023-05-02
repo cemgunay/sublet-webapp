@@ -98,7 +98,7 @@ function Photos() {
   };
 
   const uploadImage = async (image, setUploadCount, totalImages) => {
-    const { file } = image;
+    const { file, isTooSmall } = image;
 
     try {
       const formData = new FormData();
@@ -144,6 +144,7 @@ function Photos() {
           filename: uploadedImage.filename,
           url: uploadedImage.url,
           progress: uploadedImage.progress,
+          isTooSmall,
         };
 
         return updatedImages;
@@ -165,7 +166,7 @@ function Photos() {
       (image) => image.file.size >= 50 * 1024 && image.progress === 100
     );
 
-    console.log(validImages)
+    console.log(validImages);
 
     setData((prevData) => ({
       ...prevData,
@@ -179,7 +180,6 @@ function Photos() {
     } catch (err) {
       console.log(err);
     }
-
   };
 
   console.log(images);
@@ -200,6 +200,8 @@ function Photos() {
       ];
     } else if (action === "make_cover") {
       updatedImages.unshift(updatedImages.splice(index, 1)[0]);
+    } else if (action === "delete") {
+      
     }
     setImages(updatedImages);
   };
@@ -257,44 +259,44 @@ function Photos() {
                 className={classes.imageitem}
                 key={`${image.filename}-${index}`}
               >
-                
-                {index === 0 ? <div className={classes.coverphoto}>Cover photo</div> : null}
-                <button
-                  className={classes.actionButton}
-                  onClick={(event) => handleButtonClick(event, index)}
-                >
-                  <span className={classes.dots}>&#8942;</span>
-                </button>
-                {/* ... */}
-                <img
-                  src={image.url}
-                  alt={image.filename}
-                  key={image.filename}
-                  className={classes.imageitemImg}
-                />
-                {image.progress >= 0 && (
-                  <div className={classes.progressbar}
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      width: `${image.progress}%`,
-                      height: "5px",
-                      backgroundColor: `var(--color-primary)`,
-                      zIndex: 1,
-                    }}
-                  ></div>
-                )}
-                {image.isTooSmall && (
-                  <div
-                    style={{
-                      marginTop: "5px",
-                      fontSize: "14px",
-                      color: "red",
-                    }}
+                <div className={classes.imagecontainer}>
+                  {index === 0 ? (
+                    <div className={classes.coverphoto}>Cover photo</div>
+                  ) : null}
+                  <button
+                    className={classes.actionButton}
+                    onClick={(event) => handleButtonClick(event, index)}
                   >
-                    Image too small
-                  </div>
+                    <span className={classes.dots}>&#8942;</span>
+                  </button>
+                  {/* ... */}
+                  <img
+                    src={image.url}
+                    alt={image.filename}
+                    key={image.filename}
+                    className={classes.imageitemImg}
+                  />
+                  {image.progress >= 0 && (
+                    <div
+                      className={classes.progressbar}
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: `${image.progress}%`,
+                        height: "5px",
+                        backgroundColor: `var(--color-primary)`,
+                        zIndex: 1,
+                      }}
+                    ></div>
+                  )}
+                  {image.isTooSmall && (
+                    <div className={classes.imageoverlay}></div>
+                  )}
+                </div>
+
+                {image.isTooSmall && (
+                  <div className={classes.imageTooSmall}>Image too small</div>
                 )}
               </div>
             ))}
@@ -335,6 +337,11 @@ function Photos() {
           className={classes.popupMenu}
           style={{ position: "absolute", top: popup.y, left: popup.x }}
         >
+          <button
+            onClick={(event) => handleOptionClick(event, "delete")}
+          >
+            Delete
+          </button>
           <button
             onClick={(event) => handleOptionClick(event, "move_backwards")}
           >

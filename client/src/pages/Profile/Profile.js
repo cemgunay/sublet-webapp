@@ -8,11 +8,15 @@ function Profile() {
     const navigate = useNavigate()
 
     //authcontext stuff
-  const {user, isFetching, error, dispatch} = useContext(AuthContext);
+  const {dispatch} = useContext(AuthContext);
 
     const goToListing = () => {
-        navigate('/list')
+        navigate('/host/list')
     }
+
+    const goToHosting = () => {
+      navigate('/host')
+  }
 
     const logOut = (e) => {
       e.preventDefault();
@@ -31,6 +35,7 @@ function Profile() {
     <>
     <div>Profile</div>
     <button onClick={goToListing}>List a subLet</button>
+    <button onClick={goToHosting}>Switch to Hosting</button>
     <button onClick={logOut}>Log out</button>
     </>
   )

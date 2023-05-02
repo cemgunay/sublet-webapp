@@ -206,6 +206,18 @@ router.get("/listingsinprogress/:userId", async (req, res) => {
   }
 });
 
+// TO DO: Get all of the published listings for a user
+router.get("/listingspublished/:userId", async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const listings = await Listing.find({ userId, published: true });
+    res.send(listings);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal server error");
+  }
+});
+
 //Get the draft group of a listing in progress
 router.get("/draftgroup/:id", async (req, res) => {
   try {
@@ -232,6 +244,7 @@ router.get("/draftgroup/:id", async (req, res) => {
 });
 
 //Get all listings with filters
+//TO DO: Write out all remaining filters
 
 router.get("/", async (req, res) => {
   const query = {};

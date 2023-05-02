@@ -57,14 +57,14 @@ function Overview() {
     .then(response => {
       console.log(response.data._id)
       setData({...data, _id: response.data._id})
-      navigate('/list/'+response.data._id+'/aboutyourplace')
+      navigate('/host/list/'+response.data._id+'/aboutyourplace')
     })
     .catch(error => console.error(error));
 }
 
   return (
     <>
-      <TopBack icon="xmark" path="/list"/>
+      <TopBack icon="xmark" path="/host/list"/>
       <div className={classes.container}>
         <div>Its easy to get started with subLet</div>
         <div className={classes.cards}>

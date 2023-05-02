@@ -16,7 +16,7 @@ router.post("/:listingId", async (req, res) => {
       price: req.body.price,
       startDate: req.body.startDate,
       endDate: req.body.endDate,
-      viewingDate: req.body.viewingDate
+      viewingDate: req.body.viewingDate,
     });
 
     //Save request to DB and return response
@@ -32,6 +32,16 @@ router.get("/:requestId", async (req, res) => {
   try {
     const request = await Request.findById(req.params.requestId);
     res.status(200).json(request);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+// Get all requests by listing ID
+router.get("/listing/:listingId", async (req, res) => {
+  try {
+    const requests = await Request.find({ listingId: req.params.listingId });
+    res.status(200).json(requests);
   } catch (err) {
     res.status(500).json(err);
   }
@@ -63,22 +73,22 @@ router.get("/myoffers/:tenantId", async (req, res) => {
 
 //Get all requests made for a listing
 router.get("/listingrequests/:listingId", async (req, res) => {
-    try {
-      const requests = await Request.find({
-        listingId: req.params.listingId,
-      });
-      res.status(200).json(requests);
-    } catch (err) {
-      res.status(500).json(err);
-    }
-  });
-
+  try {
+    const requests = await Request.find({
+      listingId: req.params.listingId,
+    });
+    res.status(200).json(requests);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
 
 //Update a request
-router.put("/:id", async (req, res) => {
+router.put("/update/:id", async (req, res) => {
+  console.log(req.body)
   try {
-    const request = await request.findById(req.params.id);
-    if (request.subtenantId === req.body.userId) {
+    const request = await Request.findById(req.params.id);
+    if (request.subtenantId === req.body.subtenantId) {
       //Check if listing belongs to user trying to update it
       await request.updateOne({ $set: req.body });
       res.status(200).json("The request has been updated!");

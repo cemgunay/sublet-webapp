@@ -55,7 +55,7 @@ function BottomBar(props) {
       } catch (err) {
         console.log(err);
       }
-      navigate("/list/overview");
+      navigate("/host/list/overview");
     } else if (props.confirmLocation && !props.confirmMarker) {
       props.setConfirmLocation(false)
     } else if (props.confirmMarker) {
