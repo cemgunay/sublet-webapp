@@ -5,6 +5,7 @@ import { AuthContext } from "../../context/AuthContext";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+  faBars,
   faHouse,
   faMagnifyingGlass,
   faUser,
@@ -67,13 +68,13 @@ function BottomNav() {
                 subLets
               </NavLink>
               <NavLink
-                to="/host/profile"
+                to="/host/menu"
                 className={({ isActive }) =>
                   isActive ? classes.active : undefined
                 }
               >
-                <FontAwesomeIcon icon={faUser} />
-                Profile
+                <FontAwesomeIcon icon={faBars} />
+                Menu
               </NavLink>
             </>
           )

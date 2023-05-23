@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const mongoose = require('mongoose');
+const createAgenda = require('./jobs/jobs');
 //const morgan = require('morgan');
 const helmet = require("helmet");
 require("dotenv").config();
@@ -12,6 +13,7 @@ const listingRoute = require('./routes/listings');
 const userRoute = require('./routes/users');
 const requestRoute = require('./routes/requests');
 const bookingRoute = require('./routes/bookings');
+const uploadRoute = require('./routes/uploads')
 
 // db
 mongoose.set('strictQuery', false);
@@ -37,6 +39,13 @@ app.use("/server/listings" , listingRoute);
 app.use("/server/users" , userRoute);
 app.use("/server/requests", requestRoute);
 app.use("/server/bookings", bookingRoute);
+app.use("/server/uploads", uploadRoute);
+
+// start jobs processing
+const agenda = createAgenda(process.env.MONGO_URI);
+(async function() { 
+  await agenda.start(); 
+})();
 
 // port
 const port = process.env.PORT || 8080;

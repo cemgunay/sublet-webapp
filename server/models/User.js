@@ -1,79 +1,90 @@
-const mongoose = require('mongoose');
-const {Schema} = mongoose;
+const mongoose = require("mongoose");
+const { Schema } = mongoose;
 
-const UserSchema = new Schema({
-    firstName:{
-        type: String,
-        require: true,
+const UserSchema = new Schema(
+  {
+    firstName: {
+      type: String,
+      require: true,
     },
-    lastName:{
-        type: String,
-        require: true,
+    lastName: {
+      type: String,
+      require: true,
     },
-    email:{
-        type: String,
-        require: true,
-        unique: true,
+    email: {
+      type: String,
+      require: true,
+      unique: true,
     },
-    password:{
-        type:String,
-        required:true,
-        min:6,
+    password: {
+      type: String,
+      required: true,
+      min: 6,
     },
-    phoneNumber:{
-        type:String,
+    phoneNumber: {
+      type: String,
     },
     dateOfBirth: {
-        type: Date,
-        required: true,
-        trim: true,
+      type: Date,
+      required: true,
+      trim: true,
     },
     profilePicture: {
-        type: String,
-        default: "",
+      type: String,
+      default: "",
     },
     about: {
-        type: String,
-        default: "",
+      type: String,
+      default: "",
     },
     location: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     idVerified: {
-        type: Boolean,
+      type: Boolean,
     },
     favourites: {
-        type: Array,
-        default: [],
+      type: Array,
+      default: [],
     },
     occupation: {
-        type: String,
+      type: String,
     },
     drinking: {
-        type: Boolean,
+      type: Boolean,
     },
     smoking: {
-        type: Boolean,
+      type: Boolean,
     },
     noiseLevel: {
-        type: Number,
-        min: 1,
-        max: 100,
+      type: Number,
+      min: 1,
+      max: 100,
     },
     instagramUrl: {
-        type: String,
+      type: String,
     },
     facebookUrl: {
-        type: String,
+      type: String,
     },
     tikTokUrl: {
-        type: String,
+      type: String,
     },
-
-}, {timestamps:true}
+    currentTenantTransaction: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Request",
+      default: null,
+    },
+    currentSubTenantTransaction: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Request",
+      default: null,
+    },
+  },
+  { timestamps: true }
 );
 
-const UserModel = mongoose.model('User', UserSchema);
+const UserModel = mongoose.model("User", UserSchema);
 
 module.exports = UserModel;

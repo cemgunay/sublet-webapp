@@ -10,6 +10,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import Requests from "../../components/Sublet/Requests";
 
+import { toast } from "react-toastify";
+
 function Sublet() {
   //useParams and useLocation are to pass the listing prop from listingItem through to this component
   const { id } = useParams();
@@ -58,6 +60,31 @@ function Sublet() {
     ? `${listing.location.address1}, ${listing.location.city}, ${listing.location.stateprovince}`
     : "";
 
+  //This is for deleting past requests
+  const handleDeleteConfirm = (requestToDelete) => {
+    // call your delete API here
+
+    const updateRequest = {
+      showTenant: false,
+    };
+
+    api
+      .put("/requests/update/" + requestToDelete, updateRequest)
+      .then((response) => {
+        console.log(response.data);
+        const updatedRequests = requests.filter(
+          (request) => request._id !== requestToDelete
+        );
+        setRequests(updatedRequests);
+        toast.success("Past request deleted successfully");
+        navigate("/sublets/past");
+      })
+      .catch((error) => {
+        toast.error("Failed to delete past request: " + error.message);
+        console.error(error);
+      });
+  };
+
   return (
     <div>
       <div className={classes.back} onClick={goBack}>
@@ -96,7 +123,11 @@ function Sublet() {
               </div>
             </div>
             <div className={classes.requestscontainer}>
-            <Requests requests={requests} listing={listing}/>
+              <Requests
+                requests={requests}
+                listing={listing}
+                onDelete={handleDeleteConfirm}
+              />
             </div>
           </div>
         </div>

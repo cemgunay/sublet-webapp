@@ -1,33 +1,28 @@
 .month-grid-wrapper {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .school-year {
   display: flex;
   align-items: center;
-  margin-bottom: 1rem;
 }
 
 .school-year button {
   background-color: transparent;
   border: none;
   cursor: pointer;
-  font-size: 1.5rem;
   padding: 0.25rem;
   margin: 0 0.5rem;
 }
 
-.school-year span {
-  font-size: 1.25rem;
-  font-weight: bold;
-}
-
 .month-grid-container {
+  width: 100%;
   display: flex;
   justify-content: center;
-  padding: 1rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
   border: 1px solid lightgrey;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   border-radius: 4px;
@@ -48,45 +43,12 @@
   cursor: pointer;
   border-radius: 4px;
   user-select: none;
+  font-size: small;
 }
 
 .month-rectangle.selected {
-  background-color: blue;
+  background-color: var(--color-primary);
   color: white;
-}
-
-.slide-forward-enter,
-.slide-backward-enter {
-  opacity: 0;
-  transform: translateX(100%);
-}
-
-.slide-forward-enter-active,
-.slide-backward-enter-active {
-  opacity: 1;
-  transform: translateX(0);
-  transition: opacity 300ms, transform 300ms;
-}
-
-.slide-forward-exit,
-.slide-backward-exit {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.slide-forward-exit-active,
-.slide-backward-exit-active {
-  opacity: 0;
-  transform: translateX(-100%);
-  transition: opacity 300ms, transform 300ms;
-}
-
-.slide-backward-enter {
-  transform: translateX(-100%);
-}
-
-.slide-backward-exit-active {
-  transform: translateX(100%);
 }
 
 .month-rectangle.disabled {

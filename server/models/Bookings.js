@@ -35,9 +35,15 @@ const BookingSchema = new Schema(
       type: Date,
     },
     depositAmount: {
-        type: Number,
-        required: true,
-      },
+      type: Number,
+      required: true,
+    },
+    tenantDocuments: [
+      { type: mongoose.Schema.Types.ObjectId, ref: 'Document' }
+    ],
+    subtenantDocuments: [
+      { type: mongoose.Schema.Types.ObjectId, ref: 'Document' }
+    ],
   },
   { timestamps: true }
 );

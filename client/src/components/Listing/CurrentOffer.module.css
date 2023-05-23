@@ -1,0 +1,20 @@
+@import '../../index.css';
+
+.container{
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.iconx{
+    color: var(--color-warning);
+}
+
+.iconxred{
+    color: var(--color-error);
+}
+
+
+.iconcheck{
+    color: var(--color-pass);
+}

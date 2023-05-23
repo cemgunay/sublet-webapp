@@ -17,6 +17,7 @@ import BottomBar from "../../components/Listing/BottomBar/BottomBar";
 import MonthGrid from "../../components/Util/MonthGrid";
 import LocationMarker from "../../components/Util/LocationMarker";
 import useRequestFormContext from "../../hooks/useRequestFormContext";
+import CurrentOffer from "../../components/Listing/CurrentOffer";
 
 function Listing() {
   //useParams and useLocation are to pass the listing prop from listingItem through to this component
@@ -24,8 +25,12 @@ function Listing() {
   const location = useLocation();
   const { state } = location;
   const [listing, setListing] = useState(null);
+  const [isBooked, setIsBooked] = useState(false);
+  const [booking, setBooking] = useState(null);
 
-  //if there is no state, take from parameters
+  console.log(state);
+
+  //if there is no state, take listing from parameters
   useEffect(() => {
     if (!state || !state.listing) {
       api.get("/listings/" + id).then((response) => {
@@ -37,7 +42,11 @@ function Listing() {
   }, [id, state]);
 
   //get data object and handlechange from context
-  const { data, setData, handleChange } = useRequestFormContext();
+  const { data, setData, handleChange, currentUserId } =
+    useRequestFormContext();
+
+  //to check if request Exists
+  const [requestExists, setRequestExists] = useState(false);
 
   //to set the data object with its id
   useEffect(() => {
@@ -59,6 +68,49 @@ function Listing() {
       }));
     }
   }, [userId, setData, listing]);
+
+  //check if there is already a request under this user for this listing
+  useEffect(() => {
+    api
+      .get("/requests/listing/" + id + "/" + currentUserId)
+      .then((response) => {
+        console.log(response.data);
+
+        // filter the response.data to only include entries where showSubTenant is true
+        const filteredData = response.data.filter(
+          (item) => item.showSubTenant === true
+        );
+
+        if (filteredData.length !== 0) {
+          // sort the filteredData array in descending order by the 'updatedAt' property
+          const sortedData = filteredData.sort(
+            (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+          );
+
+          // setData to the most recently updated entry
+          setData(sortedData[0]);
+          setRequestExists(true);
+        }
+      })
+      .catch((error) => console.error(error));
+  }, [id, setData, currentUserId]);
+
+  //check if this listing has been booked
+  useEffect(() => {
+    api.get("/bookings/" + id).then((response) => {
+      console.log(response);
+      if (response.data.length > 0) {
+        setIsBooked(true);
+        setBooking(response.data);
+      } else {
+        setIsBooked(false);
+      }
+    });
+  }, [id]);
+
+  console.log(isBooked);
+
+  console.log(data);
 
   //for back button
   const navigate = useNavigate();
@@ -84,7 +136,7 @@ function Listing() {
   };
 
   const goBack = () => {
-    navigate("/");
+    navigate(-1);
   };
 
   const images = listing?.images?.map(({ url }) => url) || [];
@@ -139,6 +191,14 @@ function Listing() {
           </div>
 
           <div className={classes.content}>
+            {!requestExists ? null : (
+              <CurrentOffer
+                data={data}
+                listing={listing}
+                isBooked={isBooked}
+                booking={booking}
+              />
+            )}
             <div className={classes.title}>
               <div className={classes.first}>
                 <h3>{listing.title}</h3>
@@ -196,6 +256,8 @@ function Listing() {
                 <div>Shorter stays available</div>
               )}
               {getMonth(data.startDate)} -{getMonth(data.endDate)}
+              <div>Move In Date: {data.startDate}</div>
+              <div>Move Out Date: {data.endDate}</div>
               <MonthGrid
                 defaultMoveInDate={listing.moveInDate}
                 defaultMoveOutDate={listing.moveOutDate}
@@ -233,6 +295,8 @@ function Listing() {
               data={data}
               setData={setData}
               handleChange={handleChange}
+              requestExists={requestExists}
+              isBooked={isBooked}
             />
           </div>
         </div>

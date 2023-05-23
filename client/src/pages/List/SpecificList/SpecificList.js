@@ -3,11 +3,23 @@ import { useNavigate, Outlet, useLocation, useOutlet } from "react-router-dom";
 import TopBar from "../../../components/List/TopBar";
 import useListFormContext from "../../../hooks/useListFormContext";
 
-import classes from './SpecificList.module.css'
+import classes from "./SpecificList.module.css";
 
 function SpecificList() {
-
-  const { urlTitle, urlTitleReverse, page, setPage, data, setData, canSubmit, handleChange, currentUserId, loading, canGoNext, setCanGoNext } = useListFormContext()
+  const {
+    urlTitle,
+    urlTitleReverse,
+    page,
+    setPage,
+    data,
+    setData,
+    canSubmit,
+    handleChange,
+    currentUserId,
+    loading,
+    canGoNext,
+    setCanGoNext,
+  } = useListFormContext();
 
   const [handleBack, setHandleBack] = useState(null);
 
@@ -30,14 +42,14 @@ function SpecificList() {
       }
     };
 
-    window.addEventListener('popstate', handlePopState);
+    window.addEventListener("popstate", handlePopState);
 
     return () => {
-      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener("popstate", handlePopState);
     };
   }, [handleBack]);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   // Re-run the effect when the location changes
   useEffect(() => {
@@ -45,19 +57,17 @@ function SpecificList() {
       handleBack();
     }
 
-    if(location.pathname.endsWith('aboutyourplace')){
-      if(!data._id){
-        navigate('/host/list/overview')
+    if (location.pathname.endsWith("aboutyourplace")) {
+      if (!data._id) {
+        navigate("/host/list/overview");
       }
     }
-
   }, [location, handleBack, data._id, navigate]);
-  
 
   //to iterate through pages
-  const currentUrl = window.location.pathname
-  const n = currentUrl.lastIndexOf('/')
-  const result = currentUrl.substring(n + 1)
+  const currentUrl = window.location.pathname;
+  const n = currentUrl.lastIndexOf("/");
+  const result = currentUrl.substring(n + 1);
 
   useEffect(() => {
     setPage(urlTitle[result]);
@@ -79,7 +89,23 @@ this will also help if person refreshes in the middle of the process so it will 
     <div className={classes.container}>
       <TopBar />
       <div className={classes.outlet}>
-        <Outlet context={{urlTitle, urlTitleReverse, page, setPage, data, setData, canSubmit, handleChange, currentUserId, loading, canGoNext, setCanGoNext, onHandleBack: setHandleBack,}}/>
+        <Outlet
+          context={{
+            urlTitle,
+            urlTitleReverse,
+            page,
+            setPage,
+            data,
+            setData,
+            canSubmit,
+            handleChange,
+            currentUserId,
+            loading,
+            canGoNext,
+            setCanGoNext,
+            onHandleBack: setHandleBack,
+          }}
+        />
       </div>
     </div>
   );

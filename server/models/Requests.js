@@ -5,6 +5,9 @@ const RequestStatus = Object.freeze({
   PENDINGTENANT: "pendingTenant",
   PENDINGSUBTENANT: "pendingSubTenant",
   ACCEPTED: "accepted",
+  PENDINGTENANTUPLOAD: "pendingTenantUpload",
+  PENDINGSUBTENANTUPLOAD: "pendingSubTenantUpload",
+  CONFIRMED: "confirmed",
   REJECTED: "rejected",
 });
 
@@ -36,6 +39,8 @@ const RequestSchema = new Schema(
     },
     viewingDate: {
       type: Date,
+      required: false,
+      default: null,
     },
     status: {
       type: String,
@@ -43,6 +48,28 @@ const RequestSchema = new Schema(
       required: true,
       default: RequestStatus.PENDINGTENANT,
     },
+    status_reason: {
+      type: String,
+    },
+    previousStatus: {
+      type: String,
+      enum: Object.values(RequestStatus),
+      required: false,
+    },
+    showTenant: {
+      type: Boolean,
+      default: true,
+    },
+    showSubTenant: {
+      type: Boolean,
+      default: true,
+    },
+    tenantDocuments: [
+      { type: mongoose.Schema.Types.ObjectId, ref: "Document" },
+    ],
+    subtenantDocuments: [
+      { type: mongoose.Schema.Types.ObjectId, ref: "Document" },
+    ],
   },
   { timestamps: true }
 );

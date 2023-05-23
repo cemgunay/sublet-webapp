@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require("multer");
 const User = require("../models/User");
 const Listing = require("../models/Listing");
+const Booking = require("../models/Bookings");
 const cloudinary = require("../utils/cloudinary");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 
@@ -176,8 +177,11 @@ router.delete("/images/:id/:photoId", async (req, res) => {
 
     // Find the photo to delete
     const photoIndex = listing.images.findIndex(
-      (image) => image.filename === req.params.photoId
+      (image) => image._id.toString() === req.params.photoId
     );
+
+    console.log(photoIndex);
+
     if (photoIndex === -1) {
       return res.status(404).json({ message: "Photo not found" });
     }
@@ -228,6 +232,7 @@ router.get("/listingsinprogress/:userId", async (req, res) => {
   const { userId } = req.params;
   try {
     const listings = await Listing.find({ userId, published: false });
+    console.log(listings);
     res.send(listings);
   } catch (err) {
     console.error(err);
@@ -235,11 +240,39 @@ router.get("/listingsinprogress/:userId", async (req, res) => {
   }
 });
 
-// TO DO: Get all of the published listings for a user
+// TO DO:Get all of the completed listings for a user that aren't published
+
+// Get all listings for a user
+router.get("/listings/:userId", async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const listings = await Listing.find({ userId });
+    res.send(listings);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal server error");
+  }
+});
+
+// Get all of the published listings for a user
 router.get("/listingspublished/:userId", async (req, res) => {
   const { userId } = req.params;
   try {
     const listings = await Listing.find({ userId, published: true });
+    res.send(listings);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal server error");
+  }
+});
+
+// Get all of the expired listings for a user
+router.get("/listingsexpired/:userId", async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const listings = await Listing.find({ userId, expiryDate: { $lt: today } });
     res.send(listings);
   } catch (err) {
     console.error(err);
@@ -256,15 +289,43 @@ router.get("/draftgroup/:id", async (req, res) => {
       return res.status(404).send("Listing not found");
     }
 
-    if (!listing.title) {
+    if (!listing.aboutyourplace) {
       return res.send("aboutyourplace");
     }
 
-    if (!listing.address) {
+    if (!listing.location.address1) {
       return res.send("location");
     }
 
     //TO DO: Write out all the remaining conditional statements to determine the listings draftgroup
+
+    if (listing.basics.bedrooms.length === 0) {
+      return res.send("location");
+    }
+
+    if (Object.values(listing.amenities).every((value) => value === false)) {
+      return res.send("amenities");
+    }
+
+    if (listing.images.length === 0) {
+      return res.send("photos");
+    }
+
+    if (!listing.title) {
+      return res.send("title");
+    }
+
+    if (!listing.description) {
+      return res.send("description");
+    }
+
+    if (!listing.price) {
+      return res.send("price");
+    }
+
+    if (!listing.moveInDate || !listing.moveOutDate) {
+      return res.send("publish");
+    }
 
     return res.send("No empty properties!");
   } catch (err) {
@@ -272,15 +333,13 @@ router.get("/draftgroup/:id", async (req, res) => {
   }
 });
 
-//Get all listings with filters
+//Get all published listings with filters
 //TO DO: Write out all remaining filters
 
 router.get("/", async (req, res) => {
-  const query = {};
+  const query = { published: true };
 
   const filters = req.query.filters ? JSON.parse(req.query.filters) : {};
-
-  console.log(filters.price)
 
   if (req.query.city) {
     query.city = req.query.city;
@@ -330,11 +389,57 @@ router.get("/", async (req, res) => {
       query["utilities.wifi"] = wifi;
     }
   }
-  try {
-    const listings = await Listing.find(query).exec();
-    res.status(200).json(listings);
-  } catch (error) {
-    res.status(500).json({ message: "Internal Server Error" });
+
+  if (filters.startDate && filters.endDate) {
+    // Parse dates to only consider the year and month, ignoring specific days
+    const startDate = new Date(filters.startDate);
+    const endDate = new Date(filters.endDate);
+
+    const startMonth = new Date(
+      startDate.getFullYear(),
+      startDate.getMonth(),
+      1
+    );
+    const endMonth = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+
+    try {
+      const listings = await Listing.find(query).exec();
+
+      // Filter out listings that are already booked for the desired date range
+      const availableListings = await Promise.all(
+        listings.map(async (listing) => {
+          // Look for bookings that overlap with the desired date range
+          const booking = await Booking.findOne({
+            listingId: listing._id,
+            $or: [
+              // Booking starts during the desired range
+              { startDate: { $lt: endMonth } },
+              // Booking ends during the desired range
+              { endDate: { $gte: startMonth } },
+            ],
+          });
+
+          // If no overlapping bookings are found, the listing is available
+          return booking ? null : listing;
+        })
+      );
+
+      // Remove null values from the array
+      const finalListings = availableListings.filter(
+        (listing) => listing !== null
+      );
+
+      res.status(200).json(finalListings);
+    } catch (error) {
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  } else {
+    try {
+      const listings = await Listing.find(query).exec();
+      res.status(200).json(listings);
+    } catch (error) {
+      res.status(500).json({ message: "Internal Server Error" });
+    }
   }
 });
 

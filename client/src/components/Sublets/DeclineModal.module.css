@@ -1,4 +1,5 @@
 .container {
+  box-sizing: border-box; /* Add this */
   position: fixed;
   top: 5rem;
   left: 0;
@@ -14,6 +15,7 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  padding: 1rem 2rem 0 2rem; /* Add padding here */
 }
 
 .headercontainer {
@@ -22,7 +24,6 @@
   width: 100%;
   background-color: white;
   z-index: 10;
-  margin-top: 1rem;
 }
 
 .header {
@@ -43,16 +44,21 @@
   fill: white;
 }
 
-.containerscroll {
-  max-height: 13rem;
+.contentcontainer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
 
-.containerNoScroll {
-  height: 100vh;
-  overflow-y: hidden;
+.inputcontainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
 }
 
-.wrapper{
+.wrapper {
   position: fixed;
   bottom: 0;
   width: 100%;

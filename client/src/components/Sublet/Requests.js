@@ -2,52 +2,91 @@ import React, { useState, useEffect } from "react";
 import api from "../../api/axios";
 import RequestItem from "./RequestItem";
 
-function Requests({ requests, listing }) {
-  console.log(requests);
-  console.log(listing)
+import "react-toastify/dist/ReactToastify.css";
 
-  const [names, setNames] = useState([]);
+function Requests({ requests, listing, onDelete }) {
+  const [updatedRequests, setUpdatedRequests] = useState(null);
+
+  const [openPastOffers, setOpenPastOffers] = useState(false);
 
   useEffect(() => {
-    const fetchName = async (subTenantId) => {
+    const fetchUser = async (subTenantId) => {
       try {
         const response = await api.get("/users/id/" + subTenantId);
-        const nameData = await response.data;
-        return nameData.firstName;
+        return response.data;
       } catch (error) {
         console.error(error);
-        return "Error fetching name";
+        return null;
       }
     };
 
-    const loadNames = async () => {
-      const newNames = await Promise.all(
-        requests.map(({ subTenantId }) => fetchName(subTenantId))
+    const loadRequests = async () => {
+      const newRequests = await Promise.all(
+        requests.map(async (request) => {
+          const user = await fetchUser(request.subTenantId);
+          return {
+            ...request,
+            user,
+          };
+        })
       );
-      setNames(newNames);
+
+      setUpdatedRequests(newRequests);
     };
 
-    loadNames();
+    loadRequests();
   }, [requests]);
+
+  console.log(updatedRequests)
+
+  const goToPastOffers = () => {
+    setOpenPastOffers(!openPastOffers);
+  };
 
   return (
     <div>
       <h2>Request List</h2>
-      <div>
-        {names.length > 0 ? (
-          requests.map((request, index) => (
-            <RequestItem
-              key={request._id}
-              name={names[index]}
-              price={request.price}
-              request={request}
-              listing={listing}
-            />
-          ))
-        ) : (
-          <div>Loading</div>
-        )}
+      <div onClick={goToPastOffers}>
+        {openPastOffers ? "Active Offers" : "Past Offers"}
       </div>
+      {openPastOffers ? (
+        <>
+          {updatedRequests ? (
+            updatedRequests
+              .filter((request) => request.status === "rejected" && request.showTenant)
+              .map((request) => (
+                <RequestItem
+                  key={request._id}
+                  name={request.user.firstName}
+                  price={request.price}
+                  request={request}
+                  listing={listing}
+                  onDelete={onDelete}
+                />
+              ))
+          ) : (
+            <div>Loading</div>
+          )}
+        </>
+      ) : (
+        <>
+          {updatedRequests ? (
+            updatedRequests
+              .filter((request) => request.status !== "rejected")
+              .map((request) => (
+                <RequestItem
+                  key={request._id}
+                  name={request.user.firstName}
+                  price={request.price}
+                  request={request}
+                  listing={listing}
+                />
+              ))
+          ) : (
+            <div>Loading</div>
+          )}
+        </>
+      )}
     </div>
   );
 }
