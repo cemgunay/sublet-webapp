@@ -17,16 +17,45 @@ const months = [
   "August",
 ];
 
-const MonthGrid = ({ moveInDate, moveOutDate, shorterStays, onDataChange, defaultMoveInDate, defaultMoveOutDate }) => {
-  const [schoolYear, setSchoolYear] = useState({ start: 2022, end: 2023 });
+const MonthGrid = ({
+  moveInDate,
+  moveOutDate,
+  shorterStays,
+  onDataChange,
+  defaultMoveInDate,
+  defaultMoveOutDate
+}) => {
   const [animationDirection, setAnimationDirection] = useState("forward");
   const [key, setKey] = useState(0);
 
-  
   const [selectedMonths, setSelectedMonths] = useState([]);
+
   const [startDate, setStartDate] = useState(moveInDate);
   const [endDate, setEndDate] = useState(moveOutDate);
   const [userHasChangedDates, setUserHasChangedDates] = useState(false);
+
+  const getDefaultSchoolYear = () => {
+    
+    
+    if (!moveInDate || !moveOutDate) {
+      const currentYear = new Date().getFullYear();
+      return { start: currentYear, end: currentYear + 1 };
+    }
+
+    const endDate = new Date(moveOutDate);
+    const schoolYearStart =
+      endDate.getMonth() < 8
+        ? endDate.getFullYear() - 1
+        : endDate.getFullYear();
+    const schoolYearEnd = schoolYearStart + 1;
+    return { start: schoolYearStart, end: schoolYearEnd };
+  };
+
+  const [schoolYear, setSchoolYear] = useState(getDefaultSchoolYear());
+
+  useEffect(() => {
+    setSchoolYear(getDefaultSchoolYear());
+  }, [moveInDate, moveOutDate]);
 
   useEffect(() => {
     const startDate = new Date(moveInDate);
@@ -91,7 +120,6 @@ const MonthGrid = ({ moveInDate, moveOutDate, shorterStays, onDataChange, defaul
         });
       }
     } else {
-
       // If there are no selected months, or the clicked month is adjacent to the existing range, select it
       if (index === 0) {
         const prevIndex = selectedMonths.findIndex(
@@ -362,27 +390,19 @@ const MonthGrid = ({ moveInDate, moveOutDate, shorterStays, onDataChange, defaul
         <button onClick={() => changeSchoolYear(1)}>&rarr;</button>
       </div>
       <div className="month-grid-container">
-        <TransitionGroup component={null}>
-          <CSSTransition
-            key={key}
-            classNames={`slide-${animationDirection}`}
-            timeout={300}
-          >
-            <div className="month-grid">
-              {months.map((month, index) => (
-                <div
-                  key={month}
-                  className={`month-rectangle${
-                    isSelected(month) ? " selected" : ""
-                  }`}
-                  onClick={() => toggleMonth(month, index, schoolYear)} // Pass the index here
-                >
-                  {month}
-                </div>
-              ))}
+        <div className="month-grid">
+          {months.map((month, index) => (
+            <div
+              key={month}
+              className={`month-rectangle${
+                isSelected(month) ? " selected" : ""
+              }`}
+              onClick={() => toggleMonth(month, index, schoolYear)} // Pass the index here
+            >
+              {month}
             </div>
-          </CSSTransition>
-        </TransitionGroup>
+          ))}
+        </div>
       </div>
     </div>
   );

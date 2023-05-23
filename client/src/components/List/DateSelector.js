@@ -19,6 +19,8 @@ function DateSelector({ viewingDates, onDateChange, onDeleteDate }) {
     onDeleteDate(index);
   };
 
+  console.log(viewingDates)
+
   return (
     <Box>
       {datePickers.map((_, index) => (

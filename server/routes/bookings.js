@@ -25,6 +25,8 @@ router.post("/:listingId/:requestId", async (req, res) => {
       endDate: request.endDate,
       viewingDate: request.viewingDate,
       depositAmount: (request.price * 2) * 1.04,
+      tenantDocuments: request.tenantDocuments,
+      subtenantDocuments: request.subtenantDocuments
     });
 
     //Save booking to DB and return response
@@ -32,6 +34,18 @@ router.post("/:listingId/:requestId", async (req, res) => {
     res.status(200).json(booking);
   } catch (err) {
     res.status(500).json(err);
+  }
+});
+
+// Get all bookings for a listing
+router.get("/:listingId", async (req, res) => {
+  const { listingId } = req.params;
+  try {
+    const bookings = await Booking.find({ listingId });
+    res.send(bookings);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal server error");
   }
 });
 

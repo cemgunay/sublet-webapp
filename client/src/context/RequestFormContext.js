@@ -26,13 +26,17 @@ export const RequestFormProvider = ({ children }) => {
     price: priceFromURL ? parseFloat(priceFromURL) : 0,
     startDate: startDateFromURL ? startDateFromURL : null,
     endDate: endDateFromURL ? endDateFromURL : null,
-    viewingDate: viewingDateFromURL ? viewingDateFromURL : null,
+    viewingDate:
+      viewingDateFromURL && viewingDateFromURL !== "null"
+        ? viewingDateFromURL
+        : null,
   });
+
+  console.log(data);
 
   //to handle change of the inputs in all the forms
   const handleChange = (e) => {
     if (e.target) {
-
       const type = e.target.type;
       const name = e.target.name;
       const value = type === "checkbox" ? e.target.checked : e.target.value;
@@ -66,6 +70,7 @@ export const RequestFormProvider = ({ children }) => {
         data,
         setData,
         handleChange,
+        currentUserId,
       }}
     >
       {children}

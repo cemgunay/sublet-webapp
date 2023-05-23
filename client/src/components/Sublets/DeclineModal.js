@@ -1,6 +1,6 @@
 import { faCircleChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useCallback, useEffect, useRef} from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import MonthGrid from "../Util/MonthGrid";
 import IncrementalInputField from "../Util/IncrementalInputField";
 
@@ -8,6 +8,8 @@ import api from "../../api/axios";
 
 import classes from "./DeclineModal.module.css";
 import { useNavigate } from "react-router-dom";
+
+import { toast } from "react-toastify";
 
 function DeclineModal({
   request,
@@ -17,10 +19,10 @@ function DeclineModal({
   handleChange,
   defaultMoveInDate,
   defaultMoveOutDate,
+  currentUserId,
 }) {
   //to not run on initial render
   const isInitialRender = useRef(true);
-
 
   const navigate = useNavigate();
 
@@ -41,33 +43,39 @@ function DeclineModal({
     if (isInitialRender.current) {
       isInitialRender.current = false;
     } else {
-      console.log(data.price)
-      console.log(request.price)
-      if (data.price === request.price) {
-        if (
-          data.startDate === defaultMoveInDate &&
-          data.endDate === defaultMoveOutDate
-        ) {
-          setData((prevData) => ({
-            ...prevData,
-            status: "pendingTenant",
-          }));
-        } else {
-          setData((prevData) => ({
-            ...prevData,
-            status: "pendingSubTenant",
-          }));
-        }
-      } else {
-        setData((prevData) => ({
-          ...prevData,
-          status: "pendingSubTenant",
-        }));
-      }
+      console.log(data.price);
+      console.log(request.price);
     }
-  }, [data.price, data.startDate, data.endDate, defaultMoveInDate, defaultMoveOutDate, request.price, setData]);
+  }, [
+    data.price,
+    data.startDate,
+    data.endDate,
+    defaultMoveInDate,
+    defaultMoveOutDate,
+    request.price,
+    setData,
+  ]);
 
-  console.log(data)
+  const [canCounter, setCanCounter] = useState(true);
+  //useEffect to handle if counter button is disabled or not
+  useEffect(() => {
+    if (
+      data.price === request.price &&
+      data.startDate === request.startDate &&
+      data.endDate === request.endDate
+    ) {
+      setCanCounter(true);
+    } else {
+      setCanCounter(false);
+    }
+  }, [
+    data.price,
+    data.startDate,
+    data.endDate,
+    request.price,
+    request.startDate,
+    request.endDate,
+  ]);
 
   //to handle going back
   const goBack = () => {
@@ -80,22 +88,54 @@ function DeclineModal({
 
     const updateRequest = {
       subTenantId: data.subTenantId,
+      tenantId: data.tenantId,
       price: data.price,
       startDate: data.startDate,
       endDate: data.endDate,
-      status: data.status
+      status: 'pendingSubTenant', // use updated status here
     };
+
     api
-        .put("/requests/update/" + data._id, updateRequest)
-        .then((response) => {
-          console.log(response.data);
-          //navigate("/");
-        })
-        .catch((error) => console.error(error));
+      .put("/requests/update/" + data._id, updateRequest)
+      .then((response) => {
+        console.log(response.data);
+        toast.success("The offer has been countered");
+        navigate("/host/listing/" + data.listingId);
+      })
+      .catch((error) => {
+        toast.error("Error, can't counter offer, please try again later");
+        console.error(error);
+      });
   };
 
   //to handle decline offer
-  const handleDecline = () => {};
+  const handleDecline = (e) => {
+    e.preventDefault();
+
+    const updateRequest = {
+      subTenantId: data.subTenantId,
+      tenantId: currentUserId,
+      status: "rejected",
+      status_reason: "Offer has been rejected",
+    };
+
+    api
+      .put("/requests/update/" + data._id, updateRequest)
+      .then((response) => {
+        console.log(response.data);
+        setData((prevData) => ({
+          ...prevData,
+          status: "rejected",
+          status_reason: "Offer has been rejected",
+        }));
+        toast.success("The offer has been rejected");
+        navigate("/host/listing/" + data.listingId);
+      })
+      .catch((error) => {
+        toast.error("Error, can't reject offer, please try again later");
+        console.error(error);
+      });
+  };
 
   return (
     <div className={classes.container}>
@@ -104,13 +144,15 @@ function DeclineModal({
           <div className={classes.back} onClick={goBack}>
             <FontAwesomeIcon icon={faCircleChevronLeft} />
           </div>
-          <div className={classes.previewtitle}>Decline</div>
+          <div className={classes.previewtitle}>
+            {data.status === "pendingSubTenant" ? "Update" : "Decline"}
+          </div>
         </div>
       </div>
       {!data ? null : (
-        <div>
-          <div>
-            bad price
+        <div className={classes.contentcontainer}>
+          <div className={classes.inputcontainer}>
+            <div>Counter Price</div>
             <IncrementalInputField
               data={data}
               setData={setData}
@@ -119,8 +161,8 @@ function DeclineModal({
               handleOnChange={handleChange}
             />
           </div>
-          <div>
-            bad month
+          <div className={classes.inputcontainer}>
+            <div>Counter Dates</div>
             <MonthGrid
               defaultMoveInDate={defaultMoveInDate}
               defaultMoveOutDate={defaultMoveOutDate}
@@ -130,21 +172,22 @@ function DeclineModal({
               onDataChange={handleDataChange}
             />
           </div>
-          <footer className={classes.wrapper}>
-        <div className={classes.bottomcontainer}>
-          <button
-            onClick={handleCounter}
-            disabled={data.status !== "pendingSubTenant"}
-          >
-            Counter
-          </button>
-          <button onClick={handleDecline}>Decline</button>
-        </div>
-      </footer>
         </div>
       )}
-
-      
+      <footer className={classes.wrapper}>
+        <div className={classes.bottomcontainer}>
+          {data.status === "pendingSubTenant" ? (
+            <button onClick={handleCounter}>Update Counter</button>
+          ) : (
+            <div>
+              <button onClick={handleCounter} disabled={canCounter}>
+                Counter
+              </button>
+              <button onClick={handleDecline}>Decline</button>
+            </div>
+          )}
+        </div>
+      </footer>
     </div>
   );
 }

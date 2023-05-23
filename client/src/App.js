@@ -30,6 +30,24 @@ import SubletsSubtenant from "./pages/Sublets/SubletsSubtenant/SubletsSubtenant"
 import RequireAuth from "./components/RequireAuth";
 import Sublet from "./pages/Sublet/Sublet";
 import RequestDetails from "./pages/Sublet/RequestDetails";
+import Menu from "./pages/Menu/Menu";
+import ManageListing from "./pages/ManageListing/ManageListing";
+import Preview from "./pages/ManageListing/Preview";
+import UserProfile from "./pages/UserProfile/UserProfile";
+import PersonalInfo from "./pages/PersonalInfo/PersonalInfo";
+import AccountSettings from "./pages/AccountSettings/AccountSettings";
+import ActiveSubletsSubtenant from "./pages/Sublets/SubletsSubtenant/ActiveSubletsSubtenant";
+import PastSubletsSubtenant from "./pages/Sublets/SubletsSubtenant/PastSubletsSubtenant";
+import ConfirmedSubletsSubtenant from "./pages/Sublets/SubletsSubtenant/ConfirmedSubletsSubtenant";
+import ActiveSubletsTenant from "./pages/Sublets/SubletsTenant/ActiveSubletsTenant";
+import PastSubletsTenant from "./pages/Sublets/SubletsTenant/PastSubletsTenant";
+import ConfirmedSubletsTenant from "./pages/Sublets/SubletsTenant/ConfirmedSubletsTenant";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import SubTenantInbox from "./pages/Inbox/SubTenantInbox";
+import SubTenantInboxChat from "./pages/Inbox/SubTenantInboxChat";
+import TenantInbox from "./pages/Inbox/TenantInbox";
+import TenantInboxChat from "./pages/Inbox/TenantInboxChat";
 
 //import RequireAuth from "./components/Util/RequireAuth";
 
@@ -37,6 +55,7 @@ function App() {
   return (
     <>
       <RemoveTrailingSlash />
+      <ToastContainer />
       <Routes>
         <Route path="/" element={<Layout />}>
           {/* Public Routes */}
@@ -49,18 +68,37 @@ function App() {
 
           {/* Private Routes */}
           <Route element={<RequireAuth />}>
+            <Route path="profile" element={<Profile />} />
+            <Route path="profile/:id" element={<UserProfile />} />
+            <Route path="profile/personal-info" element={<PersonalInfo />} />
+            <Route
+              path="profile/account-settings"
+              element={<AccountSettings />}
+            />
+            <Route path="inbox" element={<SubTenantInbox />} />
+            <Route path="inbox/:id" element={<SubTenantInboxChat />} />
             <Route element={<RequestFormContextLayout />}>
-              <Route path="profile" element={<Profile />} />
               <Route
                 path="listing/:listingId/request/:requestId"
                 element={<Request />}
               />
             </Route>
-            <Route path="sublets" element={<SubletsSubtenant />} />
+            <Route path="sublets" element={<SubletsSubtenant />}>
+              <Route path="active" element={<ActiveSubletsSubtenant />} />
+              <Route path="past" element={<PastSubletsSubtenant />} />
+              <Route path="confirmed" element={<ConfirmedSubletsSubtenant />} />
+            </Route>
 
             {/* Creating a root path for when on host side*/}
             <Route path="host" element={<Layout />}>
-              <Route path="/host" element={<SubletsTenant />} />
+              <Route path="/host" element={<SubletsTenant />}>
+                <Route path="active" element={<ActiveSubletsTenant />} />
+                <Route path="past" element={<PastSubletsTenant />} />
+                <Route path="confirmed" element={<ConfirmedSubletsTenant />} />
+              </Route>
+              <Route path="inbox" element={<TenantInbox />} />
+              <Route path="inbox/:id" element={<TenantInboxChat />} />
+              <Route path="menu" element={<Menu />} />
               <Route path="/host/listing/:id" element={<Sublet />} />
               <Route element={<RequestFormContextLayout />}>
                 <Route
@@ -68,6 +106,7 @@ function App() {
                   element={<RequestDetails />}
                 />
               </Route>
+
               {/* Context Provider Pseudo Layout Route without a path to give context to nested routes */}
               <Route element={<ListFormContextLayout />}>
                 <Route path="list" element={<List />} />
@@ -85,8 +124,21 @@ function App() {
                   <Route path="price" element={<Price />} />
                   <Route path="publish" element={<Publish />} />
                 </Route>
+
+                <Route
+                  path="/host/listing/manage-your-listing/:id/details"
+                  element={<ManageListing />}
+                />
+                <Route
+                  path="/host/listing/manage-your-listing/:id/preview"
+                  element={<Preview />}
+                />
+
               </Route>
             </Route>
+
+            
+
           </Route>
 
           <Route path="test" element={<Test />} />

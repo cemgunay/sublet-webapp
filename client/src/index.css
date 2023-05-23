@@ -12,5 +12,6 @@ body {
   --color-secondary-light: #9C9C9C;
   --color-secondary-dark: #848484;
   --color-error: #EB5757;
+  --color-warning: #F69A2B;
   --color-pass: #0ACF83;
 }

@@ -90,9 +90,8 @@ function Publish() {
 
     const e = {
       name: "viewingDates",
-      value: viewingDates,
+      value: newViewingDates,
     };
-
     handleChange(e);
   };
 
@@ -123,6 +122,8 @@ function Publish() {
       published: true,
     };
 
+    console.log(updatedData);
+
     try {
       await api.put("/listings/" + data._id, updatedData);
     } catch (err) {
@@ -131,8 +132,11 @@ function Publish() {
 
     //localStorage.setItem("listId", JSON.stringify(""))
 
-    //navigate("/host/list");
+    navigate("/host/list");
   };
+
+  console.log(viewingDates);
+  console.log(data);
 
   return (
     <div className={classes.container}>

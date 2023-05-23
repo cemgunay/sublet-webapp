@@ -1,0 +1,128 @@
+.container {
+  box-sizing: border-box; /* Add this */
+  position: fixed;
+  top: 5rem;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
+  z-index: 1000; /* Ensure the modal is above other elements */
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 16px;
+  box-shadow: 0px 0px 12px -3px #000000;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 1rem 2rem 0 2rem; /* Add padding here */
+}
+
+.headercontainer {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  background-color: white;
+  z-index: 10;
+}
+
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.back {
+  position: absolute;
+  left: 0;
+}
+
+.leftchevron {
+  fill: white;
+}
+
+.wrapper {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+
+.bottomcontainer {
+  height: 4rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
+  background-color: var(--color-white);
+  box-shadow: 0px 0px 5px 1px var(--color-secondary-light);
+}
+
+.requestdetailscontainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-top: 1rem;
+}
+
+.requestdetailstitle {
+  font-weight: 600;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.detailsrow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.contentcontainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.agreementcontainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.agreementexistcontainer {
+  display: flex;
+  max-width: 100%;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.agreementexistcontainerleft {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  align-items: center;
+}
+
+.fileName {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 250px;
+}
+
+.iconcontainer{
+    color: red;
+}

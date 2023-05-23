@@ -1,64 +1,105 @@
-import React, { useContext, useEffect, useState } from 'react'
-import BottomNav from '../../../components/BottomNav/BottomNav'
-import ListingList from '../../../components/Util/Listings/ListingList'
-import { AuthContext } from '../../../context/AuthContext'
-import api from "../../../api/axios";
+import React, { useEffect, useRef, useState, useMemo } from "react";
+import BottomNav from "../../../components/BottomNav/BottomNav";
 
-import classes from './SubletsSubtenant.module.css'
+import classes from "./SubletsSubtenant.module.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { faBars } from "@fortawesome/free-solid-svg-icons";
 
 function SubletsSubtenant() {
+  const [menuOpen, setMenuOpen] = useState(false);
 
-    const { user: currentUser } = useContext(AuthContext)
+  const location = useLocation(); // Get the current location
 
-    const [requests, setRequests] = useState([])
-    const [listings, setListings] = useState([])
-    const [loading, setLoading] = useState(true)
+  const menuRef = useRef(); // Create a reference to the menu
 
-    useEffect(() => {
-        const fetchRequests = async () => {
-            try {
-              const requestsResponse = await api.get(
-                "/requests/myrequests/" + currentUser._id
-              );
-              console.log(requestsResponse.data);
-              setRequests(requestsResponse.data);
+  const navigate = useNavigate();
 
-              const listingPromises = requestsResponse.data.map(request => 
-                api.get('/listings/' + request.listingId))
+  const navigationPages = useMemo(() => ["active", "past", "confirmed"], []);
 
-            const listingsResponse = await Promise.all(listingPromises)
+  useEffect(() => {
+    if (!navigationPages.some((value) => location.pathname.includes(value))) {
+      navigate("active");
+    }
+  }, [navigate, location.pathname, navigationPages]);
 
-            console.log(listingsResponse)
+  useEffect(() => {
+    function handleClickOutside(event) {
+      // If the menu is open and the click was outside the menu, close the menu
+      if (
+        menuOpen &&
+        menuRef.current &&
+        !menuRef.current.contains(event.target)
+      ) {
+        setMenuOpen(false);
+      }
+    }
 
-            setListings(listingsResponse.map(response => response.data))
+    // Add the event listener when the component mounts
+    document.addEventListener("mousedown", handleClickOutside);
 
-            setLoading(false)
-            } catch (err) {
-              console.error(err);
-            }
-          };
-      
-          fetchRequests()
-    }, [currentUser])
-    
-    console.log(requests)
-    console.log(listings)
+    // Remove the event listener when the component unmounts
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [menuOpen]); // Recreate the event listener when 'menuOpen' changes
 
   return (
-    <>
+    <div>
       <section className={classes.container}>
         <h1> My subLets</h1>
-        <p>{listings.length} subLets</p>
-        <div>
-          {loading ? <div>loading</div> : 
-          <ListingList requests={requests} listings={listings} />}
+        <FontAwesomeIcon icon={faBars} onClick={() => setMenuOpen(!menuOpen)} />
+        <div
+          ref={menuRef}
+          className={`${classes.hamburgerMenu} ${
+            menuOpen ? classes.hamburgerMenuOpen : ""
+          }`}
+        >
+          <div className={classes.menuList}>
+            <div className={classes.menuItem}>
+              <Link
+                to="active"
+                onClick={() => setMenuOpen(false)}
+                className={
+                  location.pathname.includes("active") ? classes.activeLink : ""
+                }
+              >
+                Active
+              </Link>
+            </div>
+            <div className={classes.menuItem}>
+              <Link
+                to="past"
+                onClick={() => setMenuOpen(false)}
+                className={
+                  location.pathname.includes("past") ? classes.activeLink : ""
+                }
+              >
+                Past
+              </Link>
+            </div>
+            <div className={classes.menuItem}>
+              <Link
+                to="confirmed"
+                onClick={() => setMenuOpen(false)}
+                className={
+                  location.pathname.includes("confirmed")
+                    ? classes.activeLink
+                    : ""
+                }
+              >
+                Confirmed
+              </Link>
+            </div>
+          </div>
         </div>
+        <Outlet />
       </section>
       <footer className={classes.footer}>
         <BottomNav />
       </footer>
-    </>
-  )
+    </div>
+  );
 }
 
-export default SubletsSubtenant
+export default SubletsSubtenant;

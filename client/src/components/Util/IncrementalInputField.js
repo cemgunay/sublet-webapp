@@ -111,7 +111,17 @@ function IncrementalInputField(props) {
   } else if (props.type === "price") {
     return (
       <div className={classes.container}>
-        <button id="minus" type="button" onClick={handleMinus}>
+        <button
+          id="minus"
+          type="button"
+          onClick={handleMinus}
+          disabled={
+            props.from === "ManageListing" ||
+            props.data.status === "pendingTenantUpload" ||
+            props.data.status === "pendingSubTenantUpload" ||
+            props.data.status === "rejected"
+          }
+        >
           <FontAwesomeIcon icon={faMinus} />
         </button>
         <div className={classes.inputWrapper}>
@@ -122,13 +132,26 @@ function IncrementalInputField(props) {
             placeholder="$00"
             value={props.data.price !== 0 ? `$${props.data.price}` : ""}
             onChange={props.handleOnChange}
-            readOnly={props.from === "BottomBar"}
+            readOnly={
+              props.from === "BottomBar" ||
+              props.data.status === "pendingTenantUpload" ||
+              props.data.status === "pendingSubTenantUpload" ||
+              props.data.status === "rejected"
+            }
           />
-          <span className="monthLabel">
-            month
-          </span>
+          <span className="monthLabel">month</span>
         </div>
-        <button id="plus" type="button" onClick={handlePlus}>
+        <button
+          id="plus"
+          type="button"
+          onClick={handlePlus}
+          disabled={
+            props.from === "ManageListing" ||
+            props.data.status === "pendingTenantUpload" ||
+            props.data.status === "pendingSubTenantUpload" ||
+            props.data.status === "rejected"
+          }
+        >
           <FontAwesomeIcon icon={faPlus} />
         </button>
       </div>

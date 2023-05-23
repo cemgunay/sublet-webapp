@@ -1,11 +1,41 @@
-.requestItem {
+@import "../../index.css";
+
+.container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
   width: 100%;
   border: 1px solid lightgrey;
   border-radius: 5px;
   padding: 10px;
   margin-bottom: 10px;
+}
+
+.requestItem {
   display: flex;
   flex-direction: column;
   text-decoration: none;
   color: black;
+}
+
+.winningprice {
+  font-size: medium;
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-pass);
+}
+
+.losingprice {
+  font-size: medium;
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-warning);
+}
+
+.rejectedprice {
+  font-size: medium;
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-error);
 }

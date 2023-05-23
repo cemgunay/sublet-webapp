@@ -6,7 +6,14 @@ import { v4 as uuid } from "uuid";
 
 import classes from "./BottomBar.module.css";
 
-function BottomBar({ data, setData, listing, handleChange }) {
+function BottomBar({
+  data,
+  setData,
+  listing,
+  handleChange,
+  requestExists,
+  isBooked,
+}) {
   const getMonth = (date) => {
     const dateToChange = new Date(date);
     const options = { month: "short", year: "numeric" };
@@ -34,18 +41,67 @@ function BottomBar({ data, setData, listing, handleChange }) {
   const handleOnClick = async (e) => {
     e.preventDefault();
 
+    console.log("test 2");
+
     const id = uuid(); // generate a random UUID for URL
 
-    console.log(data.price)
+    navigate(
+      `request/${id}?startDate=${data.startDate}&endDate=${
+        data.endDate
+      }&viewingDate=${data.viewingDate ? data.viewingDate : null}&price=${
+        data.price
+      }`,
+      {
+        state: { data: data, listing: listing },
+      }
+    );
+  };
 
-    navigate(`request/${id}?startDate=${data.startDate}&endDate=${data.endDate}&viewingDate=${data.viewingDate}&price=${data.price}`, {
-      state: { stateData: data, listing },
-    });
+  const handleOnClickCurrent = async (e) => {
+    e.preventDefault();
+
+    console.log("test 1");
+
+    navigate(
+      `request/${data._id}?startDate=${data.startDate}&endDate=${
+        data.endDate
+      }&viewingDate=${data.viewingDate ? data.viewingDate : null}&price=${
+        data.price
+      }`,
+      {
+        state: { data: data, listing: listing },
+      }
+    );
+  };
+
+  const handleOnClickRejected = async (e) => {
+    e.preventDefault();
+
+    console.log("gang shit");
+
+    const id = uuid(); // generate a random UUID for URL
+
+    console.log(listing.price);
+
+    console.log(
+      `request/${id}?startDate=${listing.moveInDate}&endDate=${
+        listing.moveOutDate
+      }&viewingDate=${null}&price=${listing.price}`
+    );
+
+    navigate(
+      `request/${id}?startDate=${listing.moveInDate}&endDate=${
+        listing.moveOutDate
+      }&viewingDate=${null}&price=${listing.price}`,
+      {
+        state: { listing: listing },
+      }
+    );
   };
 
   return (
     <footer className={classes.wrapper}>
-      {!listing ? null : (
+      {isBooked ? null : !listing ? null : !requestExists ? (
         <div className={classes.container}>
           <div classes={classes.left}>
             <IncrementalInputField
@@ -60,6 +116,29 @@ function BottomBar({ data, setData, listing, handleChange }) {
             </div>
           </div>
           <div onClick={handleOnClick}>Request</div>
+        </div>
+      ) : (
+        <div className={classes.container}>
+          <div>
+            {data.status === "pendingTenant" ? (
+              <div onClick={handleOnClickCurrent}>View Current Offer</div>
+            ) : data.status === "rejected" ? (
+              data.status_reason !== "Listing booked" &&
+              data.status_reason !== "Listing expired" &&
+              data.status_reason ? (
+                <div>
+                  <div onClick={handleOnClickCurrent}>View Rejected Offer</div>
+                  <button onClick={handleOnClickRejected}>
+                    Make new request
+                  </button>
+                </div>
+              ) : (
+                <div onClick={handleOnClickCurrent}>View Rejected Offer</div>
+              )
+            ) : (
+              <div onClick={handleOnClickCurrent}>View Counter Offer</div>
+            )}
+          </div>
         </div>
       )}
     </footer>

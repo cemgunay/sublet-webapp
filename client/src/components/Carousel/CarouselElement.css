@@ -28,6 +28,15 @@
   object-fit: cover;
 }
 
+.carousel-image.with-margin {
+  margin: 0 5px;
+}
+
+.set-width {
+  width: 13rem !important;
+  height: 100% !important;
+}
+
 .slick-dots {
   padding-bottom: 0.5rem;
   bottom: 0;

@@ -128,6 +128,10 @@ const ListingSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    transactionInProgress: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );

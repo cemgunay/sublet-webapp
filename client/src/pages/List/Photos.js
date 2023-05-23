@@ -16,30 +16,27 @@ function Photos() {
     setPage,
     data,
     setData,
-    handleChange,
-    currentUserId,
-    canGoNext,
-    setCanGoNext,
-    loading,
+    currentUserId
   } = useOutletContext();
 
   const [images, setImages] = useState(data.images || []);
 
-  const [uploadedImages, setUploadedImages] = useState([]);
-
   const [uploadedImageCount, setUploadedImageCount] = useState(0);
 
+  //to handle grey overlay
   const [doneUpload, setDoneUpload] = useState(true);
+  const [canGoNext, setCanGoNext] = useState(false)
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    setImages(data.images);
+    console.log("Updating images state:", data.images);
+    setImages(data.images.filter(image => image.file));
   }, [data.images]);
 
   useEffect(() => {
     const validImages = images.filter(
-      (image) => image.file.size >= 50 * 1024 && image.progress === 100
+      (image) => image.file && image.file.size && image.file.size >= 50 * 1024 && image.progress === 100
     );
 
     if (validImages.length >= 3) {
@@ -47,7 +44,9 @@ function Photos() {
     } else {
       setCanGoNext(false);
     }
-  }, [images]);
+
+    console.log("Current Images State:", images);
+  }, [images, setCanGoNext]);
 
   const uploadImagesWithDelay = async (
     images,
@@ -62,7 +61,6 @@ function Photos() {
   };
 
   const handleFileChange = (event) => {
-    setDoneUpload(false);
 
     event.preventDefault();
 
@@ -96,6 +94,7 @@ function Photos() {
       setDoneUpload(true);
     });
   };
+  
 
   const uploadImage = async (image, setUploadCount, totalImages) => {
     const { file, isTooSmall } = image;
@@ -120,6 +119,7 @@ function Photos() {
             const updatedImages = [...prevImages];
             updatedImages[index] = {
               ...updatedImages[index],
+              progress,
             };
 
             return updatedImages;
@@ -140,10 +140,7 @@ function Photos() {
 
         const updatedImages = [...prevImages];
         updatedImages[index] = {
-          file: uploadedImage.file,
-          filename: uploadedImage.filename,
-          url: uploadedImage.url,
-          progress: uploadedImage.progress,
+          ...uploadedImage,
           isTooSmall,
         };
 
@@ -163,7 +160,7 @@ function Photos() {
     navigate(newUrl + "/" + urlTitleReverse[page + 1]);
 
     const validImages = images.filter(
-      (image) => image.file.size >= 50 * 1024 && image.progress === 100
+      (image) => image.file && image.file.size && image.file.size >= 50 * 1024 && image.progress === 100
     );
 
     console.log(validImages);
@@ -174,7 +171,6 @@ function Photos() {
     }));
 
     const { _id, ...updateData } = data;
-
     try {
       await api.put("/listings/" + data._id, updateData);
     } catch (err) {
@@ -187,24 +183,61 @@ function Photos() {
   const [popup, setPopup] = useState({ show: false, x: 0, y: 0, index: null });
 
   const handleImageAction = (index, action) => {
-    const updatedImages = [...images];
-    if (action === "move_backwards" && index < images.length - 1) {
-      [updatedImages[index], updatedImages[index + 1]] = [
-        updatedImages[index + 1],
-        updatedImages[index],
-      ];
-    } else if (action === "move_forwards" && index > 0) {
-      [updatedImages[index], updatedImages[index - 1]] = [
-        updatedImages[index - 1],
-        updatedImages[index],
-      ];
-    } else if (action === "make_cover") {
-      updatedImages.unshift(updatedImages.splice(index, 1)[0]);
-    } else if (action === "delete") {
-      
-    }
-    setImages(updatedImages);
+    setImages((prevImages) => {
+      const updatedImages = [...prevImages];
+      if (action === "move_backwards" && index < prevImages.length - 1) {
+        [updatedImages[index], updatedImages[index + 1]] = [
+          updatedImages[index + 1],
+          updatedImages[index],
+        ];
+      } else if (action === "move_forwards" && index > 0) {
+        [updatedImages[index], updatedImages[index - 1]] = [
+          updatedImages[index - 1],
+          updatedImages[index],
+        ];
+      } else if (action === "make_cover") {
+        updatedImages.unshift(updatedImages.splice(index, 1)[0]);
+      } else if (action === "delete") {
+        deleteImage(index);
+      }
+      return updatedImages;
+    });
   };
+
+  const deleteImage = async (index) => {
+    console.log(index);
+    try {
+      const image = images[index];
+
+      console.log(image);
+
+      if (image.file.path) {
+        // If the image is uploaded, delete it using the API
+        await api.delete("/listings/images/" + data._id + "/" + image._id);
+      }
+
+      // Remove the image from the images array
+      setImages((prevImages) => {
+        const updatedImages = prevImages.filter(
+          (img, imgIndex) => imgIndex !== index
+        );
+
+        console.log(updatedImages);
+        return updatedImages;
+      });
+
+      console.log("Images after deleting:", images);
+
+      // Close the popup menu
+      setPopup({ show: false, index: null, x: 0, y: 0 });
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  useEffect(() => {
+    console.log("Images array updated:", images);
+  }, [images]);
 
   const handleButtonClick = (event, index) => {
     event.preventDefault();
@@ -266,6 +299,7 @@ function Photos() {
                   <button
                     className={classes.actionButton}
                     onClick={(event) => handleButtonClick(event, index)}
+                    disabled={!doneUpload}
                   >
                     <span className={classes.dots}>&#8942;</span>
                   </button>
@@ -337,9 +371,7 @@ function Photos() {
           className={classes.popupMenu}
           style={{ position: "absolute", top: popup.y, left: popup.x }}
         >
-          <button
-            onClick={(event) => handleOptionClick(event, "delete")}
-          >
+          <button onClick={(event) => handleOptionClick(event, "delete")}>
             Delete
           </button>
           <button

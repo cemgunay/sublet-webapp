@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import { AuthContext } from "./AuthContext";
+import { useLocation } from "react-router-dom";
 
 import api from "../api/axios";
 
@@ -32,6 +33,10 @@ export const ListFormProvider = ({ children }) => {
   //get current logged in user
   const { user: currentUser } = useContext(AuthContext);
   const currentUserId = currentUser._id;
+
+  //get listing if coming from all listings
+  const location = useLocation();
+  console.log(location.state);
 
   //form data that will be posted
   const [data, setData] = useState({
@@ -72,10 +77,20 @@ export const ListFormProvider = ({ children }) => {
     price: 0,
     description: "",
     images: [],
-    published: false
+    published: false,
   });
 
   console.log("listform rendered");
+
+  //useEffect to set listing id if coming from state
+  useEffect(() => {
+    if (location.state) {
+      setData((prevData) => ({
+        ...prevData,
+        _id: location.state.listing._id,
+      }));
+    }
+  }, [location.state]);
 
   //to put list id in local storage
   useEffect(() => {
@@ -86,49 +101,56 @@ export const ListFormProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   //to update above data object with values from DB instead of using local storage (IDK if this makes sense lmao but whatever)
+  //use effect to ovverride update data object if coming from an unfinished listing on first render
   useEffect(() => {
+    console.log("running here");
+
+    if (!data._id) return;
+    
     setLoading(true);
-    api
-      .get("/listings/" + data._id)
-      .then((response) => {
-        console.log(response.data);
-        setData((data) => ({
-          ...data,
-          title: response.data.title,
-          description: response.data.description,
-          price: response.data.price,
-          aboutyourplace: {
-            ...data.aboutyourplace,
-            propertyType: response.data.aboutyourplace.propertyType,
-            privacyType: response.data.aboutyourplace.privacyType,
-          },
-          location: {
-            ...data.location,
-            address1: response.data.location.address1,
-            city: response.data.location.city,
-            postalcode: response.data.location.postalcode,
-            countryregion: response.data.location.countryregion,
-            stateprovince: response.data.location.stateprovince,
-            unitnumber: response.data.location.unitnumber,
-            lat: response.data.location.lat,
-            lng: response.data.location.lng,
-          },
-          basics: {
-            ...data.basics,
-            bedrooms: response.data.basics.bedrooms,
-            bathrooms: response.data.basics.bathrooms,
-          },
-          amenities: response.data.amenities,
-          utilities: response.data.utilities,
-          images: response.data.images,
-          shorterStays: response.data.shorterStays,
-          availableToView: response.data.availableToView,
-          viewingDates: response.data.viewingDates,
-          published: response.data.published
-        }));
-        setLoading(false);
-      })
-      .catch((error) => console.error(error));
+      api
+        .get("/listings/" + data._id)
+        .then((response) => {
+          console.log(response.data);
+          setData((data) => ({
+            ...data,
+            title: response.data.title,
+            description: response.data.description,
+            price: response.data.price,
+            aboutyourplace: {
+              ...data.aboutyourplace,
+              propertyType: response.data.aboutyourplace.propertyType,
+              privacyType: response.data.aboutyourplace.privacyType,
+            },
+            location: {
+              ...data.location,
+              address1: response.data.location.address1,
+              city: response.data.location.city,
+              postalcode: response.data.location.postalcode,
+              countryregion: response.data.location.countryregion,
+              stateprovince: response.data.location.stateprovince,
+              unitnumber: response.data.location.unitnumber,
+              lat: response.data.location.lat,
+              lng: response.data.location.lng,
+            },
+            basics: {
+              ...data.basics,
+              bedrooms: response.data.basics.bedrooms,
+              bathrooms: response.data.basics.bathrooms,
+            },
+            amenities: response.data.amenities,
+            utilities: response.data.utilities,
+            images: response.data.images,
+            moveInDate: response.data.moveInDate,
+            moveOutDate: response.data.moveOutDate,
+            shorterStays: response.data.shorterStays,
+            availableToView: response.data.availableToView,
+            viewingDates: response.data.viewingDates,
+            published: response.data.published,
+          }));
+          setLoading(false);
+        })
+        .catch((error) => console.error(error));
   }, [data._id]);
 
   //to get list id from URL THIS WILL BE USED IF SOMEHOW URL CHANGES IDKKKKK
