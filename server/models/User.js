@@ -81,6 +81,10 @@ const UserSchema = new Schema(
       ref: "Request",
       default: null,
     },
+    emailVerified: {
+      type: Boolean,
+      default: false
+    },
   },
   { timestamps: true }
 );
