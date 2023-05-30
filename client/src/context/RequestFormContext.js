@@ -9,7 +9,12 @@ const RequestFormContext = createContext({});
 export const RequestFormProvider = ({ children }) => {
   //get current logged in user
   const { user: currentUser } = useContext(AuthContext);
-  const currentUserId = currentUser._id;
+
+  let currentUserId = null;
+
+  if (currentUser) {
+    currentUserId = currentUser._id;
+  }
 
   //to get dates
   const [searchParams] = useSearchParams();

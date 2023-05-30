@@ -58,6 +58,30 @@
   padding-bottom: 1rem;
 }
 
+.buttonContainer {
+  position: relative;
+  display: inline-block;
+}
+
+.infoIcon {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #f1f1f1;
+  color: #333;
+  cursor: pointer;
+}
+
+.tooltip {
+  background-color: var(--color-primary);
+}
+
 .wrapper {
   position: fixed;
   bottom: 0;

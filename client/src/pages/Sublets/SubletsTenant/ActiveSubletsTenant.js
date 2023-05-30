@@ -19,32 +19,55 @@ function ActiveSubletsTenant() {
           "/listings/listingspublished/" + currentUser._id
         );
 
-        const requestPromises = listingsResponse.data.map((listing) =>
-          api.get("/requests/listing/" + listing._id)
-        );
-
-        const requestsResponse = await Promise.all(requestPromises);
-
-        const allRequests = requestsResponse.flatMap(
-          (response) => response.data
-        );
-
-        // Remove listings that have an accepted/confirmed/pendingSubTenantUpload/pendingTenantUpload requests
-        const filteredListings = listingsResponse.data.filter((listing) => {
-          return !allRequests.some(
-            (request) =>
-              request.listingId === listing._id &&
-              (request.status === "accepted" ||
-                request.status === "pendingSubTenantUpload" ||
-                request.status === "pendingTenantUpload" ||
-                request.status === "confirmed")
+        const requestPromises = listingsResponse.data.map(async (listing) => {
+          const requestResponse = await api.get(
+            "/requests/listing/" + listing._id
           );
+          return {
+            ...listing,
+            requests: requestResponse.data,
+          };
         });
 
-        console.log(filteredListings);
+        const listingsWithRequests = await Promise.all(requestPromises);
 
-        setRequests(allRequests);
-        setListings(filteredListings);
+        // Remove listings that have an accepted/confirmed requests
+        const filteredListings = listingsWithRequests.filter(
+          (listing) =>
+            !listing.requests.some((request) => request.status === "confirmed")
+        );
+
+        // Sort listings to have ones with pendingSubTenantUpload, pendingTenantUpload or pendingFinalAccept at the top
+        const sortedListings = filteredListings.sort((listingA, listingB) => {
+          const listingAHasPendingStatus = listingA.requests.some(
+            (request) =>
+              request.status === "pendingSubTenantUpload" ||
+              request.status === "pendingTenantUpload" ||
+              request.status === "pendingFinalAccept"
+          );
+
+          const listingBHasPendingStatus = listingB.requests.some(
+            (request) =>
+              request.status === "pendingSubTenantUpload" ||
+              request.status === "pendingTenantUpload" ||
+              request.status === "pendingFinalAccept"
+          );
+
+          if (listingAHasPendingStatus && !listingBHasPendingStatus) {
+            return -1; // listingA should come first
+          }
+          if (!listingAHasPendingStatus && listingBHasPendingStatus) {
+            return 1; // listingB should come first
+          }
+          return 0; // they are equal
+        });
+
+        console.log(sortedListings);
+
+        setRequests(
+          listingsWithRequests.flatMap((listing) => listing.requests)
+        );
+        setListings(sortedListings);
 
         setLoading(false);
       } catch (err) {

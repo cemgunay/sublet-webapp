@@ -1,10 +1,9 @@
 import { createContext, useEffect, useReducer, useState } from "react";
 import AuthReducer from "./AuthReducer";
-import React from 'react';
 import { useLocation } from "react-router-dom";
 
 const INITIAL_STATE = {
-  user:JSON.parse(localStorage.getItem("user")) || null,
+  user: JSON.parse(localStorage.getItem("user")) || null,
   isFetching: false,
   error: false,
 };
@@ -13,24 +12,21 @@ export const AuthContext = createContext(INITIAL_STATE);
 
 export const AuthContextProvider = ({ children }) => {
   const [state, dispatch] = useReducer(AuthReducer, INITIAL_STATE);
-
-  const location = useLocation()
-  
-  const [role, setRole] = useState("subtenant")
+  const location = useLocation();
+  const [role, setRole] = useState("subtenant");
 
   useEffect(() => {
-    if (location.pathname.includes('/host/')){
-      setRole('tenant')
+    if (location.pathname.includes("/host/")) {
+      setRole("tenant");
     } else {
-      setRole('subtenant')
+      setRole("subtenant");
     }
-  }, [location])
-  
+  }, [location]);
 
-  useEffect(()=>{
-    localStorage.setItem("user", JSON.stringify(state.user))
-  },[state.user])
-  
+  useEffect(() => {
+    localStorage.setItem("user", JSON.stringify(state.user));
+  }, [state.user]);
+
   return (
     <AuthContext.Provider
       value={{
@@ -39,7 +35,7 @@ export const AuthContextProvider = ({ children }) => {
         error: state.error,
         dispatch,
         role,
-        setRole
+        setRole,
       }}
     >
       {children}

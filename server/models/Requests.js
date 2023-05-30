@@ -4,9 +4,9 @@ const { Schema } = mongoose;
 const RequestStatus = Object.freeze({
   PENDINGTENANT: "pendingTenant",
   PENDINGSUBTENANT: "pendingSubTenant",
-  ACCEPTED: "accepted",
   PENDINGTENANTUPLOAD: "pendingTenantUpload",
   PENDINGSUBTENANTUPLOAD: "pendingSubTenantUpload",
+  PENDINGFINALACCEPT: "pendingFinalAccept",
   CONFIRMED: "confirmed",
   REJECTED: "rejected",
 });
@@ -70,6 +70,14 @@ const RequestSchema = new Schema(
     subtenantDocuments: [
       { type: mongoose.Schema.Types.ObjectId, ref: "Document" },
     ],
+    tenantFinalAccept: {
+      type: Boolean,
+      default: false
+    }, 
+    subtenantFinalAccept: {
+      type: Boolean,
+      default: false
+    }
   },
   { timestamps: true }
 );

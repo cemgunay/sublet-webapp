@@ -28,8 +28,6 @@ function CurrentOffer({ data, listing, isBooked, booking }) {
         )
       : null;
 
-  console.log(data);
-
   return (
     <div className={classes.container}>
       {isBooked ? (
@@ -70,6 +68,10 @@ function CurrentOffer({ data, listing, isBooked, booking }) {
               ? `My current offer: ${data.price}`
               : data.status === "rejected"
               ? "Your offer has been rejected"
+              : data.status === "pendingSubTenantUpload" ||
+                data.status === "pendingTenantUpload" ||
+                data.status === "pendingFinalAccept"
+              ? `Final offer: ${data.price}`
               : `Tenant counter offer: ${data.price}`}
           </div>
         </div>

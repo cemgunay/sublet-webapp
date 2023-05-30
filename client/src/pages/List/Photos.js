@@ -10,43 +10,35 @@ import { faImages } from "@fortawesome/free-solid-svg-icons";
 import classes from "./Photos.module.css";
 
 function Photos() {
-  const {
-    urlTitleReverse,
-    page,
-    setPage,
-    data,
-    setData,
-    currentUserId
-  } = useOutletContext();
+  const { urlTitleReverse, page, setPage, data, setData, currentUserId } =
+    useOutletContext();
 
   const [images, setImages] = useState(data.images || []);
 
   const [uploadedImageCount, setUploadedImageCount] = useState(0);
 
-  //to handle grey overlay
+  //to handle grey overlay and next button
   const [doneUpload, setDoneUpload] = useState(true);
-  const [canGoNext, setCanGoNext] = useState(false)
+  const [canGoNext, setCanGoNext] = useState(false);
+  const [uploadedImages, setUploadedImages] = useState(data.images || []);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     console.log("Updating images state:", data.images);
-    setImages(data.images.filter(image => image.file));
+    setImages(data.images.filter((image) => image.file));
   }, [data.images]);
 
   useEffect(() => {
-    const validImages = images.filter(
-      (image) => image.file && image.file.size && image.file.size >= 50 * 1024 && image.progress === 100
-    );
-
-    if (validImages.length >= 3) {
+    console.log(uploadedImages)
+    if (uploadedImages.length > 2) {
       setCanGoNext(true);
     } else {
       setCanGoNext(false);
     }
 
-    console.log("Current Images State:", images);
-  }, [images, setCanGoNext]);
+    console.log("Current Uploaded Images State:", uploadedImages);
+  }, [uploadedImages, setCanGoNext]);
 
   const uploadImagesWithDelay = async (
     images,
@@ -61,6 +53,8 @@ function Photos() {
   };
 
   const handleFileChange = (event) => {
+
+    setDoneUpload(false)
 
     event.preventDefault();
 
@@ -94,7 +88,6 @@ function Photos() {
       setDoneUpload(true);
     });
   };
-  
 
   const uploadImage = async (image, setUploadCount, totalImages) => {
     const { file, isTooSmall } = image;
@@ -133,6 +126,13 @@ function Photos() {
 
       const uploadedImage = responseData.images[responseData.images.length - 1];
 
+      if (responseData) {
+        setUploadedImages((prevUploadedImages) => [
+          ...prevUploadedImages,
+          uploadedImage,
+        ]);
+      }
+
       setUploadCount((count) => count + 1);
 
       setImages((prevImages) => {
@@ -160,7 +160,11 @@ function Photos() {
     navigate(newUrl + "/" + urlTitleReverse[page + 1]);
 
     const validImages = images.filter(
-      (image) => image.file && image.file.size && image.file.size >= 50 * 1024 && image.progress === 100
+      (image) =>
+        image.file &&
+        image.file.size &&
+        image.file.size >= 50 * 1024 &&
+        image.progress === 100
     );
 
     console.log(validImages);
@@ -224,6 +228,14 @@ function Photos() {
 
         console.log(updatedImages);
         return updatedImages;
+      });
+
+      // Remove the image from the uploadedImages array
+      setUploadedImages((prevUploadedImages) => {
+        const updatedUploadedImages = prevUploadedImages.filter(
+          (img, imgIndex) => img._id !== images[index]._id
+        );
+        return updatedUploadedImages;
       });
 
       console.log("Images after deleting:", images);

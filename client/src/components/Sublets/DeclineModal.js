@@ -1,4 +1,7 @@
-import { faCircleChevronLeft } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCircleChevronLeft,
+  faInfoCircle,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import MonthGrid from "../Util/MonthGrid";
@@ -10,6 +13,7 @@ import classes from "./DeclineModal.module.css";
 import { useNavigate } from "react-router-dom";
 
 import { toast } from "react-toastify";
+import { Tooltip } from "react-tooltip";
 
 function DeclineModal({
   request,
@@ -19,7 +23,7 @@ function DeclineModal({
   handleChange,
   defaultMoveInDate,
   defaultMoveOutDate,
-  currentUserId,
+  currentUser,
 }) {
   //to not run on initial render
   const isInitialRender = useRef(true);
@@ -57,6 +61,7 @@ function DeclineModal({
   ]);
 
   const [canCounter, setCanCounter] = useState(true);
+  const isInTransaction = currentUser.currentTenantTransaction;
   //useEffect to handle if counter button is disabled or not
   useEffect(() => {
     if (
@@ -75,6 +80,7 @@ function DeclineModal({
     request.price,
     request.startDate,
     request.endDate,
+    currentUser.currentTenantTransaction,
   ]);
 
   //to handle going back
@@ -92,7 +98,8 @@ function DeclineModal({
       price: data.price,
       startDate: data.startDate,
       endDate: data.endDate,
-      status: 'pendingSubTenant', // use updated status here
+      status: "pendingSubTenant",
+      tenantDocuments: []
     };
 
     api
@@ -114,7 +121,7 @@ function DeclineModal({
 
     const updateRequest = {
       subTenantId: data.subTenantId,
-      tenantId: currentUserId,
+      tenantId: currentUser._id,
       status: "rejected",
       status_reason: "Offer has been rejected",
     };
@@ -180,9 +187,33 @@ function DeclineModal({
             <button onClick={handleCounter}>Update Counter</button>
           ) : (
             <div>
-              <button onClick={handleCounter} disabled={canCounter}>
-                Counter
-              </button>
+              <div
+                className={`${classes.buttonContainer} ${
+                  canCounter ? classes.disabled : ""
+                }`}
+                data-tooltip-id={
+                  canCounter || isInTransaction ? "info-tooltip" : ""
+                }
+                data-tooltip-content={
+                  canCounter || isInTransaction
+                    ? "You are currently in another transaction"
+                    : ""
+                }
+              >
+                {(canCounter || isInTransaction) && (
+                  <div className={classes.infoIcon}>
+                    <Tooltip id="info-tooltip" className={classes.tooltip} />
+                    <FontAwesomeIcon icon={faInfoCircle} />
+                  </div>
+                )}
+                <button
+                  className={classes.button}
+                  onClick={handleCounter}
+                  disabled={canCounter || isInTransaction}
+                >
+                  Counter
+                </button>
+              </div>
               <button onClick={handleDecline}>Decline</button>
             </div>
           )}

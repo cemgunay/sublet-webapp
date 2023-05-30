@@ -7,6 +7,8 @@ import "react-toastify/dist/ReactToastify.css";
 import classes from "./ListingItem.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import NotificationTenant from "../../Sublets/Notification";
+import NotificationSubTenant from "../../Request/Notification";
 
 function ListingItem({ listing, request = {}, booking, mode, onDelete }) {
   const images = listing.images.map(({ url }) => url);
@@ -32,7 +34,7 @@ function ListingItem({ listing, request = {}, booking, mode, onDelete }) {
 
   //to get offers that are pending tenant that arent rejected
   let tenantRequests = requests.filter(
-    (request) => request.status === "pendingTenant"
+    (request) => request.status !== "rejected" && request.status !== "pendingSubTenant"
   );
 
   //check if there is a pendingSubTenant AND pendingTenant at same time
@@ -135,6 +137,7 @@ function ListingItem({ listing, request = {}, booking, mode, onDelete }) {
           <Carousel dots={true} images={images} index={0} from={"Explore"} />
         </div>
         <div className={classes.content}>
+          <NotificationSubTenant request={request} />
           <div className={classes.first}>
             <h3>{listing.title}</h3>
             <p>Listing price: {listing.price}</p>
@@ -147,9 +150,11 @@ function ListingItem({ listing, request = {}, booking, mode, onDelete }) {
             <h3
               className={
                 (request.price === highestRequestPrice &&
-                  request.status !== "pendingSubTenant" &&
-                  request.status !== "rejected") ||
-                request.status === "accepted"
+                  request.status === "pendingTenant") ||
+                request.status === "confirmed" ||
+                request.status === "pendingSubTenantUpload" ||
+                request.status === "pendingTenantUpload" || 
+                request.status === "pendingFinalAccept"
                   ? classes.winningprice
                   : request.status === "rejected"
                   ? classes.rejectedprice
@@ -160,8 +165,12 @@ function ListingItem({ listing, request = {}, booking, mode, onDelete }) {
                 ? "Your offer:"
                 : request.status === "rejected"
                 ? "Rejected offer: "
-                : request.status === "accepted"
+                : request.status === "confirmed"
                 ? "Accepted offer: "
+                : request.status === "pendingSubTenantUpload" ||
+                  request.status === "pendingTenantUpload" || 
+                  request.status === "pendingFinalAccept"
+                ? "Final Offer: "
                 : "Counter offer:"}{" "}
               {request.price}
             </h3>
@@ -183,6 +192,7 @@ function ListingItem({ listing, request = {}, booking, mode, onDelete }) {
         <Carousel dots={true} images={images} index={0} from={"Explore"} />
       </div>
       <div className={classes.content}>
+        <NotificationTenant requests={requests} />
         <div className={classes.first}>
           <h3>{listing.title}</h3>
           <p>Listing price: {listing.price}</p>
@@ -194,9 +204,15 @@ function ListingItem({ listing, request = {}, booking, mode, onDelete }) {
         <div className={classes.second}>
           <h3
             className={
-              tenantRequests.length > 0 &&
-              subtenantRequests.length === 0 &&
-              requests.length !== 0
+              (tenantRequests.length > 0 &&
+                subtenantRequests.length === 0 &&
+                requests.length !== 0) ||
+              requests.filter(
+                (request) =>
+                  request.status === "pendingSubTenantUpload" ||
+                  request.status === "pendingTenantUpload" || 
+                  request.status === "pendingFinalAccept"
+              ).length > 0
                 ? classes.winningprice
                 : request.status === "rejected"
                 ? classes.rejectedprice
@@ -211,6 +227,13 @@ function ListingItem({ listing, request = {}, booking, mode, onDelete }) {
                 requests.filter((request) => request.status === "rejected")
                   .length === requests.length
               ? "No Offers"
+              : requests.filter(
+                  (request) =>
+                    request.status === "pendingSubTenantUpload" ||
+                    request.status === "pendingTenantUpload" ||
+                    request.status === "pendingFinalAccept"
+                ).length > 0
+              ? "Final Offer: "
               : tenantRequests.length > 0 && subtenantRequests.length > 0
               ? "Highest/Countered Offer: "
               : highestRequestFilteredPrice

@@ -20,6 +20,19 @@ function Requests({ requests, listing, onDelete }) {
       }
     };
 
+    const statusWeight = (status) => {
+      switch (status) {
+        case "pendingFinalAccept":
+          return 3;
+        case "pendingTenantUpload":
+          return 2;
+        case "pendingSubTenantUpload":
+          return 1;
+        default:
+          return 0;
+      }
+    };
+
     const loadRequests = async () => {
       const newRequests = await Promise.all(
         requests.map(async (request) => {
@@ -31,13 +44,17 @@ function Requests({ requests, listing, onDelete }) {
         })
       );
 
+      newRequests.sort(
+        (a, b) => statusWeight(b.status) - statusWeight(a.status)
+      );
+
       setUpdatedRequests(newRequests);
     };
 
     loadRequests();
   }, [requests]);
 
-  console.log(updatedRequests)
+  console.log(updatedRequests);
 
   const goToPastOffers = () => {
     setOpenPastOffers(!openPastOffers);
@@ -53,7 +70,9 @@ function Requests({ requests, listing, onDelete }) {
         <>
           {updatedRequests ? (
             updatedRequests
-              .filter((request) => request.status === "rejected" && request.showTenant)
+              .filter(
+                (request) => request.status === "rejected" && request.showTenant
+              )
               .map((request) => (
                 <RequestItem
                   key={request._id}

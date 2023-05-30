@@ -1,4 +1,4 @@
-import React, {useContext, useState, useEffect} from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../../../context/AuthContext";
 import api from "../../../api/axios";
 import ListingList from "../../../components/Util/Listings/ListingList";
@@ -13,20 +13,36 @@ function ActiveSubletsSubtenant() {
   //to fetch all active requests
   useEffect(() => {
     const fetchRequests = async () => {
-
       const filters = {
         active: true,
       };
 
       try {
         const requestsResponse = await api.get(
-          "/requests/myrequests/" + currentUser._id, {
+          "/requests/myrequests/" + currentUser._id,
+          {
             params: {
-              filters: JSON.stringify(filters)
-            }
+              filters: JSON.stringify(filters),
+            },
           }
         );
         console.log(requestsResponse.data);
+
+        // Here is the new sort function
+        requestsResponse.data.sort((a, b) => {
+          const statusOrder = [
+            "pendingFinalAccept",
+            "pendingSubTenantUpload",
+            "pendingTenantUpload",
+            "pendingSubTenant",
+            "pendingTenant",
+            "rejected",
+            "confirmed",
+          ];
+
+          return statusOrder.indexOf(a.status) - statusOrder.indexOf(b.status);
+        });
+
         setRequests(requestsResponse.data);
 
         const listingPromises = requestsResponse.data.map((request) =>
@@ -55,7 +71,11 @@ function ActiveSubletsSubtenant() {
         {loading ? (
           <div>loading</div>
         ) : (
-          <ListingList requests={requests} listings={listings} mode="SubletsSubtenant"/>
+          <ListingList
+            requests={requests}
+            listings={listings}
+            mode="SubletsSubtenant"
+          />
         )}
       </div>
     </div>
