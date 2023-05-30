@@ -3,12 +3,15 @@ import {
   faCheckCircle,
   faTrashAlt,
   faUpload,
+  faInfoCircle,
+  faDownload,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React from "react";
+import React, { useState } from "react";
 
 import classes from "./AcceptModal.module.css";
-import { LinearProgress } from "@mui/material";
+import { Box, Button, LinearProgress, Modal } from "@mui/material";
+import { Tooltip } from "react-tooltip";
 
 function AcceptModal({
   request,
@@ -21,6 +24,8 @@ function AcceptModal({
   handleFileUploadGovId,
   handleFileDownload,
   handleFileDelete,
+  handleFinalAccept,
+  handleAcceptConfirm,
   getMonth,
   formatDate,
   getMonthDiff,
@@ -30,19 +35,45 @@ function AcceptModal({
   due,
   canAccept,
   uploadProgress,
-  handleAcceptConfirm
 }) {
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+
+  console.log(request)
+
+  const handleConfirmation = () => {
+    if (request.status === "pendingFinalAccept") {
+      handleFinalAccept();
+    } else {
+      handleAcceptConfirm();
+    }
+    setShowConfirmationModal(false);
+  };
+
+  const handleCloseModal = () => {
+    setShowConfirmationModal(false);
+  };
 
   //to check if there is an agreement document
-  const documentAgreement = request.tenantDocuments.find(
+  const tenantDocumentAgreement = request.tenantDocuments.find(
+    (document) => document.type === "Sublet Agreement"
+  );
+
+  console.log(request.tenantDocuments);
+
+  //to check if there is an Gov ID document
+  const tenantGovId = request.tenantDocuments.find(
+    (document) => document.type === "Government ID"
+  );
+
+  //to check if there is an agreement document
+  const subTenantDocumentAgreement = request.subtenantDocuments.find(
     (document) => document.type === "Sublet Agreement"
   );
 
   //to check if there is an Gov ID document
-  const govId = request.tenantDocuments.find(
+  const subTenantGovId = request.subtenantDocuments.find(
     (document) => document.type === "Government ID"
   );
-
   //to handle going back
   const goBack = () => {
     setOpenModal(false);
@@ -61,20 +92,31 @@ function AcceptModal({
       <div className={classes.contentcontainer}>
         <div className={classes.agreementcontainer}>
           <div>Sublet Agreement</div>
-          {documentAgreement ? (
+          {tenantDocumentAgreement ? (
             <div className={classes.agreementexistcontainer}>
               <div className={classes.agreementexistcontainerleft}>
                 <FontAwesomeIcon icon={faCheckCircle} color="green" />
                 <div className={classes.fileName} onClick={handleFileDownload}>
-                  {documentAgreement.originalFileName}
+                  {tenantDocumentAgreement.originalFileName}
                 </div>
               </div>
-              <div className={classes.iconcontainer}>
-                <FontAwesomeIcon
-                  icon={faTrashAlt}
-                  onClick={() => handleFileDelete(documentAgreement._id)}
-                />
-              </div>
+              {request.tenantFinalAccept ? (
+                <div className={classes.iconcontainer}>
+                  <FontAwesomeIcon
+                    icon={faDownload}
+                    onClick={handleFileDownload}
+                  />
+                </div>
+              ) : (
+                <div className={classes.iconcontainer}>
+                  <FontAwesomeIcon
+                    icon={faTrashAlt}
+                    onClick={() =>
+                      handleFileDelete(tenantDocumentAgreement._id)
+                    }
+                  />
+                </div>
+              )}
             </div>
           ) : (
             <div className={classes.agreementexistcontainer}>
@@ -95,21 +137,52 @@ function AcceptModal({
           )}
         </div>
         <div className={classes.agreementcontainer}>
-          <div>Government ID</div>
-          {govId ? (
+          <div>Signed Sublet Agreement</div>
+          {subTenantDocumentAgreement ? (
             <div className={classes.agreementexistcontainer}>
               <div className={classes.agreementexistcontainerleft}>
-                <FontAwesomeIcon icon={faCheckCircle} color="green" />
                 <div className={classes.fileName} onClick={handleFileDownload}>
-                  {govId.originalFileName}
+                  {subTenantDocumentAgreement.originalFileName}
                 </div>
               </div>
               <div className={classes.iconcontainer}>
                 <FontAwesomeIcon
-                  icon={faTrashAlt}
-                  onClick={() => handleFileDelete(govId._id)}
+                  icon={faDownload}
+                  onClick={handleFileDownload}
                 />
               </div>
+            </div>
+          ) : (
+            <div className={classes.agreementexistcontainer}>
+              <div>Waiting for subtenant to upload</div>
+            </div>
+          )}
+        </div>
+        <div className={classes.agreementcontainer}>
+          <div>Government ID</div>
+          {tenantGovId ? (
+            <div className={classes.agreementexistcontainer}>
+              <div className={classes.agreementexistcontainerleft}>
+                <FontAwesomeIcon icon={faCheckCircle} color="green" />
+                <div className={classes.fileName} onClick={handleFileDownload}>
+                  {tenantGovId.originalFileName}
+                </div>
+              </div>
+              {request.tenantFinalAccept ? (
+                <div className={classes.iconcontainer}>
+                  <FontAwesomeIcon
+                    icon={faDownload}
+                    onClick={handleFileDownload}
+                  />
+                </div>
+              ) : (
+                <div className={classes.iconcontainer}>
+                  <FontAwesomeIcon
+                    icon={faTrashAlt}
+                    onClick={() => handleFileDelete(tenantGovId._id)}
+                  />
+                </div>
+              )}
             </div>
           ) : (
             <div className={classes.agreementexistcontainer}>
@@ -127,6 +200,28 @@ function AcceptModal({
           )}
           {uploadProgress > 0 && selectedGovId && (
             <LinearProgress variant="determinate" value={uploadProgress} />
+          )}
+        </div>
+        <div className={classes.agreementcontainer}>
+          <div>Subtenant Government ID</div>
+          {subTenantGovId ? (
+            <div className={classes.agreementexistcontainer}>
+              <div className={classes.agreementexistcontainerleft}>
+                <div className={classes.fileName} onClick={handleFileDownload}>
+                  {subTenantGovId.originalFileName}
+                </div>
+              </div>
+              <div className={classes.iconcontainer}>
+                <FontAwesomeIcon
+                  icon={faDownload}
+                  onClick={handleFileDownload}
+                />
+              </div>
+            </div>
+          ) : (
+            <div className={classes.agreementexistcontainer}>
+              <div>Waiting for subtenant to upload</div>
+            </div>
           )}
         </div>
 
@@ -177,9 +272,66 @@ function AcceptModal({
 
       <footer className={classes.wrapper}>
         <div className={classes.bottomcontainer}>
-          <button disabled={!canAccept} onClick={handleAcceptConfirm}>Accept</button>
+          {request.tenantFinalAccept ? (
+            <div>Waiting for subtenant to verify</div>
+          ) : (
+            <div
+              className={`${classes.buttonContainer} ${
+                !canAccept ? classes.disabled : ""
+              }`}
+              data-tooltip-id="info-tooltip"
+              data-tooltip-content={
+                request.tenantDocuments?.length > 1
+                  ? request.tenantFinalAccept
+                    ? "Waiting for subtenant to verify and accept"
+                    : "Waiting for subtenant to upload"
+                  : "Waiting for you to upload"
+              }
+            >
+              {!canAccept && (
+                <div className={classes.infoIcon}>
+                  <Tooltip id="info-tooltip" className={classes.tooltip} />
+                  <FontAwesomeIcon icon={faInfoCircle} />
+                </div>
+              )}
+              <button
+                className={classes.button}
+                onClick={() => setShowConfirmationModal(true)}
+                disabled={!canAccept}
+              >
+                Accept
+              </button>
+            </div>
+          )}
         </div>
       </footer>
+      <Modal open={showConfirmationModal} onClose={handleCloseModal}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "background.paper",
+            border: "2px solid #000",
+            boxShadow: 24,
+            p: 4,
+          }}
+        >
+          <h2>
+            {request.status === "pendingFinalAccept"
+              ? "Did you verify all details and are ready to accept / sign terms and conditions"
+              : "Are you sure you want to accept this offer"}
+          </h2>
+          <Button variant="contained" onClick={handleConfirmation}>
+            Yes
+          </Button>
+          <Button variant="contained" onClick={handleCloseModal}>
+            No
+          </Button>
+        </Box>
+      </Modal>
     </div>
   );
 }

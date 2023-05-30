@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 
 import { Modal, Box, Button } from "@mui/material";
 
-
 import classes from "./RequestItem.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
@@ -77,7 +76,10 @@ function RequestItem({ listing, request, name, price, onDelete }) {
 
         <div
           className={
-            request.status === "accepted"
+            request.status === "confirmed" ||
+            request.status === "pendingSubTenantUpload" ||
+            request.status === "pendingTenantUpload" ||
+            request.status === "pendingFinalAccept"
               ? classes.winningprice
               : request.status === "rejected"
               ? classes.rejectedprice
@@ -89,8 +91,14 @@ function RequestItem({ listing, request, name, price, onDelete }) {
               ? "Countered: "
               : request.status === "rejected"
               ? "Rejected: "
-              : request.status === "accepted"
+              : request.status === "confirmed"
               ? "Accepted: "
+              : request.status === "pendingSubTenantUpload"
+              ? "Pending subtenant upload: "
+              : request.status === "pendingTenantUpload"
+              ? "Pending your upload: "
+              : request.status === "pendingFinalAccept"
+              ? "Waiting to sign: "
               : "Pending: "}
           </div>
           <div>${price}</div>

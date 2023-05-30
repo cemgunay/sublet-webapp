@@ -6,7 +6,11 @@ const User = require("../models/User");
 const Listing = require("../models/Listing");
 const Booking = require("../models/Bookings");
 const Request = require("../models/Requests");
-const agenda = require("../jobs/jobs");
+const createAgenda = require("../jobs/jobs");
+const { ConnectParticipant } = require("aws-sdk");
+
+//initialize Agenda instance
+const agenda = createAgenda(process.env.MONGO_URI);
 
 // Middleware for adding user to request, can use if you want to for authentication
 const addUser = async (req, res, next) => {
@@ -131,19 +135,22 @@ router.get("/myrequests/:subTenantId", async (req, res) => {
   const filters = req.query.filters ? JSON.parse(req.query.filters) : {};
 
   if (filters.active) {
-    query.status = { $in: ["pendingSubTenant", "pendingTenant"] };
+    query.status = {
+      $in: [
+        "pendingSubTenant",
+        "pendingTenant",
+        "pendingTenantUpload",
+        "pendingSubTenantUpload",
+        "pendingFinalAccept",
+      ],
+    };
   }
   if (filters.past) {
     query.status = "rejected";
   }
   if (filters.accepted) {
     query.status = {
-      $in: [
-        "pendingSubTenantUpload",
-        "pendingTenantUpload",
-        "accepted",
-        "confirmed",
-      ],
+      $in: ["accepted", "confirmed"],
     };
   }
   if (filters.showSubTenant) {
@@ -200,7 +207,9 @@ router.put("/update/:id", async (req, res) => {
       await request.updateOne({ $set: req.body });
       res.status(200).json("The request has been updated!");
     } else {
-      res.status(403).json("You can only update a request that pertains to you!");
+      res
+        .status(403)
+        .json("You can only update a request that pertains to you!");
     }
   } catch (err) {
     res.status(500).json(err);
@@ -222,6 +231,13 @@ router.put("/acceptAsTenant/:requestId", addUser, async (req, res) => {
     const subtenant = await User.findById(request.subTenantId);
     const listing = await Listing.findById(request.listingId);
 
+    //Ensure that the request is indeed in pendingTenant
+    if (request.status !== "pendingTenant") {
+      return res.status(400).send({
+        message: "Not ready to accept please try again later",
+      });
+    }
+
     // Check if tenant and subtenant are not in other transactions
     if (tenant.currentTenantTransaction) {
       return res.status(400).send({
@@ -231,6 +247,14 @@ router.put("/acceptAsTenant/:requestId", addUser, async (req, res) => {
     if (subtenant.currentSubTenantTransaction) {
       return res.status(400).send({
         message: "Subtenant is currently involved in a different transaction",
+      });
+    }
+
+    // Ensure tenant has uploaded all required documents
+    const tenantHasAllDocs = request.tenantDocuments.length === 2;
+    if (!tenantHasAllDocs) {
+      return res.status(400).send({
+        message: "Tenant must upload all documents before accepting",
       });
     }
 
@@ -245,7 +269,11 @@ router.put("/acceptAsTenant/:requestId", addUser, async (req, res) => {
     await listing.save();
 
     // Update request status
-    request.status = "pendingSubTenantUpload";
+    if (request.subtenantDocuments.length === 2) {
+      request.status = "pendingFinalAccept";
+    } else {
+      request.status = "pendingSubTenantUpload";
+    }
     request.previousStatus = request.status;
     await request.save();
 
@@ -265,7 +293,9 @@ router.put("/acceptAsTenant/:requestId", addUser, async (req, res) => {
 router.put("/acceptAsSubTenant/:requestId", addUser, async (req, res) => {
   try {
     const requestId = req.params.requestId;
-    const request = await Request.findById(requestId);
+    const request = await Request.findById(requestId)
+      .populate("subtenantDocuments")
+      .populate("tenantDocuments");
 
     if (!request) {
       return res.status(404).send({ message: "Request not found" });
@@ -276,6 +306,13 @@ router.put("/acceptAsSubTenant/:requestId", addUser, async (req, res) => {
     const subtenant = await User.findById(request.subTenantId);
     const listing = await Listing.findById(request.listingId);
 
+    //Ensure that the request is indeed in pendingSubTenant
+    if (request.status !== "pendingSubTenant") {
+      return res.status(400).send({
+        message: "Not ready to accept please try again later",
+      });
+    }
+
     // Check if tenant and subtenant are not in other transactions
     if (subtenant.currentSubTenantTransaction) {
       return res.status(400).send({
@@ -285,6 +322,16 @@ router.put("/acceptAsSubTenant/:requestId", addUser, async (req, res) => {
     if (tenant.currentTenantTransaction) {
       return res.status(400).send({
         message: "Tenant is currently involved in a different transaction",
+      });
+    }
+
+    // Ensure subtenant has uploaded required government ID
+    const subtenantHasGovId = request.subtenantDocuments.find(
+      (doc) => doc.type === "Government ID"
+    );
+    if (!subtenantHasGovId) {
+      return res.status(400).send({
+        message: "Subtenant must upload Government ID before accepting",
       });
     }
 
@@ -299,7 +346,11 @@ router.put("/acceptAsSubTenant/:requestId", addUser, async (req, res) => {
     await listing.save();
 
     // Update request status
-    request.status = "pendingTenantUpload";
+    if (request.tenantDocuments.length === 2) {
+      request.status = "pendingFinalAccept";
+    } else {
+      request.status = "pendingTenantUpload";
+    }
     request.previousStatus = request.status;
     await request.save();
 
@@ -310,11 +361,46 @@ router.put("/acceptAsSubTenant/:requestId", addUser, async (req, res) => {
   }
 });
 
+//Reject all other offers on listing
+async function rejectOthers(listingId, requestId) {
+  try {
+    const result = await Request.updateMany(
+      {
+        listingId: listingId,
+        _id: { $ne: requestId },
+        status: { $in: ["pendingTenant", "pendingSubTenant"] },
+      },
+      { $set: { status: "rejected", status_reason: "Listing booked" } }
+    );
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+}
+
+//Delete all requests that are in pending status for subtenant
+async function deletePendingRequests(subtenantId) {
+  try {
+    const result = await Request.deleteMany({
+      subTenantId: mongoose.Types.ObjectId(subtenantId),
+      status: { $in: ["pendingTenant", "pendingSubTenant"] },
+    });
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+}
 //final accept offer
 router.post("/confirm/:requestId", addUser, async (req, res) => {
+  console.log("Confirm request route hit, starting operations...");
+
   try {
     const requestId = req.params.requestId;
     const request = await Request.findById(requestId);
+
+    const { role } = req.body;
 
     if (!request) {
       return res.status(404).send({ message: "Request not found" });
@@ -335,94 +421,65 @@ router.post("/confirm/:requestId", addUser, async (req, res) => {
       });
     }
 
-    // Create new booking record
-    const booking = new Booking({
-      tenantId: request.tenantId,
-      subTenantId: request.subTenantId,
-      listingId: request.listingId,
-      acceptedRequestId: req.params.requestId,
-      acceptedPrice: request.price,
-      startDate: request.startDate,
-      endDate: request.endDate,
-      viewingDate: request.viewingDate,
-      depositAmount: request.price * 2 * 1.04,
-      tenantDocuments: request.tenantDocuments,
-      subtenantDocuments: request.subtenantDocuments,
-    });
-    await booking.save();
+    if (request.tenantFinalAccept || request.subtenantFinalAccept) {
+      // Create new booking record
+      const booking = new Booking({
+        tenantId: request.tenantId,
+        subTenantId: request.subTenantId,
+        listingId: request.listingId,
+        acceptedRequestId: req.params.requestId,
+        acceptedPrice: request.price,
+        startDate: request.startDate,
+        endDate: request.endDate,
+        viewingDate: request.viewingDate,
+        depositAmount: request.price * 2 * 1.04,
+        tenantDocuments: request.tenantDocuments,
+        subtenantDocuments: request.subtenantDocuments,
+      });
+      await booking.save();
 
-    // Update request status
-    request.status = "confirmed";
-    request.previousStatus = request.status;
-    await request.save();
+      const rejectedOthers = await rejectOthers(request.listingId, requestId);
+      console.log("Other requests rejected or no matching requests found.");
 
-    // Clear the currentTenantTransaction and currentSubTenantTransaction
-    tenant.currentTenantTransaction = null;
-    subtenant.currentSubTenantTransaction = null;
+      const deletedPending = await deletePendingRequests(request.subTenantId);
+      console.log("Other requests deleted or no matching requests found.");
 
-    // Update the listing's transactionInProgress
-    listing.transactionInProgress = false;
+      // Update request status
+      request.status = "confirmed";
+      request.previousStatus = request.status;
+      await request.save();
 
-    return res.send(booking);
+      // Clear the currentTenantTransaction and currentSubTenantTransaction
+      tenant.currentTenantTransaction = null;
+      subtenant.currentSubTenantTransaction = null;
+      await tenant.save();
+      await subtenant.save();
+
+      // Update the listing's transactionInProgress
+      listing.transactionInProgress = false;
+      await listing.save();
+
+      return res
+        .status(200)
+        .json({ message: "Request confirmed, other requests updated." });
+    } else {
+      if (role === "tenant") {
+        request.tenantFinalAccept = true;
+        await request.save();
+      } else {
+        request.subtenantFinalAccept = true;
+        await request.save();
+      }
+
+      const updatedRequest = await Request.findById(req.params.requestId)
+        .populate("tenantDocuments")
+        .populate("subtenantDocuments");
+
+      return res.status(200).json(updatedRequest);
+    }
   } catch (err) {
     console.error(err);
     return res.status(500).send({ message: "Internal server error" });
-  }
-});
-
-//Reject all other offers on listing
-router.put("/reject-others/:listingId/:requestId", async (req, res) => {
-  const { listingId, requestId } = req.params;
-
-  try {
-    // Update all other requests for the listing that are 'pendingTenant' or 'pendingSubTenant'
-    const result = await Request.updateMany(
-      {
-        listingId: listingId,
-        _id: { $ne: requestId },
-        status: { $in: ["pendingTenant", "pendingSubTenant"] },
-      },
-      { $set: { status: "rejected", status_reason: "Listing booked" } }
-    );
-
-    if (result.nModified == 0) {
-      return res
-        .status(404)
-        .json({ message: "No other requests found for this listing." });
-    }
-
-    return res
-      .status(200)
-      .json({ message: "Other requests have been rejected." });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Server error." });
-  }
-});
-
-//Delete all requests that are in pending status for subtenant
-router.delete("/delete-pending/:subtenantId", async (req, res) => {
-  const { subtenantId } = req.params;
-
-  try {
-    // Delete all pending requests for the subtenant on other listings
-    const result = await Request.deleteMany({
-      subTenantId: mongoose.Types.ObjectId(subtenantId),
-      status: { $in: ["pendingTenant", "pendingSubTenant"] },
-    });
-
-    if (result.deletedCount == 0) {
-      return res
-        .status(200)
-        .json({ message: "No pending requests found for this subtenant." });
-    }
-
-    return res
-      .status(200)
-      .json({ message: "Pending requests have been deleted." });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Server error." });
   }
 });
 

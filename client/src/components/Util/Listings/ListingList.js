@@ -6,9 +6,7 @@ import classes from "./ListingList.module.css";
 function ListingList({ listings, requests, bookings, mode, onDelete }) {
 
   //const images = props.data.images.map(({ url }) => url);
-
-  console.log(bookings)
-
+  
   const renderTenant = () => {
     return listings.map((listing) => {
       // If mode is 'SubletsTenant', filter the requests for the current listing

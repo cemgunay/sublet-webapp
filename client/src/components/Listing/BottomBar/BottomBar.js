@@ -135,6 +135,10 @@ function BottomBar({
               ) : (
                 <div onClick={handleOnClickCurrent}>View Rejected Offer</div>
               )
+            ) : data.status === "pendingSubTenantUpload" ||
+              data.status === "pendingTenantUpload" ||
+              data.status === "pendingFinalAccept" ? (
+              <div onClick={handleOnClickCurrent}>View Final Offer</div>
             ) : (
               <div onClick={handleOnClickCurrent}>View Counter Offer</div>
             )}

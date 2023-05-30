@@ -1,16 +1,41 @@
-.wrapper{
-    position: fixed;
-    bottom: 0;
-    width: 100%;
+.wrapper {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
 }
 
 .container {
-    height: 4rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    border-top-right-radius: 10px;
-    border-top-left-radius: 10px;
-    background-color: var(--color-white);
-    box-shadow: 0px 0px 5px 1px var(--color-secondary-light);
+  height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
+  background-color: var(--color-white);
+  box-shadow: 0px 0px 5px 1px var(--color-secondary-light);
 }
+
+.buttonContainer {
+  position: relative;
+  display: inline-block;
+}
+
+.infoIcon {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #f1f1f1;
+  color: #333;
+  cursor: pointer;
+}
+
+.tooltip {
+  background-color: var(--color-primary);
+}
+

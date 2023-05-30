@@ -32,8 +32,6 @@ function Request() {
   //from URL
   const { listingId, requestId } = useParams();
 
-  console.log(requestId);
-
   //if state was passed from previous location
   const location = useLocation();
   const { state } = location;
@@ -74,7 +72,7 @@ function Request() {
   const [canAccept, setCanAccept] = useState(false);
 
   //current user
-  const { user: currentUser, role } = useAuth();
+  const { user: currentUser, role, dispatch } = useAuth();
 
   //check if user trying to put request is currently in transaction
   const subtenantIsInTransaction = currentUser.currentSubTenantTransaction;
@@ -280,32 +278,6 @@ function Request() {
       });
   };
 
-  //TO DO: change this handle accept to rescind all offers subtenant had on all other properties
-  //THIS WILL BE WHEN ACCEPTING A TENANTS COUNTER OFFER (ISNT CORRECT RIGHT NOW AS IT SHOULDNT CREATE A BOOKING)
-  const handleAccept = (e) => {
-    e.preventDefault();
-
-    const updateRequest = {
-      subTenantId: data.subTenantId,
-      status: "accepted",
-    };
-
-    api
-      .put("/requests/update/" + data._id, updateRequest)
-      .then((response) => {
-        console.log(response.data);
-        api
-          .post("/bookings/" + listing._id + "/" + requestId)
-          .then((response) => {
-            console.log(response);
-            //navigate("/sublets");
-          })
-          .catch((error) => console.error(error));
-        //navigate("/");
-      })
-      .catch((error) => console.error(error));
-  };
-
   const handleDecline = (e) => {
     e.preventDefault();
 
@@ -397,6 +369,7 @@ function Request() {
       startDate: data.startDate,
       endDate: data.endDate,
       status: "pendingTenant",
+      subtenantDocuments: [],
     };
 
     api
@@ -441,8 +414,35 @@ function Request() {
     setShowDeleteModal(false);
   };
 
-  const handleAcceptModal = () => {
+  const handleAccept = () => {
     setOpenAcceptModal(!openAcceptModal);
+  };
+
+  const handleAcceptConfirm = async () => {
+    console.log("running accept confirm");
+    try {
+      const response = await api.put(
+        "/requests/acceptAsSubTenant/" + requestId,
+        null,
+        {
+          headers: {
+            //Send user ID in headers
+            "x-user-id": currentUser._id,
+          },
+        }
+      );
+
+      // To update user in local storage
+      const updatedUserResponse = await api.get("/users/id/" + currentUser._id);
+      const updatedUser = updatedUserResponse.data;
+      dispatch({ type: "UPDATE_USER", payload: updatedUser });
+
+      navigate("/sublets/active");
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   };
 
   //for file agreement upload
@@ -452,7 +452,7 @@ function Request() {
     const documentType = "Sublet Agreement";
 
     formData.append("file", selectedAgreement);
-    formData.append("userId", currentUser._id);
+    formData.append("user", JSON.stringify(currentUser));
     formData.append("requestId", data._id);
     formData.append("documentType", documentType);
     formData.append("role", role);
@@ -489,7 +489,7 @@ function Request() {
     const documentType = "Government ID";
 
     formData.append("file", selectedGovId);
-    formData.append("userId", currentUser._id);
+    formData.append("user", JSON.stringify(currentUser));
     formData.append("requestId", data._id);
     formData.append("documentType", documentType);
     formData.append("role", role);
@@ -557,82 +557,77 @@ function Request() {
       toast.success("The file has been deleted");
 
       // Remove the deleted document from the request state
-      setData((prevRequest) => ({
-        ...prevRequest,
-        subtenantDocuments: prevRequest.subtenantDocuments.filter(
-          (doc) => doc._id !== documentId
-        ),
-      }));
+      setData(response.data);
     } catch (error) {
       console.error(error);
       toast.error("There was an error deleting the file, try again");
     }
   };
 
+  console.log(currentUser);
+
   //to set accept button to disabled or not
   useEffect(() => {
-    if (data.subtenantDocuments) {
-      // Find the Sublet Agreement document in the tenant's documents
-      const documentAgreement = data.subtenantDocuments.find(
-        (document) => document.type === "Sublet Agreement"
-      );
-      // Find the Government ID document in the tenant's documents
-      const documentGovId = data.subtenantDocuments.find(
-        (document) => document.type === "Government ID"
-      );
-
-      if (documentAgreement && documentGovId) {
+    if (data.status === "pendingSubTenant") {
+      if (
+        data.subtenantDocuments.filter((doc) => doc.type === "Government ID")
+          .length > 0
+      ) {
         setCanAccept(true);
       } else {
         setCanAccept(false);
       }
+    } else if (data.status === "pendingFinalAccept") {
+      if (data.subtenantFinalAccept) {
+        setCanAccept(false);
+      } else {
+        setCanAccept(true);
+      }
+    } else {
+      setCanAccept(false);
     }
-  }, [data]);
+  }, [data.status, data.subtenantDocuments]);
 
   //handle accepting after all docs have been uploaded (FINAL GANG)
-  const handleAcceptConfirm = () => {
-    // Call the confirm endpoint first
+  const handleFinalAccept = async () => {
+    console.log("running final confirm");
     api
-      .post("/requests/confirm/" + data._id, null, {
-        headers: {
-          "x-user-id": currentUser._id,
-        },
-      })
+      .post(
+        "/requests/confirm/" + data._id,
+        { role },
+        {
+          headers: {
+            "x-user-id": currentUser._id,
+          },
+        }
+      )
       .then((response) => {
-        console.log(response.data);
-        // If confirming the request was successful, then proceed to the other two operations
+        console.log(response);
+
+        // Check if response.data has a 'message' property
+        if (!response.data.message) {
+          setData(response.data);
+        }
+
+        // To update user in local storage
         api
-          .put("/requests/reject-others/" + listing._id + "/" + data._id)
+          .get("/users/id/" + currentUser._id)
           .then((response) => {
-            console.log(response.data);
-            api
-              .delete("/requests/delete-pending/" + data.subTenantId)
-              .then((response) => {
-                console.log(response);
-                setData((prevData) => ({
-                  ...prevData,
-                  status: "confirmed",
-                }));
-                toast.success("The offer has been accepted");
-                navigate("/host");
-              })
-              .catch((error) => {
-                toast.error(
-                  "Error, can't delete pending requests, please try again later"
-                );
-                console.error(error);
-              });
+            console.log(response);
+            dispatch({ type: "UPDATE_USER", payload: response.data });
+            if (
+              currentUser.currentSubTenantTransaction !==
+              response.data.currentSubTenantTransaction
+            ) {
+              navigate("/sublets/confirmed");
+            }
           })
-          .catch((error) => {
-            toast.error(
-              "Error, can't update other requests, please try again later"
-            );
-            console.error(error);
+          .catch((err) => {
+            console.error(err);
           });
       })
-      .catch((error) => {
-        toast.error("Error confirming request, please try again later");
-        console.error(error);
+      .catch((err) => {
+        console.error(err);
       });
   };
 
@@ -877,6 +872,8 @@ function Request() {
             handleFileUploadGovId={handleFileUploadGovId}
             handleFileDownload={handleFileDownload}
             handleFileDelete={handleFileDelete}
+            handleAcceptConfirm={handleAcceptConfirm}
+            handleFinalAccept={handleFinalAccept}
             request={data}
             getMonth={getMonth}
             formatDate={formatDate}
@@ -887,14 +884,12 @@ function Request() {
             due={due}
             canAccept={canAccept}
             uploadProgress={uploadProgress}
-            handleAcceptConfirm={handleAcceptConfirm}
           />
         </CSSTransition>
       </div>
       <BottomBlock
         handleRequest={handleRequest}
         handleAccept={handleAccept}
-        handleAcceptModal={handleAcceptModal}
         handleDecline={handleDecline}
         handleUpdate={handleUpdate}
         handleCounter={handleCounter}

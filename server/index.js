@@ -14,8 +14,10 @@ const userRoute = require('./routes/users');
 const requestRoute = require('./routes/requests');
 const bookingRoute = require('./routes/bookings');
 const uploadRoute = require('./routes/uploads');
+const utilityRoute = require('./routes/utility');
 const conversationRoute = require('./routes/conversations');
 const messageRoute = require('./routes/messages')
+
 
 // db
 mongoose.set('strictQuery', false);
@@ -42,6 +44,7 @@ app.use("/server/users" , userRoute);
 app.use("/server/requests", requestRoute);
 app.use("/server/bookings", bookingRoute);
 app.use("/server/uploads", uploadRoute);
+app.use("/server/utility", utilityRoute);
 app.use("/server/conversations", conversationRoute);
 app.use("/server/messages", messageRoute);
 
