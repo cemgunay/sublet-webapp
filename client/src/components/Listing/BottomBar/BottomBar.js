@@ -13,6 +13,7 @@ function BottomBar({
   handleChange,
   requestExists,
   isBooked,
+  booking
 }) {
   const getMonth = (date) => {
     const dateToChange = new Date(date);

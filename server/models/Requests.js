@@ -77,7 +77,10 @@ const RequestSchema = new Schema(
     subtenantFinalAccept: {
       type: Boolean,
       default: false
-    }
+    },
+    acceptanceTimestamp: {
+      type: Date,
+  },
   },
   { timestamps: true }
 );
