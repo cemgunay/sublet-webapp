@@ -6,8 +6,10 @@ const User = require("../models/User");
 const Listing = require("../models/Listing");
 const Booking = require("../models/Bookings");
 const Request = require("../models/Requests");
+const Conversation = require("../models/Conversation")
 const createAgenda = require("../jobs/jobs");
-const { ConnectParticipant } = require("aws-sdk");
+
+const { updateUser } = require("../utils/user_operations");
 
 //initialize Agenda instance
 const agenda = createAgenda(process.env.MONGO_URI);
@@ -67,8 +69,17 @@ router.post("/:listingId", async (req, res) => {
     //Save request to DB and return response
     const request = await newRequest.save();
 
-    // Return response with request and warning (if applicable)
-    res.status(200).json({ request, warning });
+    // Create new conversation object
+    const newConversation = new Conversation({
+      members: [req.body.tenantId, req.body.subTenantId],
+      request: request._id,
+    });
+
+    // Save conversation to DB
+    const conversation = await newConversation.save();
+
+    // Return response with request, conversation and warning (if applicable)
+    res.status(200).json({ request, conversation, warning });
   } catch (err) {
     res.status(500).json(err);
   }
@@ -227,8 +238,12 @@ router.put("/acceptAsTenant/:requestId", addUser, async (req, res) => {
     }
 
     // Fetch the tenant, subtenant, and listing using their IDs
-    const tenant = await User.findById(request.tenantId);
-    const subtenant = await User.findById(request.subTenantId);
+    let tenant = await User.findById(request.tenantId);
+    console.log("tenant");
+    console.log(tenant);
+    let subtenant = await User.findById(request.subTenantId);
+    console.log("subtenant");
+    console.log(subtenant);
     const listing = await Listing.findById(request.listingId);
 
     //Ensure that the request is indeed in pendingTenant
@@ -259,13 +274,15 @@ router.put("/acceptAsTenant/:requestId", addUser, async (req, res) => {
     }
 
     // Update users and listing
-    tenant.currentTenantTransaction = requestId;
-    subtenant.currentSubTenantTransaction = requestId;
+    tenant = await updateUser(request.tenantId, {
+      currentTenantTransaction: requestId,
+    });
+    subtenant = await updateUser(request.subTenantId, {
+      currentSubTenantTransaction: requestId,
+    });
     listing.transactionInProgress = true;
 
     // Save updates
-    await tenant.save();
-    await subtenant.save();
     await listing.save();
 
     // Update request status
@@ -274,7 +291,10 @@ router.put("/acceptAsTenant/:requestId", addUser, async (req, res) => {
     } else {
       request.status = "pendingSubTenantUpload";
     }
-    request.previousStatus = request.status;
+    request.previousStatus = "pendingTenant";
+
+    // Update request acceptance timestamp for timer
+    request.acceptanceTimestamp = Date.now();
     await request.save();
 
     // Schedule a job to run after 12 hours
@@ -302,8 +322,8 @@ router.put("/acceptAsSubTenant/:requestId", addUser, async (req, res) => {
     }
 
     // Fetch the tenant, subtenant, and listing using their IDs
-    const tenant = await User.findById(request.tenantId);
-    const subtenant = await User.findById(request.subTenantId);
+    let tenant = await User.findById(request.tenantId);
+    let subtenant = await User.findById(request.subTenantId);
     const listing = await Listing.findById(request.listingId);
 
     //Ensure that the request is indeed in pendingSubTenant
@@ -336,13 +356,15 @@ router.put("/acceptAsSubTenant/:requestId", addUser, async (req, res) => {
     }
 
     // Update users and listing
-    tenant.currentTenantTransaction = requestId;
-    subtenant.currentSubTenantTransaction = requestId;
+    tenant = await updateUser(request.tenantId, {
+      currentTenantTransaction: requestId,
+    });
+    subtenant = await updateUser(request.subTenantId, {
+      currentSubTenantTransaction: requestId,
+    });
     listing.transactionInProgress = true;
 
     // Save updates
-    await tenant.save();
-    await subtenant.save();
     await listing.save();
 
     // Update request status
@@ -351,8 +373,16 @@ router.put("/acceptAsSubTenant/:requestId", addUser, async (req, res) => {
     } else {
       request.status = "pendingTenantUpload";
     }
-    request.previousStatus = request.status;
+    request.previousStatus = "pendingSubTenant";
+
+    // Update request acceptance timestamp for timer
+    request.acceptanceTimestamp = Date.now();
     await request.save();
+
+    // Schedule a job to run after 12 hours
+    await agenda.schedule("in 12 hours", "revert request status", {
+      requestId,
+    });
 
     return res.send(request);
   } catch (err) {
@@ -407,8 +437,8 @@ router.post("/confirm/:requestId", addUser, async (req, res) => {
     }
 
     // Fetch the tenant, subtenant, and listing using their IDs
-    const tenant = await User.findById(request.tenantId);
-    const subtenant = await User.findById(request.subTenantId);
+    let tenant = await User.findById(request.tenantId);
+    let subtenant = await User.findById(request.subTenantId);
     const listing = await Listing.findById(request.listingId);
 
     // Check if the authenticated user is the other party of the request
@@ -450,14 +480,19 @@ router.post("/confirm/:requestId", addUser, async (req, res) => {
       await request.save();
 
       // Clear the currentTenantTransaction and currentSubTenantTransaction
-      tenant.currentTenantTransaction = null;
-      subtenant.currentSubTenantTransaction = null;
-      await tenant.save();
-      await subtenant.save();
+      tenant = await updateUser(request.tenantId, {
+        currentTenantTransaction: null,
+      });
+      subtenant = await updateUser(request.subTenantId, {
+        currentSubTenantTransaction: null,
+      });
 
       // Update the listing's transactionInProgress
       listing.transactionInProgress = false;
       await listing.save();
+
+      console.log(tenant);
+      console.log(subtenant);
 
       return res
         .status(200)
@@ -487,12 +522,16 @@ router.post("/confirm/:requestId", addUser, async (req, res) => {
 router.delete("/delete/:id", async (req, res) => {
   try {
     const request = await Request.findById(req.params.id);
-    if (request.subtenantId === req.body.userId) {
+    if (request.subTenantId === req.body.userId) {
       //Check if request was the user trying to delete it
-      await request.deleteOne();
-      res.status(200).json("The review has been deleted!");
+      if (request.status !== "pendingTenant") {
+        await request.deleteOne();
+        res.status(200).json("The request has been deleted!");
+      } else {
+        res.status(403).json("Request isn't ready to be deleted");
+      }
     } else {
-      res.status(403).json("You can only delete your own review!");
+      res.status(403).json("You can only delete your own request");
     }
   } catch (err) {
     res.status(500).json(err);

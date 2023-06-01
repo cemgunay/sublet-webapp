@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import api from "../../api/axios";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useNavigate, useLocation, useParams, Link } from "react-router-dom";
 
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -16,6 +16,7 @@ import classes from "./Request.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCircleChevronLeft,
+  faMessage,
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import BottomBlock from "../../components/UI/BottomBlock";
@@ -73,6 +74,11 @@ function Request() {
 
   //current user
   const { user: currentUser, role, dispatch } = useAuth();
+
+  //conversation
+  const [conversation, setConversation] = useState(null);
+
+  console.log(currentUser);
 
   //check if user trying to put request is currently in transaction
   const subtenantIsInTransaction = currentUser.currentSubTenantTransaction;
@@ -167,6 +173,22 @@ function Request() {
     },
     [setData]
   );
+
+  // to get the conversation
+  const getChat = async (requestId) => {
+    try {
+      const res = await api.get("/conversations/request/" + requestId);
+      setConversation(res.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    if (requestId) {
+      getChat(requestId);
+    }
+  }, [requestId]);
 
   //to get the month name from ISO
   const getMonth = (date) => {
@@ -615,6 +637,7 @@ function Request() {
           .then((response) => {
             console.log(response);
             dispatch({ type: "UPDATE_USER", payload: response.data });
+
             if (
               currentUser.currentSubTenantTransaction !==
               response.data.currentSubTenantTransaction
@@ -634,12 +657,12 @@ function Request() {
   return (
     <>
       <div className={classes.headercontainer}>
-        <div className={classes.header}>
-          <div className={classes.back} onClick={goBack}>
-            <FontAwesomeIcon icon={faCircleChevronLeft} />
-          </div>
-          <div className={classes.previewtitle}>Request to subLet</div>
-          {data.status === "rejected" ? (
+        {data.status === "rejected" ? (
+          <div className={classes.header}>
+            <div className={classes.back} onClick={goBack}>
+              <FontAwesomeIcon icon={faCircleChevronLeft} />
+            </div>
+            <div>Request to subLet</div>
             <div className={classes.deleteiconcontainer}>
               <FontAwesomeIcon
                 icon={faTrash}
@@ -650,8 +673,22 @@ function Request() {
                 onClick={handleDeleteClick}
               />
             </div>
-          ) : null}
-        </div>
+          </div>
+        ) : (
+          <div className={classes.header}>
+            <div className={classes.back} onClick={goBack}>
+              <FontAwesomeIcon icon={faCircleChevronLeft} />
+            </div>
+            <div>Request to subLet</div>
+            <Link
+              to={`/inbox/${conversation?._id}`}
+              style={{ color: "inherit" }}
+              className={classes.chat}
+            >
+              <FontAwesomeIcon icon={faMessage} className={classes.chaticon} />
+            </Link>
+          </div>
+        )}
         <div className={classes.listingpreviewcontainer}>
           <div className={classes.protectiontext}>
             Your request is protected by our escrow service

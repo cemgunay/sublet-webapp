@@ -1,44 +1,43 @@
-@import '../../index.css';
+@import "../../index.css";
 
 .message {
-    display: flex;
-    flex-direction: column;
-    margin-top: 20px;
-  }
-  
-  .messageTop{
-      display: flex;
-  }
-  
-  .messageImg {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-right: 10px;
-  }
-  
-  .messageText{
-      padding: 10px;
-      border-radius: 20px;
-      background-color: #1877f2;
-      color: white;
-      max-width: 300px;
-  }
-  
-  .messageBottom{
-      font-size: 12px;
-      margin-top: 10px;
-  }
-  
-  .messageOwn{
-    display: flex;
-    flex-direction: column;
-    margin-top: 20px;
-    align-items: flex-end;
-  }
-  
-  .messageOwnMessageText{
-      background-color: rgb(245, 241, 241);
-      color: black;
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.messageOwn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.messageTop {
+  display: flex;
+  align-items: flex-end;
+}
+
+.messageText {
+  padding: 0.7rem;
+  border-radius: 20px;
+  background-color: var(--color-primary);
+  color: white;
+  word-break: break-all; /* Add this line */
+  max-width: 100%; /* Set a maximum width */
+}
+
+.messageOwnMessageText {
+  padding: 0.7rem;
+  border-radius: 20px;
+  background-color: rgb(245, 241, 241);
+  color: black;
+  word-break: break-all; /* Add this line */
+  max-width: 100%; /* Set a maximum width */
+}
+
+.messageBottom {
+  font-size: x-small;
+  margin-top: 0.5rem;
+}
+
+

@@ -37,6 +37,27 @@
   fill: white;
 }
 
+.chat{
+  position: absolute;
+  right: 0;
+}
+
+.chaticon{
+  color: var(--color-primary);
+}
+
+.deleteiconcontainer {
+  position: absolute;
+  right: 0;
+  background: white;
+  border-radius: 50%; /* This makes it circular */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 2;
+}
+
 .listingpreviewcontainer{
   background-color: white;
   display: flex;
@@ -111,18 +132,6 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
-}
-
-.deleteiconcontainer {
-  position: absolute;
-  right: 0;
-  background: white;
-  border-radius: 50%; /* This makes it circular */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  z-index: 2;
 }
 
 .modal {

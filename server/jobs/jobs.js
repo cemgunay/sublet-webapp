@@ -14,7 +14,8 @@ module.exports = function (agendaMongoUri) {
     // If the status is still 'pendingSubTenantUpload' or 'pendingTenantUpload', revert it to 'previousStatus'
     if (
       request.status === "pendingSubTenantUpload" ||
-      request.status === "pendingTenantUpload"
+      request.status === "pendingTenantUpload" || 
+      request.status === "pendingFinalAccept"
     ) {
       request.status = request.previousStatus;
 

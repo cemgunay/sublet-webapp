@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import api from "../../api/axios";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useNavigate, useLocation, useParams, Link } from "react-router-dom";
 
 import { CSSTransition } from "react-transition-group";
 
@@ -20,7 +20,12 @@ import { toast } from "react-toastify";
 import AcceptModal from "../../components/Sublets/AcceptModal";
 import useAuth from "../../hooks/useAuth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleChevronLeft } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCircleChevronLeft,
+  faMessage,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
+import { Button, Dialog, DialogActions, DialogTitle } from "@mui/material";
 
 function RequestDetails() {
   //useParams and useLocation are to pass the listing prop from listingItem through to this component
@@ -58,6 +63,12 @@ function RequestDetails() {
   //subtenant details
   const [subtenant, setSubtenant] = useState(null);
 
+  //conversation
+  const [conversation, setConversation] = useState(null);
+
+  //delete dialog for deleting reqeust
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
   //to check if tenant is in transaction or if subtenant is in transaction
   const [isInTransaction, setIsInTransaction] = useState(false);
   const getSubTenant = async (subTenantId) => {
@@ -79,8 +90,8 @@ function RequestDetails() {
       console.log(subTenant);
 
       if (
-        currentUser.currentTenantTransaction ||
-        subTenant.currentSubTenantTransaction
+        currentUser?.currentTenantTransaction ||
+        subTenant?.currentSubTenantTransaction
       ) {
         setIsInTransaction(true);
       }
@@ -125,6 +136,22 @@ function RequestDetails() {
   useEffect(() => {
     setData(request);
   }, [request, setData]);
+
+  // to get the conversation
+  const getChat = async (requestId) => {
+    try {
+      const res = await api.get("/conversations/request/" + requestId);
+      setConversation(res.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    if (requestId) {
+      getChat(requestId);
+    }
+  }, [requestId]);
 
   //to get the month name from ISO
   const getMonth = (date) => {
@@ -410,6 +437,40 @@ function RequestDetails() {
     }
   };
 
+  //to open and close the dialog
+  const openDeleteDialog = () => {
+    setDeleteDialogOpen(true);
+  };
+
+  const closeDeleteDialog = () => {
+    setDeleteDialogOpen(false);
+  };
+
+  //This is for deleting past requests
+  const handleDeleteConfirm = () => {
+    // call your delete API here
+
+    const updateRequest = {
+      showTenant: false,
+      tenantId: currentUser._id
+    };
+
+    api
+      .put("/requests/update/" + requestId, updateRequest)
+      .then((response) => {
+        console.log(response.data);
+        setRequest(response.data);
+        toast.success("Past request deleted successfully");
+        navigate(`/host/listing/${listingId}`);
+      })
+      .catch((error) => {
+        toast.error("Failed to delete past request: " + error.message);
+        console.error(error);
+      });
+
+    closeDeleteDialog();
+  };
+
   //to set accept button to disabled or not
   //to set accept button to disabled or not
   useEffect(() => {
@@ -434,15 +495,53 @@ function RequestDetails() {
         <div>loading</div>
       ) : (
         <>
+          <Dialog open={deleteDialogOpen} onClose={closeDeleteDialog}>
+            <DialogTitle>
+              Are you sure you want to delete this request?
+            </DialogTitle>
+            <DialogActions>
+              <Button onClick={closeDeleteDialog}>Cancel</Button>
+              <Button onClick={handleDeleteConfirm} color="error">
+                Delete
+              </Button>
+            </DialogActions>
+          </Dialog>
           <div className={classes.headercontainer}>
-            <div className={classes.header}>
-              <div className={classes.back} onClick={goBack}>
-                <FontAwesomeIcon icon={faCircleChevronLeft} />
+            {request.status === "rejected" ? (
+              <div className={classes.header}>
+                <div className={classes.back} onClick={goBack}>
+                  <FontAwesomeIcon icon={faCircleChevronLeft} />
+                </div>
+                <div>{subtenant?.firstName}'s Request</div>
+                <div className={classes.deleteiconcontainer}>
+                  <FontAwesomeIcon
+                    icon={faTrash}
+                    style={{
+                      cursor: "pointer",
+                      zIndex: 1,
+                    }}
+                    onClick={openDeleteDialog}
+                  />
+                </div>
               </div>
-              <div className={classes.previewtitle}>
-                {subtenant?.firstName}'s Request
+            ) : (
+              <div className={classes.header}>
+                <div className={classes.back} onClick={goBack}>
+                  <FontAwesomeIcon icon={faCircleChevronLeft} />
+                </div>
+                <div>{subtenant?.firstName}'s Request</div>
+                <Link
+                  to={`/host/inbox/${conversation?._id}`}
+                  style={{ color: "inherit" }}
+                  className={classes.chat}
+                >
+                  <FontAwesomeIcon
+                    icon={faMessage}
+                    className={classes.chaticon}
+                  />
+                </Link>
               </div>
-            </div>
+            )}
             <div className={classes.listingpreviewcontainer}>
               <div className={classes.protectiontext}>
                 The request is protected by our escrow service

@@ -1,24 +1,34 @@
-import React from "react";
-import { useContext } from "react";
-import { NavLink } from "react-router-dom";
+import React, { useContext } from "react";
+import { NavLink, useMatch, useLocation } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBars,
   faHouse,
+  faInbox,
   faMagnifyingGlass,
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
-
 import classes from "./BottomNav.module.css";
 
+function CustomNavLink({ to, children, additionalPaths, ...rest }) {
+  let location = useLocation();
+  let isActive =
+    location.pathname === to ||
+    (additionalPaths && additionalPaths.includes(location.pathname));
+  return (
+    <NavLink
+      to={to}
+      className={isActive ? classes.active : undefined}
+      {...rest}
+    >
+      {children}
+    </NavLink>
+  );
+}
+
 function BottomNav() {
-  //const { user: currentUser } = useContext(AuthContext);
-
-  //to change the elements below
   const { user: currentUser, role } = useContext(AuthContext);
-
   console.log(currentUser);
   console.log(role);
 
@@ -28,76 +38,55 @@ function BottomNav() {
         {currentUser ? (
           role === "subtenant" ? (
             <>
-              <NavLink
-                to="/"
-                className={({ isActive }) =>
-                  isActive ? classes.active : undefined
-                }
-              >
+              <CustomNavLink to="/">
                 <FontAwesomeIcon icon={faMagnifyingGlass} />
                 Explore
-              </NavLink>
-              <NavLink
+              </CustomNavLink>
+              <CustomNavLink
                 to="/sublets"
-                className={({ isActive }) =>
-                  isActive ? classes.active : undefined
-                }
+                additionalPaths={["/sublets/active", "/sublets/past"]}
               >
                 <FontAwesomeIcon icon={faHouse} />
                 subLets
-              </NavLink>
-              <NavLink
-                to="/profile"
-                className={({ isActive }) =>
-                  isActive ? classes.active : undefined
-                }
-              >
+              </CustomNavLink>
+              <CustomNavLink to="/inbox">
+                <FontAwesomeIcon icon={faInbox} />
+                Inbox
+              </CustomNavLink>
+              <CustomNavLink to="/profile">
                 <FontAwesomeIcon icon={faUser} />
                 Profile
-              </NavLink>
+              </CustomNavLink>
             </>
           ) : (
             <>
-              <NavLink
+              <CustomNavLink
                 to="/host"
-                className={({ isActive }) =>
-                  isActive ? classes.active : undefined
-                }
+                additionalPaths={["/host/active", "/host/past"]}
               >
                 <FontAwesomeIcon icon={faHouse} />
                 subLets
-              </NavLink>
-              <NavLink
-                to="/host/menu"
-                className={({ isActive }) =>
-                  isActive ? classes.active : undefined
-                }
-              >
+              </CustomNavLink>
+              <CustomNavLink to="/host/inbox">
+                <FontAwesomeIcon icon={faInbox} />
+                Inbox
+              </CustomNavLink>
+              <CustomNavLink to="/host/menu">
                 <FontAwesomeIcon icon={faBars} />
                 Menu
-              </NavLink>
+              </CustomNavLink>
             </>
           )
         ) : (
           <>
-            <NavLink
-              to="/"
-              className={({ isActive }) =>
-                isActive ? classes.active : undefined
-              }
-            >
+            <CustomNavLink to="/">
               <FontAwesomeIcon icon={faMagnifyingGlass} />
               Explore
-            </NavLink>
-            <NavLink
-              to="/signup"
-              className={({ isActive }) =>
-                isActive ? classes.active : undefined
-              }
-            >
+            </CustomNavLink>
+            <CustomNavLink to="/signup">
               <FontAwesomeIcon icon={faUser} />
               Profile
-            </NavLink>
+            </CustomNavLink>
           </>
         )}
       </nav>

@@ -1,0 +1,82 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: white; /* change as per your design */
+  margin: 0 2rem 0 2rem;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 0 2rem 0 2rem;
+}
+
+.allmessagescontainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.messageContainer {
+  width: 100%;
+}
+
+.inputContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 1rem;
+}
+
+.footerwrapper {
+  margin-bottom: 5rem;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: white;
+  padding: 2rem;
+}
+
+.textArea {
+    width: 100%;
+    border-radius: 16px;
+    padding-left: 0.8rem;
+    font-size: larger;
+}
+
+.button {
+  border-radius: 50%;
+  width: 1.35rem; /* adjust as needed */
+  height: 1.35rem; /* adjust as needed */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  background-color: black; /* adjust color as needed */
+}
+
+.icon{
+    color: white;
+}
+
+.spacer {
+    transition: height 0.2s;
+  }

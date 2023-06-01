@@ -1,6 +1,8 @@
 const User = require("../models/User");
 const router = require("express").Router();
 
+const { updateUser } = require("../utils/user_operations");
+
 //Get a user with user id
 router.get("/id/:id", async (req, res) => {
   try {
@@ -26,6 +28,19 @@ router.get("/:email", async (req, res) => {
   } catch (error) {
     // handle any errors that may occur during the search
     return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// Update user route
+router.put("/:id", async (req, res) => {
+  // update user in body
+  try {
+    console.log('updating user')
+    const updatedUser = await updateUser(req.params.id, req.body);
+    console.log(updatedUser)
+    res.status(200).json(updatedUser);
+  } catch (err) {
+    res.status(500).json(err);
   }
 });
 

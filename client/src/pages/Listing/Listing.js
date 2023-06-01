@@ -108,10 +108,6 @@ function Listing() {
     });
   }, [id]);
 
-  console.log(isBooked);
-
-  console.log(data);
-
   //for back button
   const navigate = useNavigate();
 
@@ -297,6 +293,7 @@ function Listing() {
               handleChange={handleChange}
               requestExists={requestExists}
               isBooked={isBooked}
+              booking={booking}
             />
           </div>
         </div>

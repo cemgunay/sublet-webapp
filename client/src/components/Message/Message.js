@@ -8,11 +8,7 @@ function Message({message, own}) {
   return (
     <div className={own ? classes.messageOwn : classes.message}>
         <div className={classes.messageTop}>
-          <img className={classes.messageImage}
-          src=""
-          alt=""
-          />
-          <p className={own ? classes.messageOwnMessageText : classes.messageText}>{message.text}</p>       
+          <div className={own ? classes.messageOwnMessageText : classes.messageText}>{message.text}</div>       
         </div>
         <div className={classes.messageBottom}> {format(message.createdAt)} </div>
     </div>

@@ -1,31 +1,67 @@
-@import '../../index.css';
+@import "../../index.css";
 
-.conversation {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    cursor: pointer;
-    margin-top: 10px;
-  }
-  
-  .conversation:hover {
-    background-color: rgb(245, 243, 243);
-  }
-  
-  .conversationImg {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-right: 20px;
-  }
-  
-  .conversationName {
-    font-weight: 500;
-  }
-  
-  @media screen and (max-width: 768px) {
-    .conversationName {
-      display: none;
-    }
-  }
+.container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  border-bottom: 0.1rem;
+  border-style: solid;
+  border-color: var(--color-secondary-light);
+  padding-bottom: 1rem;
+  width: 100%;
+}
+
+.conversationcontainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  width: 90%;
+}
+
+.conversationcontainer:hover {
+  background-color: rgb(245, 243, 243);
+}
+
+.conversationImg {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.conversationcontent {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.conversationtitle {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.conversationtitleheader {
+  display: flex;
+  gap: 1rem;
+}
+
+.button {
+  border-radius: 50%;
+  width: 1.35rem; /* adjust as needed */
+  height: 1.35rem; /* adjust as needed */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  background-color: white; /* adjust color as needed */
+}
+
+.icon {
+  color: black;
+}

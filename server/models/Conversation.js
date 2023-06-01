@@ -2,13 +2,22 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const ConversationSchema = new Schema(
-    {
-      members: {
-        type: Array,
-      },
+  {
+    members: {
+      type: Array,
     },
-    { timestamps: true }
-  );
+    request: { type: mongoose.Schema.Types.ObjectId, ref: "Request" },
+    deletedByTenant: {
+      type: Boolean,
+      default: false,
+    },
+    deletedBySubtenant: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { timestamps: true }
+);
 
 const ConversationModel = mongoose.model("Conversation", ConversationSchema);
 
