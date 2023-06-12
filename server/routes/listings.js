@@ -6,6 +6,7 @@ const Listing = require("../models/Listing");
 const Booking = require("../models/Bookings");
 const cloudinary = require("../utils/cloudinary");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const sendEmail = require("../utils/sendEmail");
 
 // Configure Multer and Cloudinary storage
 const storage = new CloudinaryStorage({
@@ -125,7 +126,33 @@ router.put("/:id", async (req, res) => {
 
     if (listing.userId === req.body.userId) {
       //Check if listing belongs to user trying to update it
+    
       await listing.updateOne({ $set: req.body });
+
+      // Send email to user about listing they just created 
+      // TODO: Modify API to accept a request param to signify if we are calling this API to PUBLISH a listing
+      // OR create a seperate API that is only called when a user clicks PUBLISH to send a email notification
+      /*
+      const tenant = await User.findById(req.body.userId);
+      const emailTemplate = `
+              <html>
+                <body>
+                  <h2>Hello ${tenant.firstName},</h2>
+                  <p>Your ${listing.title} is now live!</p>
+                  <strong>Check it out here: localhost:3000/listing/${listing._id}</strong>
+                  <p>We hope you find the perfect subtenant!</p>
+                  <p>You are now able to recieve requests for you listing, be sure to check your inbox!</p>
+                  <p>Best regards,</p>
+                  <p>The subLet Team</p>
+                </body>
+              </html>
+            `;
+
+      await sendEmail(
+        tenant.email,
+        listing.title + " is now live!",
+        emailTemplate
+      );*/
       res.status(200).json("The listing has been updated!");
     } else {
       res.status(403).json("You can only update your own listing!");
