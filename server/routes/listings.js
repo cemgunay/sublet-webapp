@@ -7,6 +7,8 @@ const Booking = require("../models/Bookings");
 const cloudinary = require("../utils/cloudinary");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const sendEmail = require("../utils/sendEmail");
+const listingPublishedTemplate = require("../emailTemplates/listingPublished");
+const listingDeletedTemplate = require("../emailTemplates/listingDeleted");
 
 // Configure Multer and Cloudinary storage
 const storage = new CloudinaryStorage({
@@ -134,25 +136,14 @@ router.put("/:id", async (req, res) => {
       // OR create a seperate API that is only called when a user clicks PUBLISH to send a email notification
       /*
       const tenant = await User.findById(req.body.userId);
-      const emailTemplate = `
-              <html>
-                <body>
-                  <h2>Hello ${tenant.firstName},</h2>
-                  <p>Your ${listing.title} is now live!</p>
-                  <strong>Check it out here: localhost:3000/listing/${listing._id}</strong>
-                  <p>We hope you find the perfect subtenant!</p>
-                  <p>You are now able to recieve requests for you listing, be sure to check your inbox!</p>
-                  <p>Best regards,</p>
-                  <p>The subLet Team</p>
-                </body>
-              </html>
-            `;
 
+      //Send listing published email to user who published the email
+      const listingPublishedEmail = listingPublishedTemplate(tenant.firstName, listing.title, listing._id)
       await sendEmail(
         tenant.email,
         listing.title + " is now live!",
-        emailTemplate
-      );*/
+        listingPublishedEmail
+      ); */
       res.status(200).json("The listing has been updated!");
     } else {
       res.status(403).json("You can only update your own listing!");
@@ -233,8 +224,14 @@ router.delete("/:id/:userId", async (req, res) => {
   try {
     const listing = await Listing.findById(req.params.id);
     if (listing.userId === req.params.userId) {
-      //Check if listing belongs to user trying to delete it
+      // Check if listing belongs to user trying to delete it
       await listing.deleteOne();
+
+      // Send email to user who deleted the listing
+      const user = await User.findById(req.params.userId);
+      const listingDeletedEmail = listingDeletedTemplate(user.firstName, listing.title);
+      await sendEmail (user.email, "Your listing has been deleted", listingDeletedEmail);
+
       res.status(200).json("The listing has been deleted!");
     } else {
       res.status(403).json("You can only delete your own listing!");

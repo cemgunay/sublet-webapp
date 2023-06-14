@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const Token = require("../models/token");
 const crypto = require("crypto");
 const sendEmail = require("../utils/sendEmail");
+const welcomeEmailTemplate = require("../emailTemplates/welcomeEmail");
 
 //Register User
 router.post("/register", async (req, res) => {
@@ -28,20 +29,8 @@ router.post("/register", async (req, res) => {
     const user = await newUser.save();
 
     // Send welcome email to the user
-    const emailTemplate = `
-    <html>
-      <body>
-        <h2>Hello ${newUser.firstName},</h2>
-        <p>Welcome to subLet! We are thrilled to have you on board.</p>
-        <p>We hope you find the sublet you are looking for!</p>
-        <p>Get started by verifying your email and customizing your tenant/subtenant profile.</p>
-        <p>Best regards,</p>
-        <p>The subLet Team</p>
-      </body>
-    </html>
-  `;
-
-    await sendEmail(newUser.email, "Welcome to subLet!", emailTemplate);
+    const welcomeEmail = welcomeEmailTemplate(newUser.firstName);  
+    await sendEmail(newUser.email, "Welcome to subLet!", welcomeEmail);
 
     /*const token = await new Token({
       userId: user._id,
