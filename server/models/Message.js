@@ -12,6 +12,9 @@ const MessageSchema = new Schema(
     text: {
       type: String,
     },
+    iv: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
