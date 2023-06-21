@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const mongoose = require("mongoose");
 const router = require("express").Router();
 
 const { updateUser } = require("../utils/user_operations");
@@ -7,9 +8,16 @@ const { updateUser } = require("../utils/user_operations");
 router.get("/id/:id", async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
     const { password, ...other } = user._doc; //Hide the password in the response
     res.status(200).json(other);
   } catch (err) {
+    if (err.kind === "ObjectId") {
+      // This condition checks if the error is because of an invalid ObjectId
+      return res.status(404).json({ message: "Invalid User Id" });
+    }
     res.status(500).json(err);
   }
 });
@@ -35,9 +43,9 @@ router.get("/:email", async (req, res) => {
 router.put("/:id", async (req, res) => {
   // update user in body
   try {
-    console.log('updating user')
+    console.log("updating user");
     const updatedUser = await updateUser(req.params.id, req.body);
-    console.log(updatedUser)
+    console.log(updatedUser);
     res.status(200).json(updatedUser);
   } catch (err) {
     res.status(500).json(err);

@@ -109,6 +109,7 @@ function Sublet() {
 
           <div className={classes.content}>
             <div className={classes.title}>
+              {listing.published ? null : <div>LISTING IS NOT PUBLISHED</div>}
               <div className={classes.first}>
                 <h3>{listing.title}</h3>
                 <p>{listing.days_left}</p>

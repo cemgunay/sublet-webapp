@@ -25,8 +25,9 @@ function Listing() {
   const location = useLocation();
   const { state } = location;
   const [listing, setListing] = useState(null);
-  const [isBooked, setIsBooked] = useState(false);
+  const [isBookedByUser, setIsBookedByUser] = useState(false);
   const [booking, setBooking] = useState(null);
+  const [fetchedRequest, setFetchedRequest] = useState(false);
 
   console.log(state);
 
@@ -69,7 +70,7 @@ function Listing() {
     }
   }, [userId, setData, listing]);
 
-  //check if there is already a request under this user for this listing
+  //check if there is already a request under this user for this listing and get the most updated one
   useEffect(() => {
     api
       .get("/requests/listing/" + id + "/" + currentUserId)
@@ -87,26 +88,57 @@ function Listing() {
             (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
           );
 
+          console.log(data);
+          console.log(sortedData);
+
           // setData to the most recently updated entry
           setData(sortedData[0]);
           setRequestExists(true);
+          setFetchedRequest(true);
         }
       })
-      .catch((error) => console.error(error));
+      .catch((error) => console.error(error)).finally(setFetchedRequest(true));
   }, [id, setData, currentUserId]);
 
-  //check if this listing has been booked
+  console.log(data);
+
+  //check if this listing has been booked by the logged in user
   useEffect(() => {
     api.get("/bookings/" + id).then((response) => {
-      console.log(response);
+      console.log(response.data[response.data.length - 1]);
       if (response.data.length > 0) {
-        setIsBooked(true);
-        setBooking(response.data);
+        if (
+          response.data[response.data.length - 1].subTenantId ===
+            currentUserId ||
+          response.data[response.data.length - 1].tenantId === currentUserId
+        ) {
+          setIsBookedByUser(true);
+        } else {
+          setIsBookedByUser(false);
+        }
+        setBooking(response.data[response.data.length - 1]);
+        api
+          .get(
+            "/requests/" +
+              response.data[response.data.length - 1].acceptedRequestId
+          )
+          .then((response) => {
+            if (
+              response.data.subTenantId === currentUserId ||
+              response.data.tenantId === currentUserId
+            ) {
+              console.log(response);
+              setData(response.data);
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+          });
       } else {
-        setIsBooked(false);
+        setBooking(null);
       }
     });
-  }, [id]);
+  }, [id, setData]);
 
   //for back button
   const navigate = useNavigate();
@@ -169,9 +201,7 @@ function Listing() {
         <FontAwesomeIcon icon={faCircleChevronLeft} inverse />
       </div>
 
-      {!listing ? (
-        <div>HOLDUP</div>
-      ) : (
+      {fetchedRequest && listing ? (
         <div
           className={!openModal ? classes.container : classes.containerNoScroll}
         >
@@ -191,7 +221,7 @@ function Listing() {
               <CurrentOffer
                 data={data}
                 listing={listing}
-                isBooked={isBooked}
+                isBooked={isBookedByUser}
                 booking={booking}
               />
             )}
@@ -292,11 +322,13 @@ function Listing() {
               setData={setData}
               handleChange={handleChange}
               requestExists={requestExists}
-              isBooked={isBooked}
+              isBooked={isBookedByUser}
               booking={booking}
             />
           </div>
         </div>
+      ) : (
+        <div>LOADING</div>
       )}
     </>
   );

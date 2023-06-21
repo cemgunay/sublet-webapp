@@ -46,8 +46,9 @@ function RequestDetails() {
 
   //for file upload
   const [selectedAgreement, setSelectedAgreement] = useState(null);
+  const [uploadProgressAgreement, setUploadProgressAgreement] = useState(0);
   const [selectedGovId, setSelectedGovId] = useState(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadProgressGovId, setUploadProgressGovId] = useState(0);
 
   //for disabling accept button
   const [canAccept, setCanAccept] = useState(false);
@@ -291,7 +292,7 @@ function RequestDetails() {
     const updateRequest = {
       subTenantId: data.subTenantId,
       status: "rejected",
-      status_reason: "Offer has been rejected.",
+      status_reason: "Offer has been rejected",
     };
 
     api
@@ -332,7 +333,7 @@ function RequestDetails() {
           const percentCompleted = Math.round(
             (progressEvent.loaded * 100) / progressEvent.total
           );
-          setUploadProgress(percentCompleted);
+          setUploadProgressAgreement(percentCompleted);
         },
       })
       .then((response) => {
@@ -341,12 +342,12 @@ function RequestDetails() {
         api.get("/requests/" + requestId).then((response) => {
           setRequest(response.data);
         });
-        setUploadProgress(0);
+        setUploadProgressAgreement(0);
         setSelectedAgreement(null);
       })
       .catch((error) => {
         console.log(error);
-        setUploadProgress(0);
+        setUploadProgressAgreement(0);
         setSelectedAgreement(null);
       });
   };
@@ -371,7 +372,7 @@ function RequestDetails() {
           const percentCompleted = Math.round(
             (progressEvent.loaded * 100) / progressEvent.total
           );
-          setUploadProgress(percentCompleted);
+          setUploadProgressGovId(percentCompleted);
         },
       })
       .then((response) => {
@@ -382,12 +383,12 @@ function RequestDetails() {
           console.log(response.data);
           setRequest(response.data);
         });
-        setUploadProgress(0);
+        setUploadProgressGovId(0);
         setSelectedGovId(null);
       })
       .catch((error) => {
         console.log(error);
-        setUploadProgress(0);
+        setUploadProgressGovId(0);
         setSelectedGovId(null);
       });
   };
@@ -452,7 +453,7 @@ function RequestDetails() {
 
     const updateRequest = {
       showTenant: false,
-      tenantId: currentUser._id
+      tenantId: currentUser._id,
     };
 
     api
@@ -481,8 +482,20 @@ function RequestDetails() {
       if (request.tenantFinalAccept) {
         setCanAccept(false);
       } else {
-        console.log("hello");
-        setCanAccept(true);
+        if (request.status === "confirmed") {
+          setCanAccept(false);
+        } else {
+          if (
+            request.tenantDocuments.some(
+              (obj) => obj.type === "Sublet Agreement"
+            ) &&
+            request.tenantDocuments.some((obj) => obj.type === "Government ID")
+          ) {
+            setCanAccept(true);
+          } else {
+            setCanAccept(false);
+          }
+        }
       }
     } else {
       setCanAccept(false);
@@ -690,7 +703,8 @@ function RequestDetails() {
                   total={total}
                   due={due}
                   canAccept={canAccept}
-                  uploadProgress={uploadProgress}
+                  uploadProgressAgreement={uploadProgressAgreement}
+                  uploadProgressGovId={uploadProgressGovId}
                 />
               </CSSTransition>
             </div>

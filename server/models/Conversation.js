@@ -6,6 +6,8 @@ const ConversationSchema = new Schema(
     members: {
       type: Array,
     },
+    tenant: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    subTenant: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     request: { type: mongoose.Schema.Types.ObjectId, ref: "Request" },
     deletedByTenant: {
       type: Boolean,

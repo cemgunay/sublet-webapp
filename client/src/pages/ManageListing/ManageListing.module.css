@@ -1,5 +1,26 @@
+@import "../../index.css";
+
 .container {
-  margin: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 2rem 2rem 5rem 2rem;
+}
+
+.headercontainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 0.1rem solid var(--color-secondary-light);
+}
+
+.previewcontainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
 }
 
 .contentcontainer {
@@ -12,6 +33,12 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+
+.detailstitlecontainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
 
 .detailstitle {
@@ -36,6 +63,8 @@
 .detailsitemleft {
   display: flex;
   flex-direction: column;
+  width: 100%;
+  gap: 0.5rem;
 }
 
 .detailsitemtitle {
@@ -62,3 +91,122 @@
 .carouselcontainer img {
   border-radius: 10px;
 }
+
+.radioButton {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid var(--color-secondary-light);
+  margin-top: 4px;
+}
+
+.selectedRadioButton {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid var(--color-primary);
+  background-color: var(--color-primary);
+  margin-top: 4px;
+}
+
+.listingpublished {
+  color: var(--color-pass);
+}
+
+.listingnotpublished {
+  color: var(--color-error);
+}
+
+.verticalflex {
+  display: flex;
+  flex-direction: column;
+}
+
+.horizontalflex {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.horizontalflextop {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Will divide the available space into two equal parts */
+  gap: 10px;
+}
+
+.amenityItem {
+  border: 1px solid black;
+  padding: 10px;
+  border-radius: 5px;
+  text-overflow: ellipsis; /* This will make the text end with ... if it doesn't fit in the box */
+  overflow: hidden; /* Ensuring long text doesn't overflow the box */
+  white-space: nowrap; /* This will prevent the text from breaking into multiple lines */
+}
+
+.amenityItemTrue {
+  background-color: var(--color-primary);
+}
+
+.amenityItemFalse {
+  background-color: white;
+}
+
+.addressformcontainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.errorcontainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.errormessage {
+  color: var(--color-error);
+}
+
+.propertydropdowns {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.buttonContainer {
+  position: relative;
+  display: inline-block;
+}
+
+.infoIcon {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #f1f1f1;
+  color: #333;
+  cursor: pointer;
+}
+
+.tooltip {
+  background-color: var(--color-primary);
+  max-width: 90vw;
+ }
+ 

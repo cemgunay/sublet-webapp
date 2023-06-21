@@ -20,6 +20,8 @@ export const ListFormProvider = ({ children }) => {
     publish: 8,
   };
 
+  const [backButtonClicked, setBackButtonClicked] = useState(false);
+
   //urlTitle reverse hashmap (auto generated)
   const urlTitleReverse = {};
   for (const key in urlTitle) {
@@ -106,51 +108,51 @@ export const ListFormProvider = ({ children }) => {
     console.log("running here");
 
     if (!data._id) return;
-    
+
     setLoading(true);
-      api
-        .get("/listings/" + data._id)
-        .then((response) => {
-          console.log(response.data);
-          setData((data) => ({
-            ...data,
-            title: response.data.title,
-            description: response.data.description,
-            price: response.data.price,
-            aboutyourplace: {
-              ...data.aboutyourplace,
-              propertyType: response.data.aboutyourplace.propertyType,
-              privacyType: response.data.aboutyourplace.privacyType,
-            },
-            location: {
-              ...data.location,
-              address1: response.data.location.address1,
-              city: response.data.location.city,
-              postalcode: response.data.location.postalcode,
-              countryregion: response.data.location.countryregion,
-              stateprovince: response.data.location.stateprovince,
-              unitnumber: response.data.location.unitnumber,
-              lat: response.data.location.lat,
-              lng: response.data.location.lng,
-            },
-            basics: {
-              ...data.basics,
-              bedrooms: response.data.basics.bedrooms,
-              bathrooms: response.data.basics.bathrooms,
-            },
-            amenities: response.data.amenities,
-            utilities: response.data.utilities,
-            images: response.data.images,
-            moveInDate: response.data.moveInDate,
-            moveOutDate: response.data.moveOutDate,
-            shorterStays: response.data.shorterStays,
-            availableToView: response.data.availableToView,
-            viewingDates: response.data.viewingDates,
-            published: response.data.published,
-          }));
-          setLoading(false);
-        })
-        .catch((error) => console.error(error));
+    api
+      .get("/listings/" + data._id)
+      .then((response) => {
+        console.log(response.data);
+        setData((data) => ({
+          ...data,
+          title: response.data.title,
+          description: response.data.description,
+          price: response.data.price,
+          aboutyourplace: {
+            ...data.aboutyourplace,
+            propertyType: response.data.aboutyourplace.propertyType,
+            privacyType: response.data.aboutyourplace.privacyType,
+          },
+          location: {
+            ...data.location,
+            address1: response.data.location.address1,
+            city: response.data.location.city,
+            postalcode: response.data.location.postalcode,
+            countryregion: response.data.location.countryregion,
+            stateprovince: response.data.location.stateprovince,
+            unitnumber: response.data.location.unitnumber,
+            lat: response.data.location.lat,
+            lng: response.data.location.lng,
+          },
+          basics: {
+            ...data.basics,
+            bedrooms: response.data.basics.bedrooms,
+            bathrooms: response.data.basics.bathrooms,
+          },
+          amenities: response.data.amenities,
+          utilities: response.data.utilities,
+          images: response.data.images,
+          moveInDate: response.data.moveInDate,
+          moveOutDate: response.data.moveOutDate,
+          shorterStays: response.data.shorterStays,
+          availableToView: response.data.availableToView,
+          viewingDates: response.data.viewingDates,
+          published: response.data.published,
+        }));
+        setLoading(false);
+      })
+      .catch((error) => console.error(error));
   }, [data._id]);
 
   //to get list id from URL THIS WILL BE USED IF SOMEHOW URL CHANGES IDKKKKK
@@ -329,6 +331,8 @@ export const ListFormProvider = ({ children }) => {
         loading,
         canGoNext,
         setCanGoNext,
+        backButtonClicked,
+        setBackButtonClicked,
       }}
     >
       {children}

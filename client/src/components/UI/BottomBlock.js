@@ -88,7 +88,7 @@ function BottomBlock({
           ) : status === "rejected" ? (
             status_reason === "Counter offer has been rejected" ? (
               <div>Counter offer has been rejected</div>
-            ) : (
+            ) : status_reason === "Listing removed" ? <div>Listing removed</div> : (
               <div>Offer has been rejected</div>
             )
           ) : status === "pendingSubTenantUpload" ? (
@@ -106,7 +106,7 @@ function BottomBlock({
                 : "Verify and sign"}
             </button>
           ) : (
-            <div>Offer has been accepted</div>
+            <div onClick={handleAccept}>View Signed Documents</div>
           )
         ) : status === "pendingTenant" ? (
           <div>
@@ -193,7 +193,8 @@ function BottomBlock({
           </div>
         ) : status === "rejected" ? (
           status_reason !== "Listing booked" &&
-          status_reason !== "Listing expired" ? (
+          status_reason !== "Listing expired" && 
+          status_reason !== "Listing removed" ? (
             <div>
               Offer has been rejected
               <button onClick={goToNewRequest}>Make new request</button>
@@ -212,7 +213,7 @@ function BottomBlock({
               : "Verify and sign"}
           </button>
         ) : status === "confirmed" ? (
-          <div>Offer has been accepted</div>
+          <div onClick={handleAccept}>View Signed Documents</div>
         ) : (
           <div
             className={`${classes.buttonContainer} ${

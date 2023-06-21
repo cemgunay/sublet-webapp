@@ -66,8 +66,9 @@ function Request() {
 
   //for file upload
   const [selectedAgreement, setSelectedAgreement] = useState(null);
+  const [uploadProgressAgreement, setUploadProgressAgreement] = useState(0);
   const [selectedGovId, setSelectedGovId] = useState(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadProgressGovId, setUploadProgressGovId] = useState(0);
 
   //for disabling accept button
   const [canAccept, setCanAccept] = useState(false);
@@ -113,6 +114,10 @@ function Request() {
       .then((response) => {
         console.log(response.data);
         setData(response.data);
+        setOriginalMoveInDate(response.data.startDate)
+        setOriginalMoveOutDate(response.data.endDate)
+        setOriginalPrice(response.data.price)
+        setOriginalViewingDate(response.data.viewingDate)
       })
       .catch((error) => console.error(error));
   }, [requestId, setData]);
@@ -261,7 +266,7 @@ function Request() {
     }));
 
     navigate(
-      `/listing/${listingId}/request/${id}?startDate=${
+      `/listing/${listingId}/request/${id}/new?startDate=${
         listing.moveInDate
       }&endDate=${listing.moveOutDate}&viewingDate=${null}&price=${
         listing.price
@@ -485,7 +490,7 @@ function Request() {
           const percentCompleted = Math.round(
             (progressEvent.loaded * 100) / progressEvent.total
           );
-          setUploadProgress(percentCompleted);
+          setUploadProgressAgreement(percentCompleted);
         },
       })
       .then((response) => {
@@ -494,12 +499,12 @@ function Request() {
         api.get("/requests/" + requestId).then((response) => {
           setData(response.data);
         });
-        setUploadProgress(0);
+        setUploadProgressAgreement(0);
         setSelectedAgreement(null);
       })
       .catch((error) => {
         console.log(error);
-        setUploadProgress(0);
+        setUploadProgressAgreement(0);
         setSelectedAgreement(null);
       });
   };
@@ -522,7 +527,7 @@ function Request() {
           const percentCompleted = Math.round(
             (progressEvent.loaded * 100) / progressEvent.total
           );
-          setUploadProgress(percentCompleted);
+          setUploadProgressGovId(percentCompleted);
         },
       })
       .then((response) => {
@@ -533,12 +538,12 @@ function Request() {
           console.log(response.data);
           setData(response.data);
         });
-        setUploadProgress(0);
+        setUploadProgressGovId(0);
         setSelectedGovId(null);
       })
       .catch((error) => {
         console.log(error);
-        setUploadProgress(0);
+        setUploadProgressGovId(0);
         setSelectedGovId(null);
       });
   };
@@ -680,13 +685,18 @@ function Request() {
               <FontAwesomeIcon icon={faCircleChevronLeft} />
             </div>
             <div>Request to subLet</div>
-            <Link
-              to={`/inbox/${conversation?._id}`}
-              style={{ color: "inherit" }}
-              className={classes.chat}
-            >
-              <FontAwesomeIcon icon={faMessage} className={classes.chaticon} />
-            </Link>
+            {conversation ? (
+              <Link
+                to={`/inbox/${conversation?._id}`}
+                style={{ color: "inherit" }}
+                className={classes.chat}
+              >
+                <FontAwesomeIcon
+                  icon={faMessage}
+                  className={classes.chaticon}
+                />
+              </Link>
+            ) : null}
           </div>
         )}
         <div className={classes.listingpreviewcontainer}>
@@ -920,7 +930,8 @@ function Request() {
             total={total}
             due={due}
             canAccept={canAccept}
-            uploadProgress={uploadProgress}
+            uploadProgressAgreement={uploadProgressAgreement}
+            uploadProgressGovId={uploadProgressGovId}
           />
         </CSSTransition>
       </div>

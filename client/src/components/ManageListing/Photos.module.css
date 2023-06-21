@@ -1,0 +1,203 @@
+@import "../../index.css";
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative; 
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  background-color: white;
+  width: 100%;
+}
+
+.title{
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.content {
+  width: 100%;
+  margin-bottom: 5rem;
+}
+
+.inputcontainer {
+  max-width: 100%;
+  max-height: 13rem;
+  box-sizing: border-box;
+  border-radius: 10px;
+  border-style: dashed;
+  border-width: 1px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5rem;
+  position: relative;
+}
+
+.inputcontainer input {
+  visibility: hidden;
+}
+
+.inputheader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.imagelist {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 3rem;
+}
+
+.imageitem {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  border-width: 1px;
+  overflow: hidden;
+  border-radius: 10px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.imagecontainer {
+  height: 13rem;
+  width: 100%;
+  overflow: hidden;
+}
+
+/*
+
+.imageitem {
+  position: relative;
+  display: inline-block;
+  margin: 10px;
+  width: 150px;
+  height: 150px;
+  overflow: hidden;
+  border-radius: 5px;
+}
+
+*/
+
+.imageitem img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.imageoverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1;
+}
+
+.progressbar {
+  position: "absolute";
+  top: 0;
+  left: 0;
+  width: "${image.progress}%";
+  height: "5px";
+  z-index: 2;
+  background-color: var(--color-primary);
+}
+
+.imageTooSmall {
+  margin-top: 5px;
+  font-size: 14px;
+  color: red;
+  background-color: white;
+  padding: 2px 5px;
+  border-radius: 3px;
+  width: 100%;
+  z-index: 2;
+}
+.greyoverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(
+    0,
+    0,
+    0,
+    0.5
+  ); /* change the color and opacity as desired */
+  z-index: 1; /* set the z-index higher than other elements in the inputcontainer */
+}
+
+.coverphoto {
+  position: absolute;
+  top: 10px;
+  left: 5px;
+  background-color: white;
+  border: none;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding-right: 5px;
+  padding-left: 5px;
+  z-index: 2;
+}
+
+.actionButton {
+  position: absolute;
+  top: 10px;
+  right: 5px;
+  background-color: white;
+  border: none;
+  cursor: pointer;
+  width: 28px; /* Set the width of the button */
+  height: 28px; /* Set the height of the button */
+  padding: 0;
+  line-height: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 2;
+}
+
+.dots {
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.popupMenu {
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 5px;
+  border-radius: 5px;
+  width: 120px; /* Set the width of the pop-up menu, adjust as needed */
+  z-index: 2;
+  position: absolute;
+}
+
+.popupMenu button {
+  border: none;
+  color: black;
+  background-color: white;
+}

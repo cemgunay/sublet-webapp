@@ -7,6 +7,7 @@ import api from "../../api/axios";
 import classes from "./Basics.module.css";
 import IncrementalInput from "../../components/List/IncrementalInput";
 import BedroomList from "../../components/List/BedroomList";
+import IncrementalInputField from "../../components/Util/IncrementalInputField";
 
 function Basics() {
   const {
@@ -19,11 +20,15 @@ function Basics() {
     currentUserId,
     canGoNext,
     loading,
+    setBackButtonClicked
   } = useOutletContext();
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
+
+    setBackButtonClicked(true);
+
     e.preventDefault();
 
     const currentUrl = window.location.pathname;
@@ -55,7 +60,7 @@ function Basics() {
               <div className={classes.inputs}>
                 <div className={classes.inputfield}>
                   <div>Bedrooms</div>
-                  <IncrementalInput
+                  <IncrementalInputField
                     data={data}
                     setData={setData}
                     type="bedrooms"
@@ -63,7 +68,7 @@ function Basics() {
                 </div>
                 <div className={classes.inputfield}>
                   <div>Bathrooms</div>
-                  <IncrementalInput
+                  <IncrementalInputField
                     data={data}
                     setData={setData}
                     type="bathrooms"

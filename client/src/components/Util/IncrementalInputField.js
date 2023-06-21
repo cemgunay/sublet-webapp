@@ -8,11 +8,12 @@ import classes from "./IncrementalInputField.module.css";
 function IncrementalInputField(props) {
   const [beds, setBeds] = useState(0);
 
+  console.log(props.data)
+
   const [value, setValue] = useState("");
 
   const handlePlus = () => {
     if (props.type === "bedrooms") {
-      console.log(props.data);
       props.setData((prevData) => ({
         ...prevData,
         basics: {
@@ -27,6 +28,7 @@ function IncrementalInputField(props) {
       setBeds(beds + 1);
     } else if (props.type === "price") {
       setValue(parseInt(props.data.price));
+      console.log(props.data.price)
       if (props.data.price === "") {
         props.setData((prevData) => ({
           ...prevData,
@@ -119,7 +121,8 @@ function IncrementalInputField(props) {
             props.from === "ManageListing" ||
             props.data.status === "pendingTenantUpload" ||
             props.data.status === "pendingSubTenantUpload" ||
-            props.data.status === "rejected"
+            props.data.status === "rejected" ||
+            props.data.status === "confirmed"
           }
         >
           <FontAwesomeIcon icon={faMinus} />
@@ -136,7 +139,8 @@ function IncrementalInputField(props) {
               props.from === "BottomBar" ||
               props.data.status === "pendingTenantUpload" ||
               props.data.status === "pendingSubTenantUpload" ||
-              props.data.status === "rejected"
+              props.data.status === "rejected" ||
+              props.data.status === "confirmed"
             }
           />
           <span className="monthLabel">month</span>
@@ -149,7 +153,8 @@ function IncrementalInputField(props) {
             props.from === "ManageListing" ||
             props.data.status === "pendingTenantUpload" ||
             props.data.status === "pendingSubTenantUpload" ||
-            props.data.status === "rejected"
+            props.data.status === "rejected" ||
+            props.data.status === "confirmed"
           }
         >
           <FontAwesomeIcon icon={faPlus} />

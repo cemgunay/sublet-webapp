@@ -6,6 +6,7 @@ const Listing = require("../models/Listing");
 const Booking = require("../models/Bookings");
 const cloudinary = require("../utils/cloudinary");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const mongoose = require("mongoose");
 
 // Configure Multer and Cloudinary storage
 const storage = new CloudinaryStorage({
@@ -124,9 +125,17 @@ router.put("/:id", async (req, res) => {
     const listing = await Listing.findById(req.params.id);
 
     if (listing.userId === req.body.userId) {
+      console.log(req.body);
       //Check if listing belongs to user trying to update it
       await listing.updateOne({ $set: req.body });
-      res.status(200).json("The listing has been updated!");
+
+      // Retrieve the updated listing
+      const updatedListing = await Listing.findById(req.params.id);
+
+      res.status(200).json({
+        message: "The listing has been updated!",
+        updatedListing, // Include the updated listing in the response data
+      });
     } else {
       res.status(403).json("You can only update your own listing!");
     }
@@ -217,10 +226,37 @@ router.delete("/:id/:userId", async (req, res) => {
   }
 });
 
+//Soft delete a listing
+router.put("/soft-delete/:id/:userId", async (req, res) => {
+  try {
+    const listing = await Listing.findById(req.params.id);
+    if (listing.userId === req.params.userId) {
+      //Check if listing belongs to user trying to delete it
+      await Listing.findByIdAndUpdate(req.params.id, {
+        isDeleted: true,
+        published: false,
+      });
+      res.status(200).json("The listing has been soft deleted!");
+    } else {
+      res.status(403).json("You can only delete your own listing!");
+    }
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
 //Get a listing
 router.get("/:id", async (req, res) => {
+  const id = req.params.id;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(404).json({ message: "Listing not found" });
+  }
+
   try {
-    const listing = await Listing.findById(req.params.id).select({});
+    const listing = await Listing.findById(id);
+    if (!listing) {
+      return res.status(404).json({ message: "Listing not found" });
+    }
     res.status(200).json(listing);
   } catch (err) {
     res.status(500).json(err);
@@ -231,7 +267,11 @@ router.get("/:id", async (req, res) => {
 router.get("/listingsinprogress/:userId", async (req, res) => {
   const { userId } = req.params;
   try {
-    const listings = await Listing.find({ userId, published: false });
+    const listings = await Listing.find({
+      userId,
+      moveInDate: null,
+      moveOutDate: null,
+    });
     console.log(listings);
     res.send(listings);
   } catch (err) {
@@ -240,13 +280,29 @@ router.get("/listingsinprogress/:userId", async (req, res) => {
   }
 });
 
-// TO DO:Get all of the completed listings for a user that aren't published
-
 // Get all listings for a user
 router.get("/listings/:userId", async (req, res) => {
   const { userId } = req.params;
   try {
     const listings = await Listing.find({ userId });
+    res.send(listings);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal server error");
+  }
+});
+
+// Get all completed listings for a user
+router.get("/listingscompleted/:userId", async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const listings = await Listing.find({
+      userId,
+      moveInDate: { $exists: true, $ne: null },
+      moveOutDate: { $exists: true, $ne: null },
+      isDeleted: { $in: [false, null] },
+    });
+
     res.send(listings);
   } catch (err) {
     console.error(err);
@@ -289,7 +345,10 @@ router.get("/draftgroup/:id", async (req, res) => {
       return res.status(404).send("Listing not found");
     }
 
-    if (!listing.aboutyourplace) {
+    if (
+      !listing.aboutyourplace.propertyType ||
+      !listing.aboutyourplace.privacyType
+    ) {
       return res.send("aboutyourplace");
     }
 
@@ -297,10 +356,8 @@ router.get("/draftgroup/:id", async (req, res) => {
       return res.send("location");
     }
 
-    //TO DO: Write out all the remaining conditional statements to determine the listings draftgroup
-
     if (listing.basics.bedrooms.length === 0) {
-      return res.send("location");
+      return res.send("basics");
     }
 
     if (Object.values(listing.amenities).every((value) => value === false)) {
@@ -405,31 +462,27 @@ router.get("/", async (req, res) => {
     try {
       const listings = await Listing.find(query).exec();
 
+      // Fetch all bookings that overlap with the desired date range
+      const bookings = await Booking.find({
+        $or: [
+          // Booking starts during the desired range
+          { startDate: { $lt: endMonth } },
+          // Booking ends during the desired range
+          { endDate: { $gte: startMonth } },
+        ],
+      });
+
+      // Convert bookings to a Set for faster lookups
+      const bookingSet = new Set(
+        bookings.map((booking) => booking.listingId.toString())
+      );
+
       // Filter out listings that are already booked for the desired date range
-      const availableListings = await Promise.all(
-        listings.map(async (listing) => {
-          // Look for bookings that overlap with the desired date range
-          const booking = await Booking.findOne({
-            listingId: listing._id,
-            $or: [
-              // Booking starts during the desired range
-              { startDate: { $lt: endMonth } },
-              // Booking ends during the desired range
-              { endDate: { $gte: startMonth } },
-            ],
-          });
-
-          // If no overlapping bookings are found, the listing is available
-          return booking ? null : listing;
-        })
+      const availableListings = listings.filter(
+        (listing) => !bookingSet.has(listing._id.toString())
       );
 
-      // Remove null values from the array
-      const finalListings = availableListings.filter(
-        (listing) => listing !== null
-      );
-
-      res.status(200).json(finalListings);
+      res.status(200).json(availableListings);
     } catch (error) {
       res.status(500).json({ message: "Internal Server Error" });
     }

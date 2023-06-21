@@ -13,7 +13,7 @@ function BottomBar({
   handleChange,
   requestExists,
   isBooked,
-  booking
+  booking,
 }) {
   const getMonth = (date) => {
     const dateToChange = new Date(date);
@@ -42,12 +42,10 @@ function BottomBar({
   const handleOnClick = async (e) => {
     e.preventDefault();
 
-    console.log("test 2");
-
     const id = uuid(); // generate a random UUID for URL
 
     navigate(
-      `request/${id}?startDate=${data.startDate}&endDate=${
+      `request/${id}/new/?startDate=${data.startDate}&endDate=${
         data.endDate
       }&viewingDate=${data.viewingDate ? data.viewingDate : null}&price=${
         data.price
@@ -75,6 +73,23 @@ function BottomBar({
     );
   };
 
+  console.log(data);
+
+  const handleOnClickSigned = async (e) => {
+    e.preventDefault();
+
+    navigate(
+      `request/${data._id}?startDate=${data.startDate}&endDate=${
+        data.endDate
+      }&viewingDate=${data.viewingDate ? data.viewingDate : null}&price=${
+        data.price
+      }`,
+      {
+        state: { data: data, listing: listing },
+      }
+    );
+  };
+
   const handleOnClickRejected = async (e) => {
     e.preventDefault();
 
@@ -84,14 +99,8 @@ function BottomBar({
 
     console.log(listing.price);
 
-    console.log(
-      `request/${id}?startDate=${listing.moveInDate}&endDate=${
-        listing.moveOutDate
-      }&viewingDate=${null}&price=${listing.price}`
-    );
-
     navigate(
-      `request/${id}?startDate=${listing.moveInDate}&endDate=${
+      `request/${id}/new?startDate=${listing.moveInDate}&endDate=${
         listing.moveOutDate
       }&viewingDate=${null}&price=${listing.price}`,
       {
@@ -102,7 +111,17 @@ function BottomBar({
 
   return (
     <footer className={classes.wrapper}>
-      {isBooked ? null : !listing ? null : !requestExists ? (
+      {booking ? (
+        isBooked ? (
+          <div className={classes.container}>
+            <div onClick={handleOnClickSigned}>View Signed Contract</div>
+          </div>
+        ) : (
+          <div className={classes.container}>
+            <div>Listing is booked</div>
+          </div>
+        )
+      ) : !listing ? null : !requestExists ? (
         <div className={classes.container}>
           <div classes={classes.left}>
             <IncrementalInputField

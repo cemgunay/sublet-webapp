@@ -34,11 +34,12 @@ function AcceptModal({
   total,
   due,
   canAccept,
-  uploadProgress,
+  uploadProgressAgreement,
+  uploadProgressGovId
 }) {
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
-  console.log(request)
+  console.log(request);
 
   const handleConfirmation = () => {
     if (request.status === "pendingFinalAccept") {
@@ -86,7 +87,11 @@ function AcceptModal({
           <div className={classes.back} onClick={goBack}>
             <FontAwesomeIcon icon={faCircleChevronLeft} />
           </div>
-          <div className={classes.previewtitle}>Final Steps</div>
+          <div className={classes.previewtitle}>
+            {request?.status === "confirmed"
+              ? "Final Documents"
+              : "Final Steps"}
+          </div>
         </div>
       </div>
       <div className={classes.contentcontainer}>
@@ -95,12 +100,14 @@ function AcceptModal({
           {tenantDocumentAgreement ? (
             <div className={classes.agreementexistcontainer}>
               <div className={classes.agreementexistcontainerleft}>
-                <FontAwesomeIcon icon={faCheckCircle} color="green" />
+                {request.status === "confirmed" ? null : (
+                  <FontAwesomeIcon icon={faCheckCircle} color="green" />
+                )}
                 <div className={classes.fileName} onClick={handleFileDownload}>
                   {tenantDocumentAgreement.originalFileName}
                 </div>
               </div>
-              {request.tenantFinalAccept ? (
+              {request.tenantFinalAccept || request.status === "confirmed" ? (
                 <div className={classes.iconcontainer}>
                   <FontAwesomeIcon
                     icon={faDownload}
@@ -122,6 +129,7 @@ function AcceptModal({
             <div className={classes.agreementexistcontainer}>
               <input
                 type="file"
+                accept=".pdf, .jpg, .jpeg, .png"
                 onChange={(e) => setSelectedAgreement(e.target.files[0])}
               />
               <div className={classes.iconcontainer}>
@@ -132,8 +140,8 @@ function AcceptModal({
               </div>
             </div>
           )}
-          {uploadProgress > 0 && selectedAgreement && (
-            <LinearProgress variant="determinate" value={uploadProgress} />
+          {uploadProgressAgreement > 0 && selectedAgreement && (
+            <LinearProgress variant="determinate" value={uploadProgressAgreement} />
           )}
         </div>
         <div className={classes.agreementcontainer}>
@@ -163,12 +171,14 @@ function AcceptModal({
           {tenantGovId ? (
             <div className={classes.agreementexistcontainer}>
               <div className={classes.agreementexistcontainerleft}>
-                <FontAwesomeIcon icon={faCheckCircle} color="green" />
+                {request.status === "confirmed" ? null : (
+                  <FontAwesomeIcon icon={faCheckCircle} color="green" />
+                )}
                 <div className={classes.fileName} onClick={handleFileDownload}>
                   {tenantGovId.originalFileName}
                 </div>
               </div>
-              {request.tenantFinalAccept ? (
+              {request.tenantFinalAccept || request.status === "confirmed" ? (
                 <div className={classes.iconcontainer}>
                   <FontAwesomeIcon
                     icon={faDownload}
@@ -188,6 +198,7 @@ function AcceptModal({
             <div className={classes.agreementexistcontainer}>
               <input
                 type="file"
+                accept=".pdf, .jpg, .jpeg, .png"
                 onChange={(e) => setSelectedGovId(e.target.files[0])}
               />
               <div className={classes.iconcontainer}>
@@ -198,8 +209,8 @@ function AcceptModal({
               </div>
             </div>
           )}
-          {uploadProgress > 0 && selectedGovId && (
-            <LinearProgress variant="determinate" value={uploadProgress} />
+          {uploadProgressGovId > 0 && selectedGovId && (
+            <LinearProgress variant="determinate" value={uploadProgressGovId} />
           )}
         </div>
         <div className={classes.agreementcontainer}>
@@ -226,84 +237,88 @@ function AcceptModal({
         </div>
 
         <div>Sign terms and conditions STYLL</div>
-        <div className={classes.requestdetailscontainer}>
-          Request
-          <div className={classes.details}>
-            <div>subLet months</div>
-            {getMonth(request.startDate)} -{getMonth(request.endDate)}
-            <div>Move in - Move out</div>
-            {new Date(request.startDate)?.toLocaleDateString()} -{" "}
-            {new Date(request.endDate)?.toLocaleDateString()}
-          </div>
-          <div className={classes.details}>
-            <div>viewing date</div>
-            {formatDate(request.viewingDate) ?? "No viewing date selected"}
-          </div>
-          <div className={classes.details}>
-            <div>price details</div>
-            <div className={classes.detailsrow}>
-              <div>
-                ${request.price} CAD x{" "}
-                {getMonthDiff(request.startDate, request.endDate)} months
+        {request.status === "confirmed" ? null : (
+          <div className={classes.requestdetailscontainer}>
+            Request
+            <div className={classes.details}>
+              <div>subLet months</div>
+              {getMonth(request.startDate)} -{getMonth(request.endDate)}
+              <div>Move in - Move out</div>
+              {new Date(request.startDate)?.toLocaleDateString()} -{" "}
+              {new Date(request.endDate)?.toLocaleDateString()}
+            </div>
+            <div className={classes.details}>
+              <div>viewing date</div>
+              {formatDate(request.viewingDate) ?? "No viewing date selected"}
+            </div>
+            <div className={classes.details}>
+              <div>price details</div>
+              <div className={classes.detailsrow}>
+                <div>
+                  ${request.price} CAD x{" "}
+                  {getMonthDiff(request.startDate, request.endDate)} months
+                </div>
+                <div>${subTotal.toString()} CAD</div>
               </div>
-              <div>${subTotal.toString()} CAD</div>
+              <div className={classes.detailsrow}>
+                <div>ATIC</div>
+                <div>${atic.toString()} CAD</div>
+              </div>
             </div>
-            <div className={classes.detailsrow}>
+            <div className={classes.details}>
+              <div className={classes.detailsrow}>
+                <div>Total</div>
+                <div>${total.toString()} CAD</div>
+              </div>
+            </div>
+            <div className={classes.details}>
+              <div className={classes.detailsrow}>
+                <div>Due at Signing</div>
+                <div>${due} CAD</div>
+              </div>
+              <div>First & Last Month Deposit</div>
               <div>ATIC</div>
-              <div>${atic.toString()} CAD</div>
             </div>
           </div>
-          <div className={classes.details}>
-            <div className={classes.detailsrow}>
-              <div>Total</div>
-              <div>${total.toString()} CAD</div>
-            </div>
-          </div>
-          <div className={classes.details}>
-            <div className={classes.detailsrow}>
-              <div>Due at Signing</div>
-              <div>${due} CAD</div>
-            </div>
-            <div>First & Last Month Deposit</div>
-            <div>ATIC</div>
-          </div>
-        </div>
+        )}
       </div>
 
       <footer className={classes.wrapper}>
-        <div className={classes.bottomcontainer}>
-          {request.tenantFinalAccept ? (
-            <div>Waiting for subtenant to verify</div>
-          ) : (
-            <div
-              className={`${classes.buttonContainer} ${
-                !canAccept ? classes.disabled : ""
-              }`}
-              data-tooltip-id="info-tooltip"
-              data-tooltip-content={
-                request.tenantDocuments?.length > 1
-                  ? request.tenantFinalAccept
-                    ? "Waiting for subtenant to verify and accept"
-                    : "Waiting for subtenant to upload"
-                  : "Waiting for you to upload"
-              }
-            >
-              {!canAccept && (
-                <div className={classes.infoIcon}>
-                  <Tooltip id="info-tooltip" className={classes.tooltip} />
-                  <FontAwesomeIcon icon={faInfoCircle} />
-                </div>
-              )}
-              <button
-                className={classes.button}
-                onClick={() => setShowConfirmationModal(true)}
-                disabled={!canAccept}
+        {request.status === "confirmed" ? null : (
+          <div className={classes.bottomcontainer}>
+            {request.tenantFinalAccept ? (
+              <div>Waiting for subtenant to verify</div>
+            ) : (
+              <div
+                className={`${classes.buttonContainer} ${
+                  !canAccept ? classes.disabled : ""
+                }`}
+                data-tooltip-id="info-tooltip"
+                data-tooltip-content={
+                  request.tenantDocuments?.length > 1
+                    ? request.tenantFinalAccept
+                      ? "Waiting for subtenant to verify and accept"
+                      : "Waiting for subtenant to upload"
+                    : "Waiting for you to upload"
+                }
               >
-                Accept
-              </button>
-            </div>
-          )}
-        </div>
+                {!canAccept && (
+                  <div className={classes.infoIcon}>
+                    <Tooltip id="info-tooltip" className={classes.tooltip} />
+                    <FontAwesomeIcon icon={faInfoCircle} />
+                  </div>
+                )}
+                <button
+                  className={classes.button}
+                  onClick={() => setShowConfirmationModal(true)}
+                  disabled={!canAccept}
+                >
+                  Accept
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </footer>
       <Modal open={showConfirmationModal} onClose={handleCloseModal}>
         <Box

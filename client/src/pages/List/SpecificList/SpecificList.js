@@ -19,6 +19,7 @@ function SpecificList() {
     loading,
     canGoNext,
     setCanGoNext,
+    setBackButtonClicked
   } = useListFormContext();
 
   const [handleBack, setHandleBack] = useState(null);
@@ -103,6 +104,7 @@ this will also help if person refreshes in the middle of the process so it will 
             loading,
             canGoNext,
             setCanGoNext,
+            setBackButtonClicked,
             onHandleBack: setHandleBack,
           }}
         />

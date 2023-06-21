@@ -29,6 +29,7 @@ function Publish() {
     currentUserId,
     setData,
     canGoNext,
+    setBackButtonClicked
   } = useOutletContext();
 
   const handleOnChangeMoveIn = (newValue) => {
@@ -110,6 +111,8 @@ function Publish() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    setBackButtonClicked(true);
 
     setData((prevData) => ({
       ...prevData,

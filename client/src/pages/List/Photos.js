@@ -10,7 +10,7 @@ import { faImages } from "@fortawesome/free-solid-svg-icons";
 import classes from "./Photos.module.css";
 
 function Photos() {
-  const { urlTitleReverse, page, setPage, data, setData, currentUserId } =
+  const { urlTitleReverse, page, setPage, data, setData, currentUserId, setBackButtonClicked } =
     useOutletContext();
 
   const [images, setImages] = useState(data.images || []);
@@ -153,6 +153,8 @@ function Photos() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    setBackButtonClicked(true);
 
     const currentUrl = window.location.pathname;
     const newUrl = currentUrl.substring(0, currentUrl.lastIndexOf("/"));
