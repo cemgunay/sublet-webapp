@@ -1,7 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import api from "../../api/axios";
+import ListFormContext from "../../context/ListFormContext";
 
 import classes from "./BottomBar.module.css";
 import FormProgressBar from "./FormProgressBar";
@@ -9,7 +10,13 @@ import FormProgressBar from "./FormProgressBar";
 function BottomBar(props) {
   const navigate = useNavigate();
 
+  const { setBackButtonClicked } =
+  useContext(ListFormContext);
+
   const handleBack = async () => {
+
+    setBackButtonClicked(true)
+
     if (props.page === 0) {
       const user = {
         userId: props.currentUserId,

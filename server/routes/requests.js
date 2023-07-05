@@ -89,6 +89,8 @@ router.post("/:listingId", async (req, res) => {
 
     // Create new conversation object
     const newConversation = new Conversation({
+      subTenant: req.body.subTenant,
+      tenant: req.body.tenant,
       members: [req.body.tenantId, req.body.subTenantId],
       request: request._id,
     });
@@ -105,10 +107,22 @@ router.post("/:listingId", async (req, res) => {
 
 //Get a request by request ID
 router.get("/:requestId", async (req, res) => {
+  const { requestId } = req.params;
+
+  // Check if requestId is a valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(requestId)) {
+    return res.status(404).send({ error: "Invalid Request ID" });
+  }
+
   try {
-    const request = await Request.findById(req.params.requestId)
+    const request = await Request.findById(requestId)
       .populate("tenantDocuments")
       .populate("subtenantDocuments");
+
+    if (!request) {
+      return res.status(404).send({ error: "Request not found" });
+    }
+
     res.status(200).json(request);
   } catch (err) {
     res.status(500).json(err);
@@ -409,7 +423,7 @@ router.put("/acceptAsSubTenant/:requestId", addUser, async (req, res) => {
   }
 });
 
-//Reject all other offers on listing
+//Reject all OTHER offers on listing function
 async function rejectOthers(listingId, requestId) {
   try {
     const result = await Request.updateMany(
@@ -426,6 +440,39 @@ async function rejectOthers(listingId, requestId) {
     return false;
   }
 }
+
+// Reject ALL offers on a listing function
+async function rejectAll(listingId) {
+  try {
+    const result = await Request.updateMany(
+      {
+        listingId: listingId,
+        status: { $in: ["pendingTenant", "pendingSubTenant", ] },
+      },
+      { $set: { status: "rejected", status_reason: "Listing removed" } }
+    );
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+}
+
+// Route to reject all
+router.post('/rejectAll/:id', async (req, res) => {
+  try {
+    const result = await rejectAll(req.params.id);
+    if(result){
+      res.status(200).json({ message: 'All offers rejected successfully' });
+    }else{
+      res.status(500).json({ message: 'Error rejecting offers' });
+    }
+  } catch(err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 
 //Delete all requests that are in pending status for subtenant
 async function deletePendingRequests(subtenantId) {

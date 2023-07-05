@@ -1,0 +1,65 @@
+@import "../../index.css";
+
+.container {
+  margin: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.showprofilecontainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 0.1rem solid;
+  border-color: var(--color-secondary-light);
+  padding-bottom: 1rem;
+}
+
+.imageandcontentcontainer {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.profileimage {
+  max-width: 25%; /* for example, but adjust to your needs */
+}
+
+.profileimage img {
+  max-width: 100%;
+  height: auto;
+}
+
+.name {
+  font-size: larger;
+}
+
+.showprofilebutton {
+  font-size: smaller;
+}
+
+.contentcontainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.contentitem {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 0.1rem solid;
+  border-color: var(--color-secondary-light);
+  gap: 1rem;
+  padding-bottom: 1rem;
+}
+
+.contenttitle {
+}
+
+.linkscontainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}

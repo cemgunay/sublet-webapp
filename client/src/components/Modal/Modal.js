@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import Collage from "../Collage/Collage";
-import Collage2 from "../Collage/Collage2";
 import Collage3 from "../Collage/Collage3";
 import classes from "./Modal.module.css";
 

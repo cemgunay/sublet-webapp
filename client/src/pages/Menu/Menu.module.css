@@ -1,0 +1,32 @@
+@import "../../index.css";
+
+.container {
+  margin: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.contentcontainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.contentitem {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 0.1rem solid;
+  border-color: var(--color-secondary-light);
+  gap: 1rem;
+  padding-bottom: 1rem;
+}
+
+.contenttitle {
+}
+
+.linkscontainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}

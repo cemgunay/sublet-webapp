@@ -124,6 +124,7 @@ function Conversation({
                   ? PF + user.profilePicture
                   : "/images/logo192.png" //add default image here if no profile image
               }
+              alt="profilepic"
             />
             {lastMessage ? (
               <div className={classes.conversationcontent}>

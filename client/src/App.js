@@ -48,6 +48,18 @@ import SubTenantInbox from "./pages/Inbox/SubTenantInbox";
 import SubTenantInboxChat from "./pages/Inbox/SubTenantInboxChat";
 import TenantInbox from "./pages/Inbox/TenantInbox";
 import TenantInboxChat from "./pages/Inbox/TenantInboxChat";
+import RequireOwnershipAndExist from "./components/RequireOwnershipAndExist";
+import {
+  checkListingOwnership,
+  checkSubTenantInboxOwnership,
+  checkSubTenantRequestOwnership,
+  checkTenantInboxOwnership,
+  checkTenantListingOwnership,
+  checkTenantRequestOwnership,
+  checkListingExists,
+  checkProfileExistence,
+} from "./ownershipAndExistChecks";
+import RequireProgess from "./components/RequireProgress";
 
 //import RequireAuth from "./components/Util/RequireAuth";
 
@@ -63,24 +75,76 @@ function App() {
           <Route path="signup" element={<SignUp />} />
 
           <Route element={<RequestFormContextLayout />}>
-            <Route path="listing/:id" element={<Listing />} />
+            <Route
+              path="listing/:id"
+              element={
+                <RequireOwnershipAndExist
+                  checkOwnership={checkListingOwnership}
+                  paramName="id"
+                  redirectPath={(id) => `/host/listing/${id}`}
+                >
+                  <Listing />
+                </RequireOwnershipAndExist>
+              }
+            />
           </Route>
 
           {/* Private Routes */}
           <Route element={<RequireAuth />}>
             <Route path="profile" element={<Profile />} />
-            <Route path="profile/:id" element={<UserProfile />} />
+            <Route
+              path="profile/:id"
+              element={
+                <RequireOwnershipAndExist
+                  checkExistence={checkProfileExistence}
+                  paramName="id"
+                  redirectPath={() => "/not-found"}
+                >
+                  <UserProfile />
+                </RequireOwnershipAndExist>
+              }
+            />
             <Route path="profile/personal-info" element={<PersonalInfo />} />
             <Route
               path="profile/account-settings"
               element={<AccountSettings />}
             />
             <Route path="inbox" element={<SubTenantInbox />} />
-            <Route path="inbox/:id" element={<SubTenantInboxChat />} />
+            <Route
+              path="inbox/:id"
+              element={
+                <RequireOwnershipAndExist
+                  checkOwnership={checkSubTenantInboxOwnership}
+                  paramName="id"
+                >
+                  <SubTenantInboxChat />
+                </RequireOwnershipAndExist>
+              }
+            />
+
             <Route element={<RequestFormContextLayout />}>
               <Route
+                path="/listing/:listingId/request/:requestId/new"
+                element={
+                  <RequireOwnershipAndExist
+                    checkExistence={checkListingExists}
+                    paramName="listingId"
+                  >
+                    <Request />
+                  </RequireOwnershipAndExist>
+                }
+              />
+              <Route
                 path="listing/:listingId/request/:requestId"
-                element={<Request />}
+                element={
+                  <RequireOwnershipAndExist
+                    checkOwnership={checkSubTenantRequestOwnership}
+                    paramName="requestId"
+                    additionalParamName="listingId"
+                  >
+                    <Request />
+                  </RequireOwnershipAndExist>
+                }
               />
             </Route>
             <Route path="sublets" element={<SubletsSubtenant />}>
@@ -97,13 +161,44 @@ function App() {
                 <Route path="confirmed" element={<ConfirmedSubletsTenant />} />
               </Route>
               <Route path="inbox" element={<TenantInbox />} />
-              <Route path="inbox/:id" element={<TenantInboxChat />} />
+              <Route
+                path="inbox/:id"
+                element={
+                  <RequireOwnershipAndExist
+                    checkOwnership={checkTenantInboxOwnership}
+                    paramName="id"
+                  >
+                    <TenantInboxChat />
+                  </RequireOwnershipAndExist>
+                }
+              />
               <Route path="menu" element={<Menu />} />
-              <Route path="/host/listing/:id" element={<Sublet />} />
+
+              <Route
+                path="/host/listing/:id"
+                element={
+                  <RequireOwnershipAndExist
+                    checkOwnership={checkTenantListingOwnership}
+                    paramName="id"
+                    redirectPath={(id) => `/listing/${id}`}
+                  >
+                    <Sublet />
+                  </RequireOwnershipAndExist>
+                }
+              />
+
               <Route element={<RequestFormContextLayout />}>
                 <Route
                   path="/host/listing/:listingId/request/:requestId"
-                  element={<RequestDetails />}
+                  element={
+                    <RequireOwnershipAndExist
+                      checkOwnership={checkTenantRequestOwnership}
+                      paramName="requestId"
+                      additionalParamName="listingId"
+                    >
+                      <RequestDetails />
+                    </RequireOwnershipAndExist>
+                  }
                 />
               </Route>
 
@@ -112,7 +207,20 @@ function App() {
                 <Route path="list" element={<List />} />
                 <Route path="list/info" element={<Info />} />
                 <Route path="list/overview" element={<Overview />} />
-                <Route path="list/:id" element={<SpecificList />}>
+
+                <Route
+                  path="list/:id"
+                  element={
+                    <RequireOwnershipAndExist
+                      checkOwnership={checkTenantListingOwnership}
+                      paramName="id"
+                    >
+                      <RequireProgess>
+                        <SpecificList />
+                      </RequireProgess>
+                    </RequireOwnershipAndExist>
+                  }
+                >
                   <Route path="aboutyourplace" element={<AboutYourPlace />} />
                   <Route path="location" element={<Location />} />
                   <Route path="basics" element={<Basics />} />
@@ -127,18 +235,29 @@ function App() {
 
                 <Route
                   path="/host/listing/manage-your-listing/:id/details"
-                  element={<ManageListing />}
+                  element={
+                    <RequireOwnershipAndExist
+                      checkOwnership={checkTenantListingOwnership}
+                      paramName="id"
+                    >
+                      <ManageListing />
+                    </RequireOwnershipAndExist>
+                  }
                 />
+
                 <Route
                   path="/host/listing/manage-your-listing/:id/preview"
-                  element={<Preview />}
+                  element={
+                    <RequireOwnershipAndExist
+                      checkOwnership={checkTenantListingOwnership}
+                      paramName="id"
+                    >
+                      <Preview />
+                    </RequireOwnershipAndExist>
+                  }
                 />
-
               </Route>
             </Route>
-
-            
-
           </Route>
 
           <Route path="test" element={<Test />} />

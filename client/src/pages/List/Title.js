@@ -17,6 +17,7 @@ function Title() {
     currentUserId,
     canGoNext,
     loading,
+    setBackButtonClicked
   } = useOutletContext();
 
   const navigate = useNavigate()
@@ -38,6 +39,8 @@ function Title() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    setBackButtonClicked(true);
 
     const currentUrl = window.location.pathname;
     const newUrl = currentUrl.substring(0, currentUrl.lastIndexOf("/"));

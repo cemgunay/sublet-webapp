@@ -10,9 +10,9 @@ function ConfirmedSubletsTenant() {
   const [loading, setLoading] = useState(true);
 
   // New state for listings with bookings
-  const [listingsWithBookingsOrPending, setListingsWithBookingsOrPending] = useState([]);
+  const [listingsWithBookingsOrPending, setListingsWithBookingsOrPending] =
+    useState([]);
 
-  //to fetch all booked listings
   useEffect(() => {
     const fetchListings = async () => {
       try {
@@ -33,16 +33,19 @@ function ConfirmedSubletsTenant() {
           (response) => response.data
         );
 
-        setRequests(allRequests)
-        
-        // Filter out listings where request status is 'pending' or rejected
-        const listingsWithoutPendingRequestArray = listingsResponse.data.filter(
+        setRequests(allRequests);
+
+        // Filter listings where request status is 'confirmed'
+        const listingsWithConfirmedRequestArray = listingsResponse.data.filter(
           (listing) =>
-            !allRequests.some((request) => request.listingId === listing._id && (request.status === 'pendingTenant' && request.status === 'pendingSubTenant' && request.status === 'rejected'))
+            allRequests.some(
+              (request) =>
+                request.listingId === listing._id &&
+                request.status === "confirmed"
+            )
         );
 
-        setListingsWithBookingsOrPending(listingsWithoutPendingRequestArray);
-
+        setListingsWithBookingsOrPending(listingsWithConfirmedRequestArray);
 
         setLoading(false);
       } catch (err) {
@@ -53,11 +56,11 @@ function ConfirmedSubletsTenant() {
     fetchListings();
   }, [currentUser]);
 
-  console.log(requests)
+  console.log(requests);
 
   return (
     <div>
-      <p>{listingsWithBookingsOrPending.length} accepted subLets</p>
+      <p>{listingsWithBookingsOrPending.length} confirmed subLets</p>
       <div>
         {loading ? (
           <div>loading</div>

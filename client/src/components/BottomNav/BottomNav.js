@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { NavLink, useMatch, useLocation } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -15,7 +15,9 @@ function CustomNavLink({ to, children, additionalPaths, ...rest }) {
   let location = useLocation();
   let isActive =
     location.pathname === to ||
-    (additionalPaths && additionalPaths.includes(location.pathname));
+    (additionalPaths &&
+      additionalPaths.some((path) => location.pathname.startsWith(path)));
+
   return (
     <NavLink
       to={to}
@@ -40,11 +42,15 @@ function BottomNav() {
             <>
               <CustomNavLink to="/">
                 <FontAwesomeIcon icon={faMagnifyingGlass} />
-                Explore
+                ExploreUHHHH
               </CustomNavLink>
               <CustomNavLink
                 to="/sublets"
-                additionalPaths={["/sublets/active", "/sublets/past"]}
+                additionalPaths={[
+                  "/sublets/active",
+                  "/sublets/past",
+                  "/sublets/confirmed",
+                ]}
               >
                 <FontAwesomeIcon icon={faHouse} />
                 subLets
@@ -62,7 +68,11 @@ function BottomNav() {
             <>
               <CustomNavLink
                 to="/host"
-                additionalPaths={["/host/active", "/host/past"]}
+                additionalPaths={[
+                  "/host/active",
+                  "/host/past",
+                  "/host/confirmed",
+                ]}
               >
                 <FontAwesomeIcon icon={faHouse} />
                 subLets
@@ -71,7 +81,13 @@ function BottomNav() {
                 <FontAwesomeIcon icon={faInbox} />
                 Inbox
               </CustomNavLink>
-              <CustomNavLink to="/host/menu">
+              <CustomNavLink
+                to="/host/menu"
+                additionalPaths={[
+                  "/host/list",
+                  "/host/listing/manage-your-listing",
+                ]}
+              >
                 <FontAwesomeIcon icon={faBars} />
                 Menu
               </CustomNavLink>

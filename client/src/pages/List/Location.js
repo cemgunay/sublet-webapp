@@ -56,6 +56,7 @@ function Location() {
     handleChange,
     currentUserId,
     canGoNext,
+    setBackButtonClicked
   } = useOutletContext();
 
   //get users current location
@@ -326,6 +327,9 @@ function Location() {
   //to handle next button
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    setBackButtonClicked(true);
+
     if (!confirmLocation && !confirmMarker) {
       setConfirmLocation(true);
     } else if (confirmLocation && !confirmMarker) {

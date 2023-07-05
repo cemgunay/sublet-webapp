@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
+const mongoose = require("mongoose");
 const Conversation = require("../models/Conversation");
 const Message = require("../models/Message");
 const User = require("../models/User");
@@ -40,9 +41,17 @@ router.post("/", async (req, res) => {
 
 //get conv from id
 router.get("/:id", async (req, res) => {
+  const id = req.params.id;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "Invalid conversation ID" });
+  }
+
   try {
-    const conversation = await Conversation.findById(req.params.id);
-    console.log(req.params.id);
+    const conversation = await Conversation.findById(id);
+    if (!conversation) {
+      return res.status(404).json({ message: "Conversation not found" });
+    }
     res.status(200).json(conversation);
   } catch (err) {
     res.status(500).json(err);

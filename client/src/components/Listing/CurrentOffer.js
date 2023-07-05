@@ -33,7 +33,7 @@ function CurrentOffer({ data, listing, isBooked, booking }) {
       {isBooked ? (
         <div>
           This listing has been booked: $
-          {booking[booking.length - 1].acceptedPrice}
+          {booking.acceptedPrice}
         </div>
       ) : (
         <div>

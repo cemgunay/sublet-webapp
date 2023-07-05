@@ -3,6 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../../context/AuthContext";
 
+import classes from "./Profile.module.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import BottomNav from "../../components/BottomNav/BottomNav";
+
 function Profile() {
   const navigate = useNavigate();
 
@@ -42,13 +47,49 @@ function Profile() {
 
   return (
     <>
-      <div>Profile</div>
-      <button onClick={goToProfile}>View Profile</button>
-      <button onClick={goToPersonalInfo}>Personal Info</button>
-      <button onClick={goToAccountSettings}>Account Settings</button>
-      <button onClick={goToListing}>List a subLet</button>
-      <button onClick={goToHosting}>Switch to Hosting</button>
-      <button onClick={logOut}>Log out</button>
+      <div className={classes.container}>
+        <div className={classes.showprofilecontainer} onClick={goToProfile}>
+          <div className={classes.imageandcontentcontainer}>
+            <div className={classes.profileimage}>
+              <img
+                src={
+                  currentUser.profilePicture
+                    ? currentUser.profilePicture
+                    : "/images/logo192.png" //add default image here if no profile image
+                }
+                alt="profilepic"
+              />
+            </div>
+            <div className={classes.showprofilecontentcontainer}>
+              <div className={classes.name}>{currentUser.firstName}</div>
+              <div className={classes.showprofilebutton}>Show profile</div>
+            </div>
+          </div>
+          <div className={classes.showprofilechevron}>
+            <FontAwesomeIcon icon={faChevronRight} />
+          </div>
+        </div>
+        <div className={classes.contentcontainer}>
+          <div className={classes.contentitem}>
+            <h2 className={classes.contenttitle}>Account</h2>
+            <div className={classes.linkscontainer}>
+              <div onClick={goToPersonalInfo}>Personal Info</div>
+              <div onClick={goToAccountSettings}>Account Settings</div>
+            </div>
+          </div>
+          <div className={classes.contentitem}>
+            <h2 className={classes.contenttitle}>Tenant</h2>
+            <div className={classes.linkscontainer}>
+              <div onClick={goToListing}>List a subLet</div>
+              <div onClick={goToHosting}>Switch to Hosting</div>
+            </div>
+          </div>
+        </div>
+        <div onClick={logOut}>Log out</div>
+      </div>
+      <footer className={classes.footer}>
+        <BottomNav />
+      </footer>
     </>
   );
 }

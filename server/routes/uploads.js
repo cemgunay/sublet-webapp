@@ -1,5 +1,7 @@
 const express = require("express");
 const multer = require("multer");
+const imagesize = require("image-size");
+const pdfParse = require("pdf-parse");
 const AWS = require("aws-sdk");
 const Document = require("../models/Documents");
 const Request = require("../models/Requests");
@@ -26,10 +28,63 @@ function generateUniqueFileName(originalName) {
   return `${timestamp}_${randomString}.${extension}`;
 }
 
+//function to update request
+const updateRequestStatus = async (role, request) => {
+
+  // Extract the requestId from the request object
+  const requestId = request._id;
+
+  // Reload the request from the database
+  request = await Request.findById(requestId)
+    .populate("tenantDocuments")
+    .populate("subtenantDocuments");
+
+  // Find documents of each type uploaded by the tenant and subtenant
+  const tenantSubletAgreement = request.tenantDocuments.find(
+    (doc) => doc.type === "Sublet Agreement"
+  );
+  const tenantGovernmentID = request.tenantDocuments.find(
+    (doc) => doc.type === "Government ID"
+  );
+  const subtenantSubletAgreement = request.subtenantDocuments.find(
+    (doc) => doc.type === "Sublet Agreement"
+  );
+  const subtenantGovernmentID = request.subtenantDocuments.find(
+    (doc) => doc.type === "Government ID"
+  );
+
+  // Update the status of the request based on the presence of the required documents
+  if (tenantSubletAgreement && tenantGovernmentID && role === "tenant") {
+    request.status = "pendingSubTenantUpload";
+  }
+  if (
+    subtenantSubletAgreement &&
+    subtenantGovernmentID &&
+    role === "subtenant"
+  ) {
+    request.status = "pendingFinalAccept";
+  }
+  if (
+    tenantSubletAgreement &&
+    tenantGovernmentID &&
+    subtenantSubletAgreement &&
+    subtenantGovernmentID
+  ) {
+    request.status = "pendingFinalAccept";
+  } else if (!tenantSubletAgreement || !tenantGovernmentID) {
+    request.status = "pendingTenantUpload";
+  }
+
+  await request.save();
+};
+
 // Upload route
 router.post("/upload", upload.single("file"), async (req, res) => {
   const file = req.file;
   const { user, requestId, documentType, role } = req.body;
+
+  console.log('request ID...')
+  console.log(requestId)
 
   let userObj = JSON.parse(user);
 
@@ -65,10 +120,38 @@ router.post("/upload", upload.single("file"), async (req, res) => {
       ContentType: "application/pdf",
     };
 
+    // Check file type before uploading to S3
+    try {
+      let dimensions;
+      switch (file.mimetype) {
+        case "image/png":
+        case "image/jpeg":
+          dimensions = imagesize(file.buffer);
+          break;
+        case "application/pdf":
+          await pdfParse(file.buffer);
+          break;
+        default:
+          return res.status(400).json({ error: "Invalid file type" });
+      }
+    } catch (error) {
+      return res.status(400).json({ error: "Invalid file type" });
+    }
+
+    // Check file size before uploading to S3
+    const maxSize = 5 * 1024 * 1024; // for 5MB
+    if (file.size > maxSize) {
+      return res
+        .status(400)
+        .json({ error: "File is too large. Maximum size is 5MB." });
+    }
+
     s3.putObject(data, async (err, data) => {
       if (err) {
-        console.log(err);
-        return res.status(500).json({ error: "Error uploading file to S3" });
+        console.log(err); // log the actual error
+        return res
+          .status(500)
+          .json({ error: "Error uploading file to S3: " + err.message });
       } else {
         console.log(data);
         const fileUrl = `https://agreement-files-uploads.s3.us-east-2.amazonaws.com/${fileName}`;
@@ -104,71 +187,12 @@ router.post("/upload", upload.single("file"), async (req, res) => {
           }
 
           if (role === "tenant" && currentTenantTransaction === requestId) {
-            // Reload the request from the database
-            request = await Request.findById(requestId)
-              .populate("tenantDocuments")
-              .populate("subtenantDocuments");
-
-            // Find documents of each type uploaded by the tenant and subtenant
-            const tenantSubletAgreement = request.tenantDocuments.find(
-              (doc) => doc.type === "Sublet Agreement"
-            );
-            const tenantGovernmentID = request.tenantDocuments.find(
-              (doc) => doc.type === "Government ID"
-            );
-            const subtenantSubletAgreement = request.subtenantDocuments.find(
-              (doc) => doc.type === "Sublet Agreement"
-            );
-            const subtenantGovernmentID = request.subtenantDocuments.find(
-              (doc) => doc.type === "Government ID"
-            );
-
-            // Update the status of the request based on the presence of the required documents
-            if (tenantSubletAgreement && tenantGovernmentID) {
-              request.status = "pendingSubTenantUpload";
-            }
-            if (subtenantSubletAgreement && subtenantGovernmentID) {
-              request.status = "pendingFinalAccept";
-            }
-
-            await request.save();
+            await updateRequestStatus(role, request);
           } else if (
             role === "subtenant" &&
             currentSubTenantTransaction === requestId
           ) {
-            console.log("testing");
-            // Reload the request from the database
-            request = await Request.findById(requestId)
-              .populate("tenantDocuments")
-              .populate("subtenantDocuments");
-
-            // Find documents of each type uploaded by the tenant and subtenant
-            const tenantSubletAgreement = request.tenantDocuments.find(
-              (doc) => doc.type === "Sublet Agreement"
-            );
-            const tenantGovernmentID = request.tenantDocuments.find(
-              (doc) => doc.type === "Government ID"
-            );
-            const subtenantSubletAgreement = request.subtenantDocuments.find(
-              (doc) => doc.type === "Sublet Agreement"
-            );
-            const subtenantGovernmentID = request.subtenantDocuments.find(
-              (doc) => doc.type === "Government ID"
-            );
-
-            // Update the status of the request based on the presence of the required documents
-            if (
-              tenantSubletAgreement &&
-              tenantGovernmentID &&
-              subtenantSubletAgreement &&
-              subtenantGovernmentID
-            ) {
-              request.status = "pendingFinalAccept";
-            } else if (!tenantSubletAgreement || !tenantGovernmentID) {
-              request.status = "pendingTenantUpload";
-            }
-
-            await request.save();
+            await updateRequestStatus(role, request);
           }
 
           return res.json({
