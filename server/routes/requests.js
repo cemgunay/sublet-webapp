@@ -10,6 +10,8 @@ const Conversation = require("../models/Conversation");
 const createAgenda = require("../jobs/jobs");
 
 const { updateUser } = require("../utils/user_operations");
+const requestNotificationTemplate = require("../emailTemplates/requestNotification");
+const sendEmail = require("../utils/sendEmail");
 
 //initialize Agenda instance
 const agenda = createAgenda(process.env.MONGO_URI);
@@ -68,6 +70,22 @@ router.post("/:listingId", async (req, res) => {
 
     //Save request to DB and return response
     const request = await newRequest.save();
+
+    // Send email to tenant that they have recieved a request for their listing
+    const tenant = await User.findById(listing.userId);
+    const requestNotificationEmail = requestNotificationTemplate(
+      tenant.firstName,
+      subtenant.firstName,
+      listing.title,
+      newRequest.price,
+      newRequest.startDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+      newRequest.endDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    );
+    await sendEmail(
+      tenant.email,
+      "An offer has been made for " + listing.title,
+      requestNotificationEmail
+    );
 
     // Create new conversation object
     const newConversation = new Conversation({
