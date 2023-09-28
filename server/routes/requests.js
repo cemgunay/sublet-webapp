@@ -49,8 +49,22 @@ router.post("/:listingId", async (req, res) => {
       });
     }
 
-    // Check if the listing has a current transaction
+    // Check if the listing has a current transaction or if the requested dates are already booked
     const listing = await Listing.findById(listingId);
+
+    for (let dateRange of listing.bookedDates) {
+      if (
+        (new Date(startDate) >= new Date(dateRange.startDate) &&
+          new Date(startDate) <= new Date(dateRange.endDate)) ||
+        (new Date(endDate) >= new Date(dateRange.startDate) &&
+          new Date(endDate) <= new Date(dateRange.endDate))
+      ) {
+        return res.status(403).json({
+          message: "The requested dates are already booked for this listing.",
+        });
+      }
+    }
+
     let warning = null;
     if (listing.transactionInProgress) {
       warning =
@@ -78,8 +92,16 @@ router.post("/:listingId", async (req, res) => {
       subtenant.firstName,
       listing.title,
       newRequest.price,
-      newRequest.startDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-      newRequest.endDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+      newRequest.startDate.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }),
+      newRequest.endDate.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
     );
     await sendEmail(
       tenant.email,
@@ -152,6 +174,27 @@ router.get("/listing/:listingId/:subTenantId", async (req, res) => {
       .populate("tenantDocuments")
       .populate("subtenantDocuments"); // Sort by updatedAt in descending order
     res.status(200).json(requests);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+// Get most recent request by listing ID made by user
+router.get("/listing/most-recent/:listingId/:subTenantId", async (req, res) => {
+  try {
+    const request = await Request.findOne({
+      listingId: req.params.listingId,
+      subTenantId: req.params.subTenantId,
+    })
+      .sort({ updatedAt: -1 })
+      .populate("tenantDocuments")
+      .populate("subtenantDocuments");
+
+    if (request) {
+      res.status(200).json(request);
+    } else {
+      res.status(404).json({ message: "No request found" });
+    }
   } catch (err) {
     res.status(500).json(err);
   }
@@ -447,7 +490,7 @@ async function rejectAll(listingId) {
     const result = await Request.updateMany(
       {
         listingId: listingId,
-        status: { $in: ["pendingTenant", "pendingSubTenant", ] },
+        status: { $in: ["pendingTenant", "pendingSubTenant"] },
       },
       { $set: { status: "rejected", status_reason: "Listing removed" } }
     );
@@ -459,20 +502,19 @@ async function rejectAll(listingId) {
 }
 
 // Route to reject all
-router.post('/rejectAll/:id', async (req, res) => {
+router.post("/rejectAll/:id", async (req, res) => {
   try {
     const result = await rejectAll(req.params.id);
-    if(result){
-      res.status(200).json({ message: 'All offers rejected successfully' });
-    }else{
-      res.status(500).json({ message: 'Error rejecting offers' });
+    if (result) {
+      res.status(200).json({ message: "All offers rejected successfully" });
+    } else {
+      res.status(500).json({ message: "Error rejecting offers" });
     }
-  } catch(err) {
+  } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: "Server error" });
   }
 });
-
 
 //Delete all requests that are in pending status for subtenant
 async function deletePendingRequests(subtenantId) {
@@ -532,6 +574,14 @@ router.post("/confirm/:requestId", addUser, async (req, res) => {
         subtenantDocuments: request.subtenantDocuments,
       });
       await booking.save();
+
+      // Add booked dates to listing's bookedDates field
+      listing.bookedDates.push({
+        startDate: request.startDate,
+        endDate: request.endDate,
+      });
+
+      await listing.save();
 
       const rejectedOthers = await rejectOthers(request.listingId, requestId);
       console.log("Other requests rejected or no matching requests found.");

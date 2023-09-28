@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import useAuth from "../../hooks/useAuth";
 
 import { Tooltip } from "react-tooltip";
@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 
 function BottomBlock({
+  listing,
   data,
   handleRequest,
   handleUpdate,
@@ -23,6 +24,9 @@ function BottomBlock({
   originalMoveOutDate,
   originalViewingDate,
   goToNewRequest,
+  mostRecentRequest,
+  fetchRecentRequest,
+  goToRecentRequest,
   isInTransaction,
   listingIsInTransaction,
 }) {
@@ -30,6 +34,37 @@ function BottomBlock({
   const { role } = useAuth();
 
   console.log(status);
+
+  function datesOverlap(startDate1, endDate1, startDate2, endDate2) {
+    return startDate1 <= endDate2 && startDate2 <= endDate1;
+  }
+
+  const [overlap, setOverlap] = useState(false);
+
+  if (listing && listing.bookedDates) {
+    console.log(listing);
+    for (let dateRange of listing.bookedDates) {
+      if (
+        datesOverlap(
+          data.startDate,
+          data.endDate,
+          dateRange.startDate,
+          dateRange.endDate
+        )
+      ) {
+        // The old request's dates overlap with a booked date range.
+        setOverlap(true);
+        break;
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (status === "rejected" && role === "subtenant") {
+      // Use a function to fetch the most recent request.
+      fetchRecentRequest();
+    }
+  }, [status]);
 
   return (
     <footer className={classes.wrapper}>
@@ -88,7 +123,9 @@ function BottomBlock({
           ) : status === "rejected" ? (
             status_reason === "Counter offer has been rejected" ? (
               <div>Counter offer has been rejected</div>
-            ) : status_reason === "Listing removed" ? <div>Listing removed</div> : (
+            ) : status_reason === "Listing removed" ? (
+              <div>Listing removed</div>
+            ) : (
               <div>Offer has been rejected</div>
             )
           ) : status === "pendingSubTenantUpload" ? (
@@ -192,9 +229,16 @@ function BottomBlock({
             <button onClick={handleDecline}>Decline</button>
           </div>
         ) : status === "rejected" ? (
-          status_reason !== "Listing booked" &&
-          status_reason !== "Listing expired" && 
-          status_reason !== "Listing removed" ? (
+          mostRecentRequest ? (
+            <div>
+              You have a more recent request
+              <button onClick={goToRecentRequest}>View</button>
+            </div>
+          ) : overlap ? (
+            <div> The listing is booked for these dates. </div>
+          ) : status_reason !== "Listing booked" &&
+            status_reason !== "Listing expired" &&
+            status_reason !== "Listing removed" ? (
             <div>
               Offer has been rejected
               <button onClick={goToNewRequest}>Make new request</button>

@@ -135,7 +135,13 @@ const ListingSchema = new Schema(
     isDeleted: {
       type: Boolean,
       default: false,
-    }
+    },
+    bookedDates: [
+      {
+        startDate: Date,
+        endDate: Date,
+      }
+    ]
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
