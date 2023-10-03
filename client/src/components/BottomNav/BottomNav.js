@@ -42,7 +42,7 @@ function BottomNav() {
             <>
               <CustomNavLink to="/">
                 <FontAwesomeIcon icon={faMagnifyingGlass} />
-                ExploreUHHHH
+                Explore
               </CustomNavLink>
               <CustomNavLink
                 to="/sublets"

@@ -87,6 +87,9 @@ function Request() {
   //check and give a warning if listing is already in transaction
   const [listingIsInTransaction, setListingIsInTransaction] = useState(false);
 
+  //check if there is a more recent request by user on the same listing
+  const [mostRecentRequest, setMostRecentRequest] = useState(null);
+
   //On refresh, get listing and tenant id from DB, and set if listingIsInTransaction
   useEffect(() => {
     api
@@ -114,10 +117,10 @@ function Request() {
       .then((response) => {
         console.log(response.data);
         setData(response.data);
-        setOriginalMoveInDate(response.data.startDate)
-        setOriginalMoveOutDate(response.data.endDate)
-        setOriginalPrice(response.data.price)
-        setOriginalViewingDate(response.data.viewingDate)
+        setOriginalMoveInDate(response.data.startDate);
+        setOriginalMoveOutDate(response.data.endDate);
+        setOriginalPrice(response.data.price);
+        setOriginalViewingDate(response.data.viewingDate);
       })
       .catch((error) => console.error(error));
   }, [requestId, setData]);
@@ -247,6 +250,34 @@ function Request() {
     e.preventDefault();
 
     navigate("/listing/" + listingId);
+  };
+
+  //fetch more recent request
+  const fetchRecentRequest = async (e) => {
+    api
+      .get(`/requests/listing/most-recent/${listingId}/${currentUser._id}`)
+      .then((response) => {
+        const recentRequest = response.data;
+        console.log(recentRequest);
+
+        if (recentRequest && recentRequest._id !== data._id) {
+          setMostRecentRequest(recentRequest);
+        }
+      })
+      .catch((error) => {
+        if (error.response && error.response.status === 404) {
+          goToNewRequest();
+        } else {
+          console.error("An error occured: ", error);
+        }
+      });
+  };
+
+  //go to more recent request
+  const goToRecentRequest = async (e) => {
+    e.preventDefault();
+
+    navigate(`/listing/${listingId}/request/${mostRecentRequest._id}`);
   };
 
   //if offer is rejected, create new request when user clicks button
@@ -936,6 +967,7 @@ function Request() {
         </CSSTransition>
       </div>
       <BottomBlock
+        listing={listing}
         handleRequest={handleRequest}
         handleAccept={handleAccept}
         handleDecline={handleDecline}
@@ -951,6 +983,9 @@ function Request() {
         status_reason={data.status_reason}
         reason={data.status_reason}
         goToNewRequest={goToNewRequest}
+        fetchRecentRequest={fetchRecentRequest}
+        mostRecentRequest={mostRecentRequest}
+        goToRecentRequest={goToRecentRequest}
         isInTransaction={subtenantIsInTransaction}
         listingIsInTransaction={listingIsInTransaction}
       />
