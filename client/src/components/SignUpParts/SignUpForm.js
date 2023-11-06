@@ -7,22 +7,23 @@ import { passwordStrength as passwordStrengthFunction } from "check-password-str
 
 import { usePlacesWidget } from "react-google-autocomplete";
 
-import PlacesAutocomplete from 'react-places-autocomplete';
+import PlacesAutocomplete from "react-places-autocomplete";
 import {
   geocodeByAddress,
   geocodeByPlaceId,
   getLatLng,
-} from 'react-places-autocomplete';
+} from "react-places-autocomplete";
 
 import FormInput from "./FormInput";
 import Autocomplete from "../Autocomplete/Autocomplete";
+import { ClipLoader } from "react-spinners";
 
 function SignUpForm({
+  setLoading,
+  onUserRegistered,
   formData,
   setFormData,
-  logIn,
-  setLogIn,
-  signUp,
+  setPage,
   setSignUp,
   setEmailChangedToMatch,
   setAutoCompletedLocation,
@@ -35,8 +36,8 @@ function SignUpForm({
   const dateOfBirth = useRef();
   const email = useRef();
 
-  //To make autocomplete work needed temp location 
- 
+  //To make autocomplete work needed temp location
+
   const { ref } = usePlacesWidget({
     apiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
     onPlaceSelected: (place) => {
@@ -147,6 +148,8 @@ function SignUpForm({
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    setLoading(true);
+
     setFormData({ ...formData, location: ref.current.value });
 
     console.log(formData);
@@ -165,9 +168,15 @@ function SignUpForm({
     try {
       await api.post("/auth/register", user);
       console.log(user);
-      navigate("/");
+      setPage(0);
+      setLoading(false);
+      if (onUserRegistered) {
+        // Check if the prop exists and call it
+        onUserRegistered();
+      }
     } catch (err) {
       console.log(err);
+      setLoading(false);
     }
   };
 
@@ -176,7 +185,7 @@ function SignUpForm({
     // Check for email existance
     try {
       await api.get("/users/" + formData.email.toLowerCase());
-      setLogIn(true);
+      setPage(0);
       setSignUp(false);
       setEmailChangedToMatch(true);
     } catch (err) {}
@@ -187,142 +196,143 @@ function SignUpForm({
   console.log(formData);
 
   return (
-    
-    
-    <form onSubmit={handleSubmit} className={classes.formcontainer}>
-      {/* <Autocomplete /> */}
-      <FormInput
-        name="firstName"
-        type="text"
-        placeholder="First Name"
-        value={formData.firstName}
-        onChange={handleOnChange}
-        errorMessage="Your first name can't be empty or contain an unsopported character"
-        pattern="^[A-Za-z0-9]{1,150}$"
-        innerRef={firstName}
-        required={true}
-      />
-      <FormInput
-        className={classes.input}
-        name="lastName"
-        type="text"
-        placeholder="Last Name"
-        value={formData.lastName}
-        onChange={handleOnChange}
-        innerRef={lastName}
-        errorMessage="Your last name contains an unsopported character. Try spelling it differently"
-        pattern="^[A-Za-z0-9]{1,150}$"
-        text="Make sure it matches the name of your Government ID"
-        classNameSpan={classes.text}
-        required={true}
-      />
-      <FormInput
-        className={classes.input}
-        name="dateOfBirth"
-        type="text"
-        placeholder="Birthday"
-        value={formData.dateOfBirth}
-        onChange={handleOnChange}
-        onFocus={(e) => {
-          e.currentTarget.type = "date";
-          e.currentTarget.focus();
-        }}
-        innerRef={dateOfBirth}
-        text="To sign up you must be atleast 18 years of age"
-        classNameSpan={classes.text}
-        required={true}
-      />
-      <FormInput
-        className={classes.input}
-        name="email"
-        type="email"
-        placeholder="Email"
-        value={formData.email}
-        onChange={handleOnChange}
-        innerRef={email}
-        errorMessage="Please enter a valid email address"
-        text="We'll email you contract confirmation and receipts"
-        classNameSpan={classes.text}
-        required={true}
-      />
-      <FormInput
-        name="location"
-        type="address"
-        placeholder="Location"
-        value={ref.place}
-        innerRef={ref}
-        text="Where are you located?"
-        classNameSpan={classes.text}
-        required={true}
-      />
-
-      <div className={classes.password}>
+    <>
+      <form onSubmit={handleSubmit} className={classes.formcontainer}>
+        {/* <Autocomplete /> */}
         <FormInput
-          className={classes.input}
-          name="password"
-          type="password"
-          placeholder="Password"
-          value={formData.password}
-          pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*_=+-]).{8,100}$"
-          onChange={handleOnChangePassword}
-          innerRef={password}
+          name="firstName"
+          type="text"
+          placeholder="First Name"
+          value={formData.firstName}
+          onChange={handleOnChange}
+          errorMessage="Your first name can't be empty or contain an unsopported character"
+          pattern="^[A-Za-z0-9]{1,150}$"
+          innerRef={firstName}
           required={true}
         />
-        <div
-          className={
-            formData.password.length > 0
-              ? classes.passwordchecklist
-              : classes.hide
-          }
-        >
-          <li className={passwordStrength ? classes.true : classes.false}>
-            Password Strength:
-            {passwordStrengthFunction(formData.password).value}
-          </li>
-          {passAllChecks ? null : (
-            <>
-              <li
-                className={!passwordContainsName ? classes.true : classes.false}
-              >
-                Can't contain your name or email address
-              </li>
-              <li
-                className={passwordLength >= 8 ? classes.true : classes.false}
-              >
-                At least 8 characters
-              </li>
-              <li
-                className={
-                  passwordContainsNumber && passwordContainsSpecialCharacter
-                    ? classes.true
-                    : classes.false
-                }
-              >
-                Contains a number and symbol
-              </li>
-              <li
-                className={
-                  passwordContainsUpperCase ? classes.true : classes.false
-                }
-              >
-                Contains an uppercase
-              </li>
-            </>
-          )}
-        </div>
-      </div>
+        <FormInput
+          className={classes.input}
+          name="lastName"
+          type="text"
+          placeholder="Last Name"
+          value={formData.lastName}
+          onChange={handleOnChange}
+          innerRef={lastName}
+          errorMessage="Your last name contains an unsopported character. Try spelling it differently"
+          pattern="^[A-Za-z0-9]{1,150}$"
+          text="Make sure it matches the name of your Government ID"
+          classNameSpan={classes.text}
+          required={true}
+        />
+        <FormInput
+          className={classes.input}
+          name="dateOfBirth"
+          type="text"
+          placeholder="Birthday"
+          value={formData.dateOfBirth}
+          onChange={handleOnChange}
+          onFocus={(e) => {
+            e.currentTarget.type = "date";
+            e.currentTarget.focus();
+          }}
+          innerRef={dateOfBirth}
+          text="To sign up you must be atleast 18 years of age"
+          classNameSpan={classes.text}
+          required={true}
+        />
+        <FormInput
+          className={classes.input}
+          name="email"
+          type="email"
+          placeholder="Email"
+          value={formData.email}
+          onChange={handleOnChange}
+          innerRef={email}
+          errorMessage="Please enter a valid email address"
+          text="We'll email you contract confirmation and receipts"
+          classNameSpan={classes.text}
+          required={true}
+        />
+        <FormInput
+          name="location"
+          type="address"
+          placeholder="Location"
+          value={ref.place}
+          innerRef={ref}
+          text="Where are you located?"
+          classNameSpan={classes.text}
+          required={true}
+        />
 
-      <div className={classes.conditions}>
-        By selecting Agree and Continue. I agree to subLet's Terms of service,
-        Payments Terms of Service, Nondiscrimination Policy, and Privacy Policy.
-      </div>
-      <button className={classes.button} type="submit">
-        {" "}
-        Agree and Continue
-      </button>
-    </form>
-    
-    
+        <div className={classes.password}>
+          <FormInput
+            className={classes.input}
+            name="password"
+            type="password"
+            placeholder="Password"
+            value={formData.password}
+            pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*_=+-]).{8,100}$"
+            onChange={handleOnChangePassword}
+            innerRef={password}
+            required={true}
+          />
+          <div
+            className={
+              formData.password.length > 0
+                ? classes.passwordchecklist
+                : classes.hide
+            }
+          >
+            <li className={passwordStrength ? classes.true : classes.false}>
+              Password Strength:
+              {passwordStrengthFunction(formData.password).value}
+            </li>
+            {passAllChecks ? null : (
+              <>
+                <li
+                  className={
+                    !passwordContainsName ? classes.true : classes.false
+                  }
+                >
+                  Can't contain your name or email address
+                </li>
+                <li
+                  className={passwordLength >= 8 ? classes.true : classes.false}
+                >
+                  At least 8 characters
+                </li>
+                <li
+                  className={
+                    passwordContainsNumber && passwordContainsSpecialCharacter
+                      ? classes.true
+                      : classes.false
+                  }
+                >
+                  Contains a number and symbol
+                </li>
+                <li
+                  className={
+                    passwordContainsUpperCase ? classes.true : classes.false
+                  }
+                >
+                  Contains an uppercase
+                </li>
+              </>
+            )}
+          </div>
+        </div>
+
+        <div className={classes.conditions}>
+          By selecting Agree and Continue. I agree to subLet's Terms of service,
+          Payments Terms of Service, Nondiscrimination Policy, and Privacy
+          Policy.
+        </div>
+        <button className={classes.button} type="submit">
+          {" "}
+          Agree and Continue
+        </button>
+      </form>
+    </>
   );
 }
 

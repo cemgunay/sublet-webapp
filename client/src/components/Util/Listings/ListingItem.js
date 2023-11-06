@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import api from "../../../api/axios";
 import Carousel from "../../Carousel/Carousel";
 import "react-toastify/dist/ReactToastify.css";
-
 import classes from "./ListingItem.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
@@ -12,17 +11,23 @@ import NotificationSubTenant from "../../Request/Notification";
 
 function ListingItem({ listing, request = {}, booking, mode, onDelete }) {
   const images = listing.images.map(({ url }) => url);
-
-  //for number of bids when in subletsSubtenant
   const [requests, setRequests] = useState([]);
-
   const [showModal, setShowModal] = useState(false);
+  const [activeRequests, setActiveRequests] = useState([]);
 
-  //get the number of requests for listing
   useEffect(() => {
     api.get("/requests/listingrequests/" + listing._id).then((response) => {
       setRequests(response.data);
     });
+  }, [listing._id]);
+
+  //get all active requests for listing
+  useEffect(() => {
+    if (listing) {
+      api.get("/requests/listingactiverequests/" + listing._id).then((response) => {
+        setActiveRequests(response.data);
+      });
+    }
   }, [listing._id]);
 
   const formattedAddress =
@@ -32,27 +37,26 @@ function ListingItem({ listing, request = {}, booking, mode, onDelete }) {
     ", " +
     listing.location.stateprovince;
 
-  //to get offers that are pending tenant that arent rejected
   let tenantRequests = requests.filter(
-    (request) => request.status !== "rejected" && request.status !== "pendingSubTenant"
+    (request) =>
+      request.status !== "rejected" && request.status !== "pendingSubTenant"
   );
 
-  //check if there is a pendingSubTenant AND pendingTenant at same time
   let subtenantRequests = requests.filter(
     (request) => request.status === "pendingSubTenant"
   );
 
-  //to get highest offer that isnt countered
-  const highestRequestFilteredPrice =
-    tenantRequests.length > 0
+  // Determine the highest active request price
+  const highestActiveRequestPrice =
+    activeRequests.length > 0
       ? Math.max(
-          ...tenantRequests.map((request) =>
+          ...activeRequests.map((request) =>
             isNaN(request.price) ? -Infinity : request.price
           )
         )
       : null;
 
-  //to get highest offer
+  // Determine the highest request price (including rejected offers)
   const highestRequestPrice =
     requests.length > 0
       ? Math.max(
@@ -61,6 +65,51 @@ function ListingItem({ listing, request = {}, booking, mode, onDelete }) {
           )
         )
       : null;
+
+  const priceClass = (request) => {
+    if (request.status === "rejected") {
+      return classes.rejectedprice;
+    } else if (
+      request.price === highestActiveRequestPrice &&
+      [
+        "pendingTenant",
+        "confirmed",
+        "pendingSubTenantUpload",
+        "pendingTenantUpload",
+        "pendingFinalAccept",
+      ].includes(request.status)
+    ) {
+      return classes.winningprice;
+    } else {
+      return classes.losingprice;
+    }
+  };
+
+  const priceClassForTenant = (
+    highestActiveRequestPrice,
+    highestRequestPrice
+  ) => {
+    if (JSON.stringify(booking) !== "{}") {
+      return classes.winningprice;
+    } else if (
+      tenantRequests.length > 0 &&
+      highestActiveRequestPrice !== null &&
+      subtenantRequests.length === 0
+    ) {
+      return classes.winningprice;
+    } else if (
+      tenantRequests.length > 0 &&
+      highestActiveRequestPrice !== null &&
+      subtenantRequests.length > 0
+    ) {
+      return highestActiveRequestPrice + "/" + highestRequestPrice ===
+        highestRequestPrice
+        ? classes.winningprice
+        : classes.losingprice;
+    } else {
+      return classes.losingprice;
+    }
+  };
 
   const handleDeleteClick = () => {
     setShowModal(true);
@@ -92,8 +141,16 @@ function ListingItem({ listing, request = {}, booking, mode, onDelete }) {
         <address>{formattedAddress}</address>
         <p>{listing.dates}</p>
         <div className={classes.second}>
-          <h3 className={classes.price}>{listing.price}</h3>
-          <p>{listing.views}</p>
+          <h3 className={classes.price}>
+            {highestActiveRequestPrice
+              ? `${highestActiveRequestPrice} Highest Offer`
+              : `${listing.price} List Price`}
+          </h3>
+          <p>
+            {tenantRequests.length
+              ? `${tenantRequests.length} active bids`
+              : `No active bids`}
+          </p>
         </div>
       </div>
     </Link>
@@ -147,20 +204,7 @@ function ListingItem({ listing, request = {}, booking, mode, onDelete }) {
           <address>{formattedAddress}</address>
           <p>{listing.dates}</p>
           <div className={classes.second}>
-            <h3
-              className={
-                (request.price === highestRequestPrice &&
-                  request.status === "pendingTenant") ||
-                request.status === "confirmed" ||
-                request.status === "pendingSubTenantUpload" ||
-                request.status === "pendingTenantUpload" || 
-                request.status === "pendingFinalAccept"
-                  ? classes.winningprice
-                  : request.status === "rejected"
-                  ? classes.rejectedprice
-                  : classes.losingprice
-              }
-            >
+            <h3 className={priceClass(request)}>
               {request.status === "pendingTenant"
                 ? "Your offer:"
                 : request.status === "rejected"
@@ -168,7 +212,7 @@ function ListingItem({ listing, request = {}, booking, mode, onDelete }) {
                 : request.status === "confirmed"
                 ? "Accepted offer: "
                 : request.status === "pendingSubTenantUpload" ||
-                  request.status === "pendingTenantUpload" || 
+                  request.status === "pendingTenantUpload" ||
                   request.status === "pendingFinalAccept"
                 ? "Final Offer: "
                 : "Counter offer:"}{" "}
@@ -182,10 +226,51 @@ function ListingItem({ listing, request = {}, booking, mode, onDelete }) {
     </div>
   );
 
+  const getOfferText = () => {
+    if (JSON.stringify(booking) !== "{}") return "Accepted Offer: ";
+    if (
+      requests.length === 0 ||
+      requests.filter((req) => req.status === "rejected").length ===
+        requests.length
+    )
+      return "No Offers";
+    if (
+      requests.filter((req) =>
+        [
+          "pendingSubTenantUpload",
+          "pendingTenantUpload",
+          "pendingFinalAccept",
+        ].includes(req.status)
+      ).length > 0
+    )
+      return "Final Offer: ";
+    if (highestActiveRequestPrice) return "Highest Offer: ";
+    if (tenantRequests.length === 0) return "Countered Offer: ";
+    return null;
+  };
+
+  const getOfferPrice = () => {
+    if (highestActiveRequestPrice !== null) {
+      if (tenantRequests.length > 0 && subtenantRequests.length > 0) {
+        return JSON.stringify(booking) !== "{}"
+          ? booking?.acceptedPrice
+          : highestActiveRequestPrice;
+      }
+      return highestActiveRequestPrice;
+    }
+    if (
+      tenantRequests.length === 0 &&
+      requests.filter((req) => req.status === "rejected").length !==
+        requests.length
+    )
+      return highestRequestPrice;
+    return null;
+  };
+
   const listingTenantContent = (
     <Link
       to={"/host/listing/" + listing._id}
-      state={{ listing: listing, requests: requests }}
+      state={{ listing, requests }}
       className={classes.linkcontainer}
     >
       <div className={classes.imageContainer}>
@@ -203,58 +288,16 @@ function ListingItem({ listing, request = {}, booking, mode, onDelete }) {
         <p>{listing.dates}</p>
         <div className={classes.second}>
           <h3
-            className={
-              (tenantRequests.length > 0 &&
-                subtenantRequests.length === 0 &&
-                requests.length !== 0) ||
-              requests.filter(
-                (request) =>
-                  request.status === "pendingSubTenantUpload" ||
-                  request.status === "pendingTenantUpload" || 
-                  request.status === "pendingFinalAccept"
-              ).length > 0
-                ? classes.winningprice
-                : request.status === "rejected"
-                ? classes.rejectedprice
-                : JSON.stringify(booking) !== "{}"
-                ? classes.winningprice
-                : classes.losingprice
-            }
+            className={priceClassForTenant(
+              highestActiveRequestPrice,
+              highestRequestPrice
+            )}
           >
-            {JSON.stringify(booking) !== "{}"
-              ? "Accepted Offer: "
-              : requests.length === 0 ||
-                requests.filter((request) => request.status === "rejected")
-                  .length === requests.length
-              ? "No Offers"
-              : requests.filter(
-                  (request) =>
-                    request.status === "pendingSubTenantUpload" ||
-                    request.status === "pendingTenantUpload" ||
-                    request.status === "pendingFinalAccept"
-                ).length > 0
-              ? "Final Offer: "
-              : tenantRequests.length > 0 && subtenantRequests.length > 0
-              ? "Highest/Countered Offer: "
-              : highestRequestFilteredPrice
-              ? "Highest Offer: "
-              : tenantRequests.length === 0
-              ? "Countered Offer: "
-              : null}
-            {highestRequestFilteredPrice !== null
-              ? tenantRequests.length > 0 && subtenantRequests.length > 0
-                ? JSON.stringify(booking) !== "{}"
-                  ? booking?.acceptedPrice
-                  : highestRequestFilteredPrice + "/" + highestRequestPrice
-                : highestRequestFilteredPrice
-              : tenantRequests.length === 0 &&
-                requests.filter((request) => request.status === "rejected")
-                  .length !== requests.length
-              ? highestRequestPrice
-              : null}
+            {getOfferText()}
+            {getOfferPrice()}
           </h3>
           <p>{listing.views} views</p>
-          <p>{requests.length} bids</p>
+          <p>{tenantRequests.length} active bids</p>
         </div>
       </div>
     </Link>

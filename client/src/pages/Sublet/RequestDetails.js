@@ -13,11 +13,11 @@ import MonthGrid from "../../components/Util/MonthGrid";
 
 import classes from "./RequestDetails.module.css";
 import BottomBlock from "../../components/UI/BottomBlock";
-import DeclineModal from "../../components/Sublets/DeclineModal";
+import DeclineModalWithSpinner from "../../components/Sublets/DeclineModal";
 import useRequestFormContext from "../../hooks/useRequestFormContext";
 
 import { toast } from "react-toastify";
-import AcceptModal from "../../components/Sublets/AcceptModal";
+import AcceptModalWithSpinner from "../../components/Sublets/AcceptModal";
 import useAuth from "../../hooks/useAuth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -25,13 +25,16 @@ import {
   faMessage,
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
-import { Button, Dialog, DialogActions, DialogTitle } from "@mui/material";
+import { Box, Button, Dialog, DialogActions, DialogTitle, Modal } from "@mui/material";
+import { ClipLoader } from "react-spinners";
 
 function RequestDetails() {
   //useParams and useLocation are to pass the listing prop from listingItem through to this component
   const { listingId, requestId } = useParams();
   const location = useLocation();
   const { state } = location;
+
+  const [loading, setLoading] = useState(false);
 
   const [listing, setListing] = useState(null);
   const [request, setRequest] = useState([]);
@@ -43,6 +46,9 @@ function RequestDetails() {
   //for modals
   const [openDeclineModal, setOpenDeclineModal] = useState(false);
   const [openAcceptModal, setOpenAcceptModal] = useState(false);
+
+  //to handle reject modal
+  const [showRejectModal, setShowRejectModal] = useState(false);
 
   //for file upload
   const [selectedAgreement, setSelectedAgreement] = useState(null);
@@ -83,6 +89,7 @@ function RequestDetails() {
     }
   };
 
+  //fetch subtenant
   useEffect(() => {
     const fetchSubTenant = async () => {
       const subTenant = await getSubTenant(data.subTenantId);
@@ -148,6 +155,7 @@ function RequestDetails() {
     }
   };
 
+  //get specific chat
   useEffect(() => {
     if (requestId) {
       getChat(requestId);
@@ -198,13 +206,9 @@ function RequestDetails() {
       2
     )
   );
-
   const atic = parseFloat((request.price * 2 * 0.04).toFixed(2));
-
   const total = (subTotal + atic).toFixed(2);
   const due = request.price * 2 + atic;
-
-  console.log(request);
 
   //to open the accept modal
   const handleAccept = () => {
@@ -213,6 +217,8 @@ function RequestDetails() {
 
   //to go through with the accept once the accept button is available to click (given that the docs are uploaded)
   const handleAcceptConfirm = async () => {
+    setLoading(true);
+
     try {
       const response = await api.put(
         "/requests/acceptAsTenant/" + requestId,
@@ -231,14 +237,17 @@ function RequestDetails() {
       dispatch({ type: "UPDATE_USER", payload: updatedUser });
 
       navigate("/host/active");
+      setLoading(false);
       return response.data;
     } catch (error) {
       console.error(error);
+      setLoading(false);
       throw error;
     }
   };
 
   const handleFinalAccept = async () => {
+    setLoading(true);
     api
       .post(
         "/requests/confirm/" + request._id,
@@ -273,22 +282,34 @@ function RequestDetails() {
           .catch((err) => {
             console.error(err);
           });
+
+        setLoading(false);
       })
       .catch((err) => {
         console.error(err);
+        setLoading(false);
       });
   };
 
+  //open decline modal
   const handleDecline = () => {
     setOpenDeclineModal(true);
   };
 
+  //idk what these two are for tbh
   const handleRequest = () => {};
-
   const handleUpdate = () => {};
 
-  //says rescind but this actually handles rejection of your own counter
-  const handleReject = () => {
+  //opens reject modal
+  const handleReject = (e) => {
+    e.preventDefault();
+    setShowRejectModal(true);
+  };
+
+  //Reject after countering
+  const handleRejectModalConfirm = () => {
+    setLoading(true);
+
     const updateRequest = {
       subTenantId: data.subTenantId,
       status: "rejected",
@@ -306,13 +327,20 @@ function RequestDetails() {
         }));
         toast.success("The offer has been rejected");
         navigate("/host/listing/" + data.listingId);
+        setLoading(false);
       })
       .catch((error) => {
         toast.error(
           "Error, can't reject counter offer, please try again later"
         );
         console.error(error);
+        setLoading(false);
       });
+  };
+
+  // Just close the reject modal
+  const handleRejectModalCancel = () => {
+    setShowRejectModal(false);
   };
 
   //for file agreement upload
@@ -442,7 +470,6 @@ function RequestDetails() {
   const openDeleteDialog = () => {
     setDeleteDialogOpen(true);
   };
-
   const closeDeleteDialog = () => {
     setDeleteDialogOpen(false);
   };
@@ -450,6 +477,8 @@ function RequestDetails() {
   //This is for deleting past requests
   const handleDeleteConfirm = () => {
     // call your delete API here
+
+    setLoading(true);
 
     const updateRequest = {
       showTenant: false,
@@ -463,49 +492,104 @@ function RequestDetails() {
         setRequest(response.data);
         toast.success("Past request deleted successfully");
         navigate(`/host/listing/${listingId}`);
+        setLoading(false);
       })
       .catch((error) => {
         toast.error("Failed to delete past request: " + error.message);
         console.error(error);
+        setLoading(false);
       });
 
     closeDeleteDialog();
   };
 
-  //to set accept button to disabled or not
-  //to set accept button to disabled or not
+  //to set accept button to disabled or not in the accept modal not in the bottom block of request details
   useEffect(() => {
-    if (
-      request.status === "pendingFinalAccept" ||
-      request.tenantDocuments?.length == 2
-    ) {
-      if (request.tenantFinalAccept) {
-        setCanAccept(false);
-      } else {
-        if (request.status === "confirmed") {
-          setCanAccept(false);
+    // Helper function to check if tenant has uploaded both required documents
+    const tenantHasUploadedAllDocs = () =>
+      request.tenantDocuments.some((obj) => obj.type === "Sublet Agreement") &&
+      request.tenantDocuments.some((obj) => obj.type === "Government ID");
+
+    // Helper function to check if subtenant has uploaded at least one document
+    const subtenantHasUploaded = () =>
+      request.subtenantDocuments && request.subtenantDocuments.length >= 1;
+
+    console.log("YEEEEEEEET");
+
+    console.log(request.status);
+
+    switch (request.status) {
+      case "pendingTenant":
+        if (tenantHasUploadedAllDocs()) {
+          console.log("Tenant has uploaded all documents and can accept.");
+          setCanAccept(true);
         } else {
-          if (
-            request.tenantDocuments.some(
-              (obj) => obj.type === "Sublet Agreement"
-            ) &&
-            request.tenantDocuments.some((obj) => obj.type === "Government ID")
-          ) {
-            setCanAccept(true);
-          } else {
-            setCanAccept(false);
-          }
+          console.log("Tenant must upload all documents before accepting.");
+          setCanAccept(false);
         }
-      }
-    } else {
-      setCanAccept(false);
+        break;
+
+      case "pendingSubTenant":
+        // Awaiting response from the subtenant
+        setCanAccept(false);
+        break;
+
+      case "pendingTenantUpload":
+        if (tenantHasUploadedAllDocs()) {
+          console.log("Tenant can accept.");
+          setCanAccept(true);
+        } else {
+          console.log("Tenant must upload all documents.");
+          setCanAccept(false);
+        }
+        break;
+
+      case "pendingSubTenantUpload":
+        if (subtenantHasUploaded()) {
+          console.log("Subtenant can accept.");
+          setCanAccept(true);
+        } else {
+          console.log("Waiting for subtenant to upload.");
+          setCanAccept(false);
+        }
+        break;
+
+      case "pendingFinalAccept":
+        if (tenantHasUploadedAllDocs() && subtenantHasUploaded()) {
+          console.log("Ready for final accept.");
+          setCanAccept(true);
+        } else {
+          console.log("Waiting for all documents.");
+          setCanAccept(false);
+        }
+        break;
+
+      case "confirmed":
+      case "rejected":
+      default:
+        // Request has been confirmed, rejected, or any other unknown status
+        setCanAccept(false);
+        break;
     }
-  }, [request.status, request.tenantDocuments, request.tenantFinalAccept]);
+  }, [
+    request.status,
+    request.tenantDocuments,
+    request.tenantFinalAccept,
+    request.subtenantDocuments,
+  ]);
 
   return (
     <div>
-      {!request._id !== "" && listing && !data._id && !subtenant ? (
-        <div>loading</div>
+      {loading ? (
+        <div className={classes.loadingcontainer}>
+          <ClipLoader
+            color={"#61C0BF"}
+            loading={loading}
+            size={150}
+            aria-label="Loading Spinner"
+            data-testid="loader"
+          />
+        </div>
       ) : (
         <>
           <Dialog open={deleteDialogOpen} onClose={closeDeleteDialog}>
@@ -519,6 +603,23 @@ function RequestDetails() {
               </Button>
             </DialogActions>
           </Dialog>
+          <Modal open={showRejectModal} onClose={handleRejectModalCancel}>
+            <Box
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                bgcolor: "background.paper",
+                boxShadow: 24,
+                p: 4,
+              }}
+            >
+              <h2>Are you sure you want to reject?</h2>
+              <Button onClick={handleRejectModalConfirm}>Yes</Button>
+              <Button onClick={handleRejectModalCancel}>No</Button>
+            </Box>
+          </Modal>
           <div className={classes.headercontainer}>
             {request.status === "rejected" ? (
               <div className={classes.header}>
@@ -658,7 +759,9 @@ function RequestDetails() {
                 }}
                 unmountOnExit
               >
-                <DeclineModal
+                <DeclineModalWithSpinner
+                  setLoading={setLoading}
+                  isLoading={loading}
                   openModal={openDeclineModal}
                   setOpenModal={setOpenDeclineModal}
                   request={request}
@@ -681,7 +784,8 @@ function RequestDetails() {
                 }}
                 unmountOnExit
               >
-                <AcceptModal
+                <AcceptModalWithSpinner
+                  isLoading={loading}
                   openModal={openAcceptModal}
                   setOpenModal={setOpenAcceptModal}
                   selectedAgreement={selectedAgreement}

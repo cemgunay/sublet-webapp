@@ -40,6 +40,19 @@ function List() {
   const [showAllInProgress, setShowAllInProgress] = useState(false);
   const [showAllCompleted, setShowAllCompleted] = useState(false);
 
+  const [bookedListings, setBookedListings] = useState([]);
+
+  const fetchBookedListings = async () => {
+    try {
+      const response = await api.get(
+        "/listings/listingsbooked/" + currentUser._id
+      );
+      setBookedListings(response.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const [isLoading, setIsLoading] = useState(true);
 
   //get and sort listings by updatedAt
@@ -76,6 +89,7 @@ function List() {
     };
 
     fetchListings();
+    fetchBookedListings();
   }, [currentUser]);
 
   const handleShowAll = (type) => {
@@ -119,9 +133,13 @@ function List() {
     });
   };
 
-  const handleDelete = async (listing) => {
-    
-  }
+  const handleListingBookedClick = async (listing) => {
+    navigate("/host/listing/" + listing._id, {
+      state: { listing },
+    });
+  };
+
+  const handleDelete = async (listing) => {};
 
   return (
     <>
@@ -186,13 +204,48 @@ function List() {
                 {!showAllCompleted &&
                 listingsPublished.length > visibleListingsCompleted ? (
                   <div onClick={() => handleShowAll("completed")}>Show all</div>
-                ) : (
+                ) : listingsPublished.length > 3 ? (
                   <div onClick={() => handleShowLess("completed")}>
                     Show less
                   </div>
-                )}
+                ) : null}
               </div>
             </div>
+            {bookedListings.length > 0 ? (
+              <div className={classes.listinglistcontainer}>
+                <h3 className={classes.title}>Booked Listings</h3>
+                <div className={classes.listinglist}>
+                  {bookedListings.map((listing) => (
+                    <div
+                      key={listing._id}
+                      className={classes.listingitemcontainer}
+                      onClick={() => handleListingBookedClick(listing)}
+                    >
+                      <div className={classes.listingitem}>
+                        <div className={classes.imagecontainer}>
+                          {listing.images.length > 0 ? (
+                            <img src={listing.images[0].url} />
+                          ) : (
+                            <img src="/images/logo192.png" />
+                          )}
+                        </div>
+                        <div>
+                          {listing.title ? (
+                            listing.title
+                          ) : (
+                            <div>
+                              your listing started on{" "}
+                              {formatDate(listing.createdAt)}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
             <div className={classes.listinglistcontainer}>
               <h3 className={classes.title}>In progress listings</h3>
               <div className={classes.listinglist}>
@@ -204,7 +257,10 @@ function List() {
                       className={classes.listingitemcontainer}
                     >
                       <div className={classes.listingitem}>
-                        <div className={classes.imagecontainer} onClick={() => handleListingInProgressClick(listing)}>
+                        <div
+                          className={classes.imagecontainer}
+                          onClick={() => handleListingInProgressClick(listing)}
+                        >
                           {listing.images.length > 0 ? (
                             <img src={listing.images[0].url} />
                           ) : (
@@ -223,7 +279,10 @@ function List() {
                         </div>
                       </div>
                       <div className={classes.righticon}>
-                        <FontAwesomeIcon onClick={() => setOpenDialog(true)} icon={faTrash} />
+                        <FontAwesomeIcon
+                          onClick={() => setOpenDialog(true)}
+                          icon={faTrash}
+                        />
                       </div>
                       <Dialog
                         open={openDialog}
@@ -236,7 +295,8 @@ function List() {
                         </DialogTitle>
                         <DialogContent>
                           <DialogContentText id="alert-dialog-description">
-                            Are you sure you want to permanently delete this listing?
+                            Are you sure you want to permanently delete this
+                            listing?
                           </DialogContentText>
                         </DialogContent>
                         <DialogActions>
@@ -263,9 +323,9 @@ function List() {
                 {!showAllInProgress &&
                 listingsInProgress.length > visibleListingsInProgress ? (
                   <div onClick={handleShowAll}>Show all</div>
-                ) : (
+                ) : listingsInProgress.length > 3 ? (
                   <div onClick={handleShowLess}>Show less</div>
-                )}
+                ) : null}
               </div>
             </div>
           </>

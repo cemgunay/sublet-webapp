@@ -9,7 +9,7 @@ import classes from "./Form.module.css";
 import Socials from "./Socials/Socials";
 import LogInEmail from "./Email/LogInEmail";
 
-function Form({ setPage, signUp, setSignUp, logIn, setLogIn, emailChangedToMatch, setEmailChangedToMatch }) {
+function Form({ setLoading, onUserRegistered, setPage, signUp, setSignUp, logIn, setLogIn, emailChangedToMatch, setEmailChangedToMatch }) {
 
   //used to toggle between phone and email (not used right now)
   const [email, setEmail] = useState(false);
@@ -83,7 +83,7 @@ function Form({ setPage, signUp, setSignUp, logIn, setLogIn, emailChangedToMatch
   return (
     <div className={classes.container}>
       {signUp ? (
-        <SignUpForm formData={formData} setFormData={setFormData} logIn={logIn} setLogIn={setLogIn} signUp={signUp} setSignUp={setSignUp} setEmailChangedToMatch={setEmailChangedToMatch} setAutoCompletedLocation={setAutoCompletedLocation} />
+        <SignUpForm setLoading={setLoading} onUserRegistered={onUserRegistered} formData={formData} setFormData={setFormData} setPage={setPage} logIn={logIn} setLogIn={setLogIn} signUp={signUp} setSignUp={setSignUp} setEmailChangedToMatch={setEmailChangedToMatch} setAutoCompletedLocation={setAutoCompletedLocation} />
       ) : logIn ? (
         <LogInEmail formData={formData} setFormData={setFormData} emailChangedToMatch={emailChangedToMatch}/>
       ) : (

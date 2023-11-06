@@ -49,6 +49,12 @@ function TenantInboxChat() {
 
   useEffect(() => {
     socket.current = io("ws://localhost:8080");
+
+    socket.current = io("ws://localhost:8080", {
+      reconnectionDelay: 1000,
+      reconnectionAttempts: 10,
+    });
+
     socket.current.on("getMessage", (data) => {
       setArrivalMessage({
         sender: data.senderId,
@@ -56,6 +62,10 @@ function TenantInboxChat() {
         createdAt: Date.now(),
       });
     });
+
+    return () => {
+      socket.current.disconnect();
+    };
   }, []);
 
   useEffect(() => {
@@ -162,7 +172,7 @@ function TenantInboxChat() {
             <h1>{chatPartnerName}</h1>
             <Link
               to={`/host/listing/${request.listingId}/request/${request._id}`}
-              style={{color: "inherit" }}
+              style={{ color: "inherit" }}
             >
               <h3>${request.price}</h3>
             </Link>

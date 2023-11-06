@@ -56,7 +56,7 @@ function Location() {
     handleChange,
     currentUserId,
     canGoNext,
-    setBackButtonClicked
+    setBackButtonClicked,
   } = useOutletContext();
 
   //get users current location
@@ -68,41 +68,64 @@ function Location() {
   //set center on users current location
   const [isCentered, setIsCentered] = useState(false);
 
-  //useEffect to set current location
   useEffect(() => {
+    console.log(data.location.lat);
+
     if (data.location.lat) {
       setIsCentered(true);
     } else {
+      console.log("here1");
+
       navigator.permissions
         .query({ name: "geolocation" })
         .then((response) => {
+          console.log("here2");
+
+          const options = {
+            enableHighAccuracy: true,
+          };
+
+          const success = (position) => {
+            console.log("Success callback executed", position);
+            setCenter((center) => ({
+              ...center,
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            }));
+            setIsCentered(true);
+          };
+
+          const error = (error) => {
+            // If user denies permission after the prompt or in error, set a default location
+            if (error.code === error.PERMISSION_DENIED) {
+              setCenter((center) => ({
+                ...center,
+                lat: 43.7223424,
+                lng: -80.3706496,
+              }));
+              setIsCentered(true);
+            } else {
+              console.log(error.code, error.message);
+            }
+          };
+
           if (response.state === "denied") {
+            console.log("here3");
             setCenter((center) => ({
               ...center,
               lat: 43.7223424,
               lng: -80.3706496,
             }));
             setIsCentered(true);
-          } else if (response.state === "granted") {
-            const options = {
-              enableHighAccuracy: true,
-            };
-
-            const success = (position) => {
-              setCenter((center) => ({
-                ...center,
-                lat: position.coords.latitude,
-                lng: position.coords.longitude,
-              }));
-              setIsCentered(true);
-            };
-
-            const error = (error) => {
-              console.log(error.code, error.message);
-            };
-
+          } else if (
+            response.state === "granted" ||
+            response.state === "prompt"
+          ) {
+            // Handle both "granted" and "prompt" states here
+            console.log("here4");
             navigator.geolocation.getCurrentPosition(success, error, options);
           } else {
+            console.log("here5");
             console.log(response.state);
           }
         })
@@ -115,6 +138,12 @@ function Location() {
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
     libraries,
   });
+
+  if (process.env.REACT_APP_GOOGLE_MAPS_API_KEY) {
+    console.log("It is set!");
+  } else {
+    console.log("No set!");
+  }
 
   //make sure all elements not just the above isloaded is rendered and loaded in
   const [showMap, setShowMap] = useState(false);
@@ -413,6 +442,7 @@ function Location() {
   }, [addressExists]);
 
   console.log(confirmLocation);
+  console.log(loading);
 
   return (
     <div className={classes.container}>

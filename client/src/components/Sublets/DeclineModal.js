@@ -15,7 +15,11 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Tooltip } from "react-tooltip";
 
+import withLoadingSpinner from "../Util/LoadingSpinner";
+import { Box, Button, Modal } from "@mui/material";
+
 function DeclineModal({
+  setLoading,
   request,
   setOpenModal,
   data,
@@ -27,6 +31,9 @@ function DeclineModal({
 }) {
   //to not run on initial render
   const isInitialRender = useRef(true);
+
+  //to handle reject modal
+  const [showRejectModal, setShowRejectModal] = useState(false);
 
   const navigate = useNavigate();
 
@@ -92,6 +99,8 @@ function DeclineModal({
   const handleCounter = (e) => {
     e.preventDefault();
 
+    setLoading(true);
+
     const updateRequest = {
       subTenantId: data.subTenantId,
       tenantId: data.tenantId,
@@ -99,7 +108,7 @@ function DeclineModal({
       startDate: data.startDate,
       endDate: data.endDate,
       status: "pendingSubTenant",
-      tenantDocuments: []
+      tenantDocuments: [],
     };
 
     api
@@ -108,16 +117,19 @@ function DeclineModal({
         console.log(response.data);
         toast.success("The offer has been countered");
         navigate("/host/listing/" + data.listingId);
+        setLoading(false);
       })
       .catch((error) => {
         toast.error("Error, can't counter offer, please try again later");
         console.error(error);
+        setLoading(false);
       });
   };
 
   //to handle decline offer
   const handleDecline = (e) => {
-    e.preventDefault();
+
+    setLoading(true);
 
     const updateRequest = {
       subTenantId: data.subTenantId,
@@ -137,11 +149,30 @@ function DeclineModal({
         }));
         toast.success("The offer has been rejected");
         navigate("/host/listing/" + data.listingId);
+        setLoading(false);
       })
       .catch((error) => {
         toast.error("Error, can't reject offer, please try again later");
         console.error(error);
+        setLoading(false);
       });
+  };
+
+  //opens reject modal
+  const handleReject = (e) => {
+    e.preventDefault();
+    setShowRejectModal(true);
+  };
+
+  //confirm the reject operation in the modal
+  const handleRejectModalConfirm = () => {
+    // Perform the reject operation here, then close the modal
+    handleDecline();
+  };
+
+  // Just close the reject modal
+  const handleRejectModalCancel = () => {
+    setShowRejectModal(false);
   };
 
   return (
@@ -214,13 +245,32 @@ function DeclineModal({
                   Counter
                 </button>
               </div>
-              <button onClick={handleDecline}>Decline</button>
+              <button onClick={handleReject}>Decline</button>
             </div>
           )}
         </div>
       </footer>
+      <Modal open={showRejectModal} onClose={handleRejectModalCancel}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+          }}
+        >
+          <h2>Are you sure you want to reject?</h2>
+          <Button onClick={handleRejectModalConfirm}>Yes</Button>
+          <Button onClick={handleRejectModalCancel}>No</Button>
+        </Box>
+      </Modal>
     </div>
   );
 }
 
-export default DeclineModal;
+const DeclineModalWithSpinner = withLoadingSpinner(DeclineModal);
+
+export default DeclineModalWithSpinner;

@@ -1,36 +1,38 @@
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
-const User = require("../models/User");
 const Listing = require("../models/Listing");
 const Request = require("../models/Requests");
 const Booking = require("../models/Bookings");
 
+// Create a new function to handle booking creation
+async function createBooking(listingId, requestId) {
+  const request = await Request.findById(requestId);
+
+  // Create new booking object
+  const newBooking = new Booking({
+    tenantId: request.tenantId,
+    subTenantId: request.subTenantId,
+    listingId: listingId,
+    acceptedRequestId: requestId,
+    acceptedPrice: request.price,
+    startDate: request.startDate,
+    endDate: request.endDate,
+    viewingDate: request.viewingDate,
+    depositAmount: (request.price * 2) * 1.04,
+    tenantDocuments: request.tenantDocuments,
+    subtenantDocuments: request.subtenantDocuments,
+  });
+
+  // Save booking to DB and return it
+  return await newBooking.save();
+}
+
 // Create booking for a listing
 router.post("/:listingId/:requestId", async (req, res) => {
   try {
-    
-    console.log(req.params)
-
-    const request = await Request.findById(req.params.requestId);
-
-    //Create new booking object
-    const newBooking = new Booking({
-      tenantId: request.tenantId,
-      subTenantId: request.subTenantId,
-      listingId: req.params.listingId,
-      acceptedRequestId: req.params.requestId,
-      acceptedPrice: request.price,
-      startDate: request.startDate,
-      endDate: request.endDate,
-      viewingDate: request.viewingDate,
-      depositAmount: (request.price * 2) * 1.04,
-      tenantDocuments: request.tenantDocuments,
-      subtenantDocuments: request.subtenantDocuments
-    });
-
-    //Save booking to DB and return response
-    const booking = await newBooking.save();
+    console.log(req.params);
+    const booking = await createBooking(req.params.listingId, req.params.requestId);
     res.status(200).json(booking);
   } catch (err) {
     res.status(500).json(err);
@@ -49,4 +51,7 @@ router.get("/:listingId", async (req, res) => {
   }
 });
 
-module.exports = router;
+module.exports = {
+  createBooking,
+  router
+};
