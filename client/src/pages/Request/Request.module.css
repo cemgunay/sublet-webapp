@@ -6,6 +6,13 @@
   margin: 0 2rem 2rem 2rem ;
 }
 
+.loadingcontainer{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
 .headercontainer {
   position: sticky;
   top: 0;

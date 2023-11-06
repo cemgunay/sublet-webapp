@@ -171,6 +171,8 @@ router.put("/images/:id", upload.array("images"), async (req, res) => {
     const folderName = `listings/${listing._id}`;
     await cloudinary.api.create_folder(folderName, { resource_type: "auto" });
 
+    
+
     // Upload new images to Cloudinary and add to Listing's images array
     const newImages = [];
     for (const file of req.files) {
@@ -315,7 +317,7 @@ router.get("/listings/:userId", async (req, res) => {
   }
 });
 
-// Get all completed listings for a user
+// Get all completed listings for a user that are not booked
 router.get("/listingscompleted/:userId", async (req, res) => {
   const { userId } = req.params;
   try {
@@ -324,6 +326,7 @@ router.get("/listingscompleted/:userId", async (req, res) => {
       moveInDate: { $exists: true, $ne: null },
       moveOutDate: { $exists: true, $ne: null },
       isDeleted: { $in: [false, null] },
+      isBooked: false
     });
 
     res.send(listings);
@@ -345,6 +348,7 @@ router.get("/listingspublished/:userId", async (req, res) => {
   }
 });
 
+
 // Get all of the expired listings for a user
 router.get("/listingsexpired/:userId", async (req, res) => {
   const { userId } = req.params;
@@ -358,6 +362,21 @@ router.get("/listingsexpired/:userId", async (req, res) => {
     res.status(500).send("Internal server error");
   }
 });
+
+// Get all booked listings for a user
+router.get("/listingsbooked/:userId", async (req, res) => {
+  const { userId } = req.params;
+  console.log('yeet')
+  try {
+    const listings = await Listing.find({ userId, isBooked: true});
+    console.log('munch')
+    console.log(listings)
+    res.send(listings);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal server error")
+  }
+})
 
 //Get the draft group of a listing in progress
 router.get("/draftgroup/:id", async (req, res) => {

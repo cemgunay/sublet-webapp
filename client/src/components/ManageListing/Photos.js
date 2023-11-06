@@ -61,6 +61,7 @@ function Photos({
     delay
   ) => {
     for (const image of images) {
+      console.log('hooooo')
       await uploadImage(image, setUploadCount, totalImages);
       await new Promise((resolve) => setTimeout(resolve, delay));
     }

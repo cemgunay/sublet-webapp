@@ -141,7 +141,11 @@ const ListingSchema = new Schema(
         startDate: Date,
         endDate: Date,
       }
-    ]
+    ],
+    isBooked: {
+      type: Boolean,
+      default: false,
+    }
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );

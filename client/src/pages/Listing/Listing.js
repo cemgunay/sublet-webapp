@@ -28,6 +28,7 @@ function Listing() {
   const [isBookedByUser, setIsBookedByUser] = useState(false);
   const [booking, setBooking] = useState(null);
   const [fetchedRequest, setFetchedRequest] = useState(false);
+  const [activeRequests, setActiveRequests] = useState([]);
 
   console.log(state);
 
@@ -97,7 +98,8 @@ function Listing() {
           setFetchedRequest(true);
         }
       })
-      .catch((error) => console.error(error)).finally(setFetchedRequest(true));
+      .catch((error) => console.error(error))
+      .finally(setFetchedRequest(true));
   }, [id, setData, currentUserId]);
 
   console.log(data);
@@ -139,6 +141,22 @@ function Listing() {
       }
     });
   }, [id, setData]);
+
+  //get all active requests for listing
+  useEffect(() => {
+    if (listing) {
+      api.get("/requests/listingactiverequests/" + id).then((response) => {
+        setActiveRequests(response.data);
+      });
+    }
+  }, [id, listing]);
+
+  //highest bid logic and number of active bids logic
+  const highestRequest = Math.max(
+    ...activeRequests.map((request) => request.price),
+    0
+  );
+  const numberOfRequests = activeRequests.length;
 
   //for back button
   const navigate = useNavigate();
@@ -232,7 +250,14 @@ function Listing() {
               </div>
               <address>{formattedAddress}</address>
               <div>
-                <p>{listing.views}</p>
+                {/* Display highest bid or listing price */}
+                <p>
+                  {highestRequest > 0
+                    ? `$${highestRequest} (Highest Bid)`
+                    : `$${listing.price} (Listing Price)`}
+                </p>
+                {/* Display number of active bids instead of views */}
+                <p>{numberOfRequests} active bids</p>
               </div>
             </div>
             <div className={classes.bio}>

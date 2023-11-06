@@ -26,12 +26,17 @@ import { toast } from "react-toastify";
 
 import { v4 as uuid } from "uuid";
 import { CSSTransition } from "react-transition-group";
-import AcceptModal from "../../components/Request/AcceptModal";
+import AcceptModalWithSpinner from "../../components/Request/AcceptModal";
 import useAuth from "../../hooks/useAuth";
+
+import ClipLoader from "react-spinners/ClipLoader";
 
 function Request() {
   //from URL
   const { listingId, requestId } = useParams();
+
+  //for loading screen
+  const [loading, setLoading] = useState(false);
 
   //if state was passed from previous location
   const location = useLocation();
@@ -57,12 +62,17 @@ function Request() {
     data.viewingDate
   );
 
-  //to handle modals
-  const [showModal, setShowModal] = useState(false);
+  //to handle rescind modals
+  const [showRescindModal, setShowRescindModal] = useState(false);
+
+  //to handle accept modal
   const [openAcceptModal, setOpenAcceptModal] = useState(false);
 
   //to handle delete modal
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  //to handle reject modal
+  const [showRejectModal, setShowRejectModal] = useState(false);
 
   //for file upload
   const [selectedAgreement, setSelectedAgreement] = useState(null);
@@ -89,6 +99,8 @@ function Request() {
 
   //check if there is a more recent request by user on the same listing
   const [mostRecentRequest, setMostRecentRequest] = useState(null);
+
+  console.log("BUDDDDDD");
 
   //On refresh, get listing and tenant id from DB, and set if listingIsInTransaction
   useEffect(() => {
@@ -258,10 +270,11 @@ function Request() {
       .get(`/requests/listing/most-recent/${listingId}/${currentUser._id}`)
       .then((response) => {
         const recentRequest = response.data;
+
         console.log(recentRequest);
 
         if (recentRequest && recentRequest._id !== data._id) {
-          setMostRecentRequest(recentRequest);
+          setMostRecentRequest(recentRequest._id);
         }
       })
       .catch((error) => {
@@ -277,7 +290,7 @@ function Request() {
   const goToRecentRequest = async (e) => {
     e.preventDefault();
 
-    navigate(`/listing/${listingId}/request/${mostRecentRequest._id}`);
+    navigate(`/listing/${listingId}/request/${mostRecentRequest}`);
   };
 
   //if offer is rejected, create new request when user clicks button
@@ -308,8 +321,11 @@ function Request() {
     );
   };
 
+  //to place a request
   const handleRequest = async (e) => {
     e.preventDefault();
+
+    setLoading(true);
 
     const viewingDate = data.viewingDate;
 
@@ -329,18 +345,23 @@ function Request() {
         console.log(response.data);
         toast.success("Your request has been submitted.");
         navigate("/sublets");
+        setLoading(false);
       })
       .catch((error) => {
         toast.error("Error, can't submit request, please try again later");
         console.error(error);
+        setLoading(false);
       });
   };
 
+  //to decline a counter offer
   const handleDecline = (e) => {
-    e.preventDefault();
+
+    setLoading(true);
 
     const updateRequest = {
       subTenantId: data.subTenantId,
+      tenantId: data.tenantId,
       status: "rejected",
       status_reason: "Counter offer has been rejected",
     };
@@ -355,44 +376,75 @@ function Request() {
           status_reason: "Counter offer has been rejected",
         }));
         toast.success("The counter offer has been rejected");
+        setShowRejectModal(false);
         navigate("/sublets/past");
+        setLoading(false);
       })
       .catch((error) => {
         toast.error(
           "Error, can't decline counter offer, please try again later"
         );
         console.error(error);
+        setLoading(false);
       });
   };
 
+  //opens rescind modal
   const handleRescind = (e) => {
     e.preventDefault();
-    setShowModal(true);
+    setShowRescindModal(true);
   };
 
-  const handleModalConfirm = () => {
+  //confirm the rescind operation in the modal
+  const handleRescindModalConfirm = () => {
     // Perform the rescind operation here, then close the modal
+    console.log(data._id);
+    setLoading(true);
     api
-      .delete("/requests/delete/" + data._id)
+      .delete("/requests/delete/" + data._id, {
+        data: { userId: currentUser._id },
+      })
       .then((response) => {
         console.log(response.data);
         toast.success("Your request has been successfully rescinded.");
         navigate("/sublets");
-        setShowModal(false);
+        setShowRescindModal(false);
+        setLoading(false);
       })
       .catch((error) => {
-        toast.error("Error, cant rescind request, please try again later");
+        toast.error("Error, can't rescind request, please try again later");
         console.error(error);
+        setLoading(false);
       });
   };
 
-  const handleModalCancel = () => {
-    // Just close the modal
-    setShowModal(false);
+  // Just close the rescind modal
+  const handleRescindModalCancel = () => {
+    setShowRescindModal(false);
   };
 
+  //opens reject modal
+  const handleReject = (e) => {
+    e.preventDefault();
+    setShowRejectModal(true);
+  };
+
+  //confirm the reject operation in the modal
+  const handleRejectModalConfirm = () => {
+    // Perform the reject operation here, then close the modal
+    handleDecline();
+  };
+
+  // Just close the reject modal
+  const handleRejectModalCancel = () => {
+    setShowRejectModal(false);
+  };
+
+  //Update the request while it is pending tenant
   const handleUpdate = (e) => {
     e.preventDefault();
+
+    setLoading(true);
 
     const updateRequest = {
       subTenantId: data.subTenantId,
@@ -409,16 +461,20 @@ function Request() {
         console.log(response.data);
         toast.success("Your request has been updated.");
         navigate("/sublets/active");
+        setLoading(false);
       })
       .catch((error) => {
         toast.error("Error, can't update request, please try again later");
         console.error(error);
+        setLoading(false);
       });
   };
 
-  //to handle counter offer
+  //Counter tenants counter offer
   const handleCounter = (e) => {
     e.preventDefault();
+
+    setLoading(true);
 
     const updateRequest = {
       subTenantId: data.subTenantId,
@@ -436,19 +492,24 @@ function Request() {
         console.log(response.data);
         toast.success("The offer has been countered");
         navigate("/sublets/active/");
+        setLoading(false);
       })
       .catch((error) => {
         toast.error("Error, can't counter offer, please try again later");
         console.error(error);
+        setLoading(false);
       });
   };
 
-  //all 3 below to handle delete modal
+  //Open delete modal to delete past/expired request
   const handleDeleteClick = () => {
     setShowDeleteModal(true);
   };
 
+  //confirm deletion of past request
   const handleDeleteConfirm = () => {
+    setLoading(true);
+
     const updateRequest = {
       showSubTenant: false,
     };
@@ -459,25 +520,33 @@ function Request() {
         console.log(response.data);
         toast.success("Past request deleted successfully");
         navigate("/sublets/past");
+        setLoading(false);
       })
       .catch((error) => {
         toast.error("Failed to delete past request: " + error.message);
+        setLoading(false);
         console.error(error);
       });
 
     setShowDeleteModal(false);
   };
 
+  //cancel and close delete modal
   const handleDeleteCancel = () => {
     setShowDeleteModal(false);
   };
 
+  //open accept counter modal
   const handleAccept = () => {
     setOpenAcceptModal(!openAcceptModal);
   };
 
+  //accept the counter offer
   const handleAcceptConfirm = async () => {
     console.log("running accept confirm");
+
+    setLoading(true);
+
     try {
       const response = await api.put(
         "/requests/acceptAsSubTenant/" + requestId,
@@ -496,9 +565,11 @@ function Request() {
       dispatch({ type: "UPDATE_USER", payload: updatedUser });
 
       navigate("/sublets/active");
+      setLoading(false);
       return response.data;
     } catch (error) {
       console.error(error);
+      setLoading(false);
       throw error;
     }
   };
@@ -648,6 +719,8 @@ function Request() {
 
   //handle accepting after all docs have been uploaded (FINAL GANG)
   const handleFinalAccept = async () => {
+    setLoading(true);
+
     console.log("running final confirm");
     api
       .post(
@@ -684,311 +757,355 @@ function Request() {
           .catch((err) => {
             console.error(err);
           });
+
+        setLoading(false);
       })
       .catch((err) => {
         console.error(err);
+        setLoading(false);
       });
   };
 
   return (
     <>
-      <div className={classes.headercontainer}>
-        {data.status === "rejected" ? (
-          <div className={classes.header}>
-            <div className={classes.back} onClick={goBack}>
-              <FontAwesomeIcon icon={faCircleChevronLeft} />
-            </div>
-            <div>Request to subLet</div>
-            <div className={classes.deleteiconcontainer}>
-              <FontAwesomeIcon
-                icon={faTrash}
-                style={{
-                  cursor: "pointer",
-                  zIndex: 1,
-                }}
-                onClick={handleDeleteClick}
-              />
-            </div>
-          </div>
-        ) : (
-          <div className={classes.header}>
-            <div className={classes.back} onClick={goBack}>
-              <FontAwesomeIcon icon={faCircleChevronLeft} />
-            </div>
-            <div>Request to subLet</div>
-            {conversation ? (
-              <Link
-                to={`/inbox/${conversation?._id}`}
-                style={{ color: "inherit" }}
-                className={classes.chat}
-              >
-                <FontAwesomeIcon
-                  icon={faMessage}
-                  className={classes.chaticon}
-                />
-              </Link>
-            ) : null}
-          </div>
-        )}
-        <div className={classes.listingpreviewcontainer}>
-          <div className={classes.protectiontext}>
-            Your request is protected by our escrow service
-          </div>
-          <div className={classes.listingpreviewcontent} onClick={goToListing}>
-            <div className={classes.previewimage}>
-              <img
-                src={listing?.images[0].url ? listing.images[0].url : null}
-                alt={
-                  listing?.images[0].filename
-                    ? listing.images[0].filename
-                    : null
-                }
-              />
-            </div>
-            <div className={classes.listingpreviewtextcontainer}>
-              <p>331 Phillip St, Waterloo, ON</p>
-              <p>2 Bedroom in 3 Bedroom Suite</p>
-              <p>Jan - April 2023</p>
-            </div>
-          </div>
+      {loading ? (
+        <div className={classes.loadingcontainer}>
+          <ClipLoader
+            color={"#61C0BF"}
+            loading={loading}
+            size={150}
+            aria-label="Loading Spinner"
+            data-testid="loader"
+          />
         </div>
-      </div>
-      <div key={requestId} className={classes.container}>
-        <Modal
-          open={showDeleteModal}
-          onClose={handleDeleteCancel}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-        >
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: 400,
-              bgcolor: "background.paper",
-              border: "2px solid #000",
-              boxShadow: 24,
-              p: 4,
-            }}
-          >
-            <h2>Are you sure you want to delete this request?</h2>
-            <Button onClick={handleDeleteConfirm}>Yes</Button>
-            <Button onClick={handleDeleteCancel}>No</Button>
-          </Box>
-        </Modal>
-
-        {!data._id !== "" && !listing ? (
-          <div>loadingg</div>
-        ) : (
-          <div className={classes.contentcontainer}>
-            <div className={classes.inputcontainer}>
-              {data.status === "pendingSubTenant" ? (
-                <div>Countered subLet Months</div>
-              ) : (
-                <div>subLet Months</div>
-              )}
-              <MonthGrid
-                defaultMoveInDate={defaultMoveInDate}
-                defaultMoveOutDate={defaultMoveOutDate}
-                moveInDate={data.startDate}
-                moveOutDate={data.endDate}
-                shorterStays={
-                  listing.shorterStays &&
-                  data.status !== "rejected" &&
-                  data.status !== "pendingSubTenantUpload" &&
-                  data.status !== "pendingTenantUpload"
-                }
-                onDataChange={handleDataChange}
-              />
-            </div>
-
-            <div className={classes.inputcontainer}>
-              <div>Viewing Date</div>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  className={classes.datepicker}
-                  label={"Select Viewing Date"}
-                  value={
-                    data.viewingDate && data.viewingDate !== "null"
-                      ? dayjs(data.viewingDate)
-                      : null
-                  }
-                  components={{
-                    TextField: ({ inputProps, ...props }) => (
-                      <TextField
-                        {...props}
-                        inputProps={{
-                          ...inputProps,
-                          style: { fontSize: "1rem" },
-                        }}
-                      />
-                    ),
-                  }}
-                  slotProps={{ textField: { size: "small" } }}
-                  onChange={handleOnChangeViewing}
-                  shouldDisableDate={shouldDisableDate}
-                  disableHighlightToday
-                  initialFocusedDate={
-                    listing.viewingDates.length > 0
-                      ? dayjs(listing.viewingDates[0])
-                      : null
-                  }
-                  disabled={
-                    data.status !== "pendingTenant" ||
-                    data.status !== "pendingSubTenant"
-                  }
-                />
-              </LocalizationProvider>
-            </div>
-
-            <div className={classes.inputcontainer}>
-              {data.status === "pendingSubTenant" ? (
-                <div>Countered Price</div>
-              ) : (
-                <div>Price Offer</div>
-              )}
-              <IncrementalInputField
-                data={data}
-                setData={setData}
-                type="price"
-                from="Request"
-                handleOnChange={handleChange}
-                disabled={
-                  data.status !== "pendingTenant" ||
-                  data.status !== "pendingSubTenant"
-                }
-              />
-            </div>
-            <div className={classes.requestdetailscontainer}>
-              <div>Your Request</div>
-              <div className={classes.details}>
-                <div className={classes.requestdetailstitle}>subLet months</div>
-                {getMonth(data.startDate)} -{getMonth(data.endDate)}
-              </div>
-              <div className={classes.details}>
-                <div className={classes.requestdetailstitle}>
-                  Move in - Move out
+      ) : (
+        <>
+          <div className={classes.headercontainer}>
+            {data.status === "rejected" ? (
+              <div className={classes.header}>
+                <div className={classes.back} onClick={goBack}>
+                  <FontAwesomeIcon icon={faCircleChevronLeft} />
                 </div>
-                {new Date(data.startDate)?.toLocaleDateString()} -{" "}
-                {new Date(data.endDate)?.toLocaleDateString()}
-              </div>
-              <div className={classes.details}>
-                <div className={classes.requestdetailstitle}>viewing date</div>
-                {formatDate(data.viewingDate) ?? "No viewing date selected"}
-              </div>
-              <div className={classes.details}>
-                <div className={classes.requestdetailstitle}>price details</div>
-                <div className={classes.detailsrow}>
-                  <div>
-                    ${data.price} CAD x{" "}
-                    {getMonthDiff(data.startDate, data.endDate)} months
-                  </div>
-                  <div>${subTotal.toString()} CAD</div>
-                </div>
-                <div className={classes.detailsrow}>
-                  <div>ATIC</div>
-                  <div>${atic.toString()} CAD</div>
+                <div>Request to subLet</div>
+                <div className={classes.deleteiconcontainer}>
+                  <FontAwesomeIcon
+                    icon={faTrash}
+                    style={{
+                      cursor: "pointer",
+                      zIndex: 1,
+                    }}
+                    onClick={handleDeleteClick}
+                  />
                 </div>
               </div>
-              <div className={classes.details}>
-                <div className={classes.detailsrow}>
-                  <div className={classes.requestdetailstitle}>Total</div>
-                  <div>${total.toString()} CAD</div>
+            ) : (
+              <div className={classes.header}>
+                <div className={classes.back} onClick={goBack}>
+                  <FontAwesomeIcon icon={faCircleChevronLeft} />
                 </div>
+                <div>Request to subLet</div>
+                {conversation ? (
+                  <Link
+                    to={`/inbox/${conversation?._id}`}
+                    style={{ color: "inherit" }}
+                    className={classes.chat}
+                  >
+                    <FontAwesomeIcon
+                      icon={faMessage}
+                      className={classes.chaticon}
+                    />
+                  </Link>
+                ) : null}
               </div>
-              <div className={classes.details}>
-                <div className={classes.detailsrow}>
-                  <div className={classes.requestdetailstitle}>
-                    Due at Signing
-                  </div>
-                  <div>${due} CAD</div>
+            )}
+            <div className={classes.listingpreviewcontainer}>
+              <div className={classes.protectiontext}>
+                Your request is protected by our escrow service
+              </div>
+              <div
+                className={classes.listingpreviewcontent}
+                onClick={goToListing}
+              >
+                <div className={classes.previewimage}>
+                  <img
+                    src={listing?.images[0].url ? listing.images[0].url : null}
+                    alt={
+                      listing?.images[0].filename
+                        ? listing.images[0].filename
+                        : null
+                    }
+                  />
                 </div>
-                <div>First & Last Month Deposit</div>
-                <div>ATIC</div>
+                <div className={classes.listingpreviewtextcontainer}>
+                  <p>331 Phillip St, Waterloo, ON</p>
+                  <p>2 Bedroom in 3 Bedroom Suite</p>
+                  <p>Jan - April 2023</p>
+                </div>
               </div>
             </div>
-            <Modal open={showModal} onClose={handleModalCancel}>
+          </div>
+          <div key={requestId} className={classes.container}>
+            <Modal
+              open={showDeleteModal}
+              onClose={handleDeleteCancel}
+              aria-labelledby="modal-modal-title"
+              aria-describedby="modal-modal-description"
+            >
               <Box
                 sx={{
                   position: "absolute",
                   top: "50%",
                   left: "50%",
                   transform: "translate(-50%, -50%)",
+                  width: 400,
                   bgcolor: "background.paper",
+                  border: "2px solid #000",
                   boxShadow: 24,
                   p: 4,
                 }}
               >
-                <h2>Are you sure you want to rescind?</h2>
-                <Button onClick={handleModalConfirm}>Yes</Button>
-                <Button onClick={handleModalCancel}>No</Button>
+                <h2>Are you sure you want to delete this request?</h2>
+                <Button onClick={handleDeleteConfirm}>Yes</Button>
+                <Button onClick={handleDeleteCancel}>No</Button>
               </Box>
             </Modal>
+
+            {!data._id !== "" && !listing ? (
+              <div>loadingg</div>
+            ) : (
+              <div className={classes.contentcontainer}>
+                <div className={classes.inputcontainer}>
+                  {data.status === "pendingSubTenant" ? (
+                    <div>Countered subLet Months</div>
+                  ) : (
+                    <div>subLet Months</div>
+                  )}
+                  <MonthGrid
+                    defaultMoveInDate={defaultMoveInDate}
+                    defaultMoveOutDate={defaultMoveOutDate}
+                    moveInDate={data.startDate}
+                    moveOutDate={data.endDate}
+                    shorterStays={
+                      listing.shorterStays &&
+                      data.status !== "rejected" &&
+                      data.status !== "pendingSubTenantUpload" &&
+                      data.status !== "pendingTenantUpload"
+                    }
+                    onDataChange={handleDataChange}
+                  />
+                </div>
+
+                <div className={classes.inputcontainer}>
+                  <div>Viewing Date</div>
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker
+                      className={classes.datepicker}
+                      label={"Select Viewing Date"}
+                      value={
+                        data.viewingDate && data.viewingDate !== "null"
+                          ? dayjs(data.viewingDate)
+                          : null
+                      }
+                      components={{
+                        TextField: ({ inputProps, ...props }) => (
+                          <TextField
+                            {...props}
+                            inputProps={{
+                              ...inputProps,
+                              style: { fontSize: "1rem" },
+                            }}
+                          />
+                        ),
+                      }}
+                      slotProps={{ textField: { size: "small" } }}
+                      onChange={handleOnChangeViewing}
+                      shouldDisableDate={shouldDisableDate}
+                      disableHighlightToday
+                      initialFocusedDate={
+                        listing.viewingDates.length > 0
+                          ? dayjs(listing.viewingDates[0])
+                          : null
+                      }
+                      disabled={
+                        data.status !== "pendingTenant" ||
+                        data.status !== "pendingSubTenant"
+                      }
+                    />
+                  </LocalizationProvider>
+                </div>
+
+                <div className={classes.inputcontainer}>
+                  {data.status === "pendingSubTenant" ? (
+                    <div>Countered Price</div>
+                  ) : (
+                    <div>Price Offer</div>
+                  )}
+                  <IncrementalInputField
+                    data={data}
+                    setData={setData}
+                    type="price"
+                    from="Request"
+                    handleOnChange={handleChange}
+                    disabled={
+                      data.status !== "pendingTenant" ||
+                      data.status !== "pendingSubTenant"
+                    }
+                  />
+                </div>
+                <div className={classes.requestdetailscontainer}>
+                  <div>Your Request</div>
+                  <div className={classes.details}>
+                    <div className={classes.requestdetailstitle}>
+                      subLet months
+                    </div>
+                    {getMonth(data.startDate)} -{getMonth(data.endDate)}
+                  </div>
+                  <div className={classes.details}>
+                    <div className={classes.requestdetailstitle}>
+                      Move in - Move out
+                    </div>
+                    {new Date(data.startDate)?.toLocaleDateString()} -{" "}
+                    {new Date(data.endDate)?.toLocaleDateString()}
+                  </div>
+                  <div className={classes.details}>
+                    <div className={classes.requestdetailstitle}>
+                      viewing date
+                    </div>
+                    {formatDate(data.viewingDate) ?? "No viewing date selected"}
+                  </div>
+                  <div className={classes.details}>
+                    <div className={classes.requestdetailstitle}>
+                      price details
+                    </div>
+                    <div className={classes.detailsrow}>
+                      <div>
+                        ${data.price} CAD x{" "}
+                        {getMonthDiff(data.startDate, data.endDate)} months
+                      </div>
+                      <div>${subTotal.toString()} CAD</div>
+                    </div>
+                    <div className={classes.detailsrow}>
+                      <div>ATIC</div>
+                      <div>${atic.toString()} CAD</div>
+                    </div>
+                  </div>
+                  <div className={classes.details}>
+                    <div className={classes.detailsrow}>
+                      <div className={classes.requestdetailstitle}>Total</div>
+                      <div>${total.toString()} CAD</div>
+                    </div>
+                  </div>
+                  <div className={classes.details}>
+                    <div className={classes.detailsrow}>
+                      <div className={classes.requestdetailstitle}>
+                        Due at Signing
+                      </div>
+                      <div>${due} CAD</div>
+                    </div>
+                    <div>First & Last Month Deposit</div>
+                    <div>ATIC</div>
+                  </div>
+                </div>
+                <Modal open={showRescindModal} onClose={handleRescindModalCancel}>
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                      bgcolor: "background.paper",
+                      boxShadow: 24,
+                      p: 4,
+                    }}
+                  >
+                    <h2>Are you sure you want to rescind?</h2>
+                    <Button onClick={handleRescindModalConfirm}>Yes</Button>
+                    <Button onClick={handleRescindModalCancel}>No</Button>
+                  </Box>
+                </Modal>
+                <Modal open={showRejectModal} onClose={handleRejectModalCancel}>
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                      bgcolor: "background.paper",
+                      boxShadow: 24,
+                      p: 4,
+                    }}
+                  >
+                    <h2>Are you sure you want to reject?</h2>
+                    <Button onClick={handleRejectModalConfirm}>Yes</Button>
+                    <Button onClick={handleRejectModalCancel}>No</Button>
+                  </Box>
+                </Modal>
+              </div>
+            )}
+            <CSSTransition
+              in={openAcceptModal}
+              timeout={300}
+              classNames={{
+                enter: classes["slide-up-enter"],
+                enterActive: classes["slide-up-enter-active"],
+                exit: classes["slide-up-exit"],
+                exitActive: classes["slide-up-exit-active"],
+              }}
+              unmountOnExit
+            >
+              <AcceptModalWithSpinner
+                isLoading={loading}
+                openModal={openAcceptModal}
+                setOpenModal={setOpenAcceptModal}
+                selectedAgreement={selectedAgreement}
+                selectedGovId={selectedGovId}
+                setSelectedAgreement={setSelectedAgreement}
+                setSelectedGovId={setSelectedGovId}
+                handleFileUploadAgreement={handleFileUploadAgreement}
+                handleFileUploadGovId={handleFileUploadGovId}
+                handleFileDownload={handleFileDownload}
+                handleFileDelete={handleFileDelete}
+                handleAcceptConfirm={handleAcceptConfirm}
+                handleFinalAccept={handleFinalAccept}
+                request={data}
+                getMonth={getMonth}
+                formatDate={formatDate}
+                getMonthDiff={getMonthDiff}
+                subTotal={subTotal}
+                atic={atic}
+                total={total}
+                due={due}
+                canAccept={canAccept}
+                uploadProgressAgreement={uploadProgressAgreement}
+                uploadProgressGovId={uploadProgressGovId}
+              />
+            </CSSTransition>
           </div>
-        )}
-        <CSSTransition
-          in={openAcceptModal}
-          timeout={300}
-          classNames={{
-            enter: classes["slide-up-enter"],
-            enterActive: classes["slide-up-enter-active"],
-            exit: classes["slide-up-exit"],
-            exitActive: classes["slide-up-exit-active"],
-          }}
-          unmountOnExit
-        >
-          <AcceptModal
-            openModal={openAcceptModal}
-            setOpenModal={setOpenAcceptModal}
-            selectedAgreement={selectedAgreement}
-            selectedGovId={selectedGovId}
-            setSelectedAgreement={setSelectedAgreement}
-            setSelectedGovId={setSelectedGovId}
-            handleFileUploadAgreement={handleFileUploadAgreement}
-            handleFileUploadGovId={handleFileUploadGovId}
-            handleFileDownload={handleFileDownload}
-            handleFileDelete={handleFileDelete}
-            handleAcceptConfirm={handleAcceptConfirm}
-            handleFinalAccept={handleFinalAccept}
-            request={data}
-            getMonth={getMonth}
-            formatDate={formatDate}
-            getMonthDiff={getMonthDiff}
-            subTotal={subTotal}
-            atic={atic}
-            total={total}
-            due={due}
-            canAccept={canAccept}
-            uploadProgressAgreement={uploadProgressAgreement}
-            uploadProgressGovId={uploadProgressGovId}
+          <BottomBlock
+            listing={listing}
+            handleRequest={handleRequest}
+            handleAccept={handleAccept}
+            handleReject={handleReject}
+            handleUpdate={handleUpdate}
+            handleCounter={handleCounter}
+            handleRescind={handleRescind}
+            data={data}
+            originalPrice={originalPrice}
+            originalMoveInDate={originalMoveInDate}
+            originalMoveOutDate={originalMoveOutDate}
+            originalViewingDate={originalViewingDate}
+            status={data.status}
+            status_reason={data.status_reason}
+            reason={data.status_reason}
+            goToNewRequest={goToNewRequest}
+            fetchRecentRequest={fetchRecentRequest}
+            mostRecentRequest={mostRecentRequest}
+            goToRecentRequest={goToRecentRequest}
+            isInTransaction={subtenantIsInTransaction}
+            listingIsInTransaction={listingIsInTransaction}
           />
-        </CSSTransition>
-      </div>
-      <BottomBlock
-        listing={listing}
-        handleRequest={handleRequest}
-        handleAccept={handleAccept}
-        handleDecline={handleDecline}
-        handleUpdate={handleUpdate}
-        handleCounter={handleCounter}
-        handleRescind={handleRescind}
-        data={data}
-        originalPrice={originalPrice}
-        originalMoveInDate={originalMoveInDate}
-        originalMoveOutDate={originalMoveOutDate}
-        originalViewingDate={originalViewingDate}
-        status={data.status}
-        status_reason={data.status_reason}
-        reason={data.status_reason}
-        goToNewRequest={goToNewRequest}
-        fetchRecentRequest={fetchRecentRequest}
-        mostRecentRequest={mostRecentRequest}
-        goToRecentRequest={goToRecentRequest}
-        isInTransaction={subtenantIsInTransaction}
-        listingIsInTransaction={listingIsInTransaction}
-      />
+        </>
+      )}
     </>
   );
 }

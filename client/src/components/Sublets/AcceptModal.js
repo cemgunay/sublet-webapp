@@ -13,6 +13,8 @@ import classes from "./AcceptModal.module.css";
 import { Box, Button, LinearProgress, Modal } from "@mui/material";
 import { Tooltip } from "react-tooltip";
 
+import withLoadingSpinner from '../Util/LoadingSpinner';
+
 function AcceptModal({
   request,
   setOpenModal,
@@ -38,8 +40,6 @@ function AcceptModal({
   uploadProgressGovId
 }) {
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
-
-  console.log(request);
 
   const handleConfirmation = () => {
     if (request.status === "pendingFinalAccept") {
@@ -313,7 +313,7 @@ function AcceptModal({
                   onClick={() => setShowConfirmationModal(true)}
                   disabled={!canAccept}
                 >
-                  Accept
+                  {request.status === "pendingFinalAccept" ? "Verify and Sign" : "Accept" }
                 </button>
               </div>
             )}
@@ -351,4 +351,7 @@ function AcceptModal({
   );
 }
 
-export default AcceptModal;
+const AcceptModalWithSpinner = withLoadingSpinner(AcceptModal);
+
+export default AcceptModalWithSpinner;
+

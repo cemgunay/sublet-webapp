@@ -4,10 +4,11 @@ const router = express.Router();
 const multer = require("multer");
 const User = require("../models/User");
 const Listing = require("../models/Listing");
-const Booking = require("../models/Bookings");
 const Request = require("../models/Requests");
 const Conversation = require("../models/Conversation");
 const createAgenda = require("../jobs/jobs");
+
+const { createBooking } = require("./bookings"); // Path to your first file
 
 const { updateUser } = require("../utils/user_operations");
 const requestNotificationTemplate = require("../emailTemplates/requestNotification");
@@ -111,8 +112,8 @@ router.post("/:listingId", async (req, res) => {
 
     // Create new conversation object
     const newConversation = new Conversation({
-      subTenant: req.body.subTenant,
-      tenant: req.body.tenant,
+      subTenant: req.body.subTenantId,
+      tenant: req.body.tenantId,
       members: [req.body.tenantId, req.body.subTenantId],
       request: request._id,
     });
@@ -281,15 +282,31 @@ router.get("/listingrequests/:listingId", async (req, res) => {
   }
 });
 
+// Get all active requests by listing ID
+router.get("/listingactiverequests/:listingId", async (req, res) => {
+  try {
+    const requests = await Request.find({
+      listingId: req.params.listingId,
+      status: { $ne: "rejected" }  // Add this line
+    })
+      .populate("tenantDocuments")
+      .populate("subtenantDocuments");
+    res.status(200).json(requests);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+
 //Update a request
 router.put("/update/:id", async (req, res) => {
   try {
     const request = await Request.findById(req.params.id);
+    //Check if request belongs to user trying to update it
     if (
-      request.subTenantId === req.body.subtenantId ||
+      request.subTenantId === req.body.subTenantId ||
       request.tenantId === req.body.tenantId
     ) {
-      //Check if request belongs to user trying to update it
       await request.updateOne({ $set: req.body });
       res.status(200).json("The request has been updated!");
     } else {
@@ -559,21 +576,11 @@ router.post("/confirm/:requestId", addUser, async (req, res) => {
     }
 
     if (request.tenantFinalAccept || request.subtenantFinalAccept) {
-      // Create new booking record
-      const booking = new Booking({
-        tenantId: request.tenantId,
-        subTenantId: request.subTenantId,
-        listingId: request.listingId,
-        acceptedRequestId: req.params.requestId,
-        acceptedPrice: request.price,
-        startDate: request.startDate,
-        endDate: request.endDate,
-        viewingDate: request.viewingDate,
-        depositAmount: request.price * 2 * 1.04,
-        tenantDocuments: request.tenantDocuments,
-        subtenantDocuments: request.subtenantDocuments,
-      });
-      await booking.save();
+      // Create new booking record using the function
+      const booking = await createBooking(
+        request.listingId,
+        req.params.requestId
+      );
 
       // Add booked dates to listing's bookedDates field
       listing.bookedDates.push({
@@ -602,8 +609,9 @@ router.post("/confirm/:requestId", addUser, async (req, res) => {
         currentSubTenantTransaction: null,
       });
 
-      // Update the listing's transactionInProgress
+      // Update the listing's transactionInProgress and isBooked
       listing.transactionInProgress = false;
+      listing.isBooked = true;
       await listing.save();
 
       console.log(tenant);
@@ -637,9 +645,11 @@ router.post("/confirm/:requestId", addUser, async (req, res) => {
 router.delete("/delete/:id", async (req, res) => {
   try {
     const request = await Request.findById(req.params.id);
+    console.log(req.body);
     if (request.subTenantId === req.body.userId) {
+      console.log(request.status);
       //Check if request was the user trying to delete it
-      if (request.status !== "pendingTenant") {
+      if (request.status === "pendingTenant") {
         await request.deleteOne();
         res.status(200).json("The request has been deleted!");
       } else {

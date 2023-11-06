@@ -22,9 +22,17 @@ export async function checkSubTenantInboxOwnership(
   currentUser,
   conversationId
 ) {
+  
   try {
     const response = await api.get("/conversations/" + conversationId);
     const conversation = response.data;
+
+    console.log('joke ting')
+    console.log(conversation)
+    console.log(conversation.subTenant)
+
+    console.log(currentUser._id)
+  console.log(conversationId)
 
     if (conversation.members.includes(currentUser._id)) {
       return conversation.subTenant === currentUser._id;
